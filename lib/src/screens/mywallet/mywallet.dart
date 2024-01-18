@@ -19,8 +19,30 @@ class _MyWalletState extends State<MyWallet> {
       backgroundColor: Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        //mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
+          const Padding(
+            padding: EdgeInsets.only(left: 28.0, top: 60.0),
+            child: Text(
+              '모든 카드 혜택을 한눈에',
+              style: TextStyles.TitleKorean,
+            ),
+          ),
+          const SizedBox(height: 5),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 28.0, top: 1),
+                child: Text(
+                  '루스님을 위해 맞춤화된 카드 혜택 정보를 알아보세요.',
+                  style: TextStyles.SemiTitle,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 50),
           Container(
             // 카드 위젯 margin 및 height 정의
             margin: const EdgeInsets.symmetric(vertical: 10.0),
