@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:once_front/src/screens/home/home.dart';
+import 'package:once_front/src/screens/home/notification.dart';
 import 'package:once_front/src/screens/home/setting.dart';
 import 'package:once_front/src/screens/mypage/monthly_benefit.dart';
 import 'package:once_front/src/screens/mypage/mypage.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
       initialRoute: "/",
       getPages: [
         GetPage(name: "/", page: () => const Home()),
+        GetPage(name: "/notification", page: () => const PushNotification()),
         GetPage(name: "/setting", page: () => const Setting()),
         GetPage(name: "/mywallet", page: () => const MyWallet()),
         GetPage(name: "/mypage", page: () => const MyPage()),
