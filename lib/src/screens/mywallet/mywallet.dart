@@ -13,6 +13,10 @@ class MyWallet extends StatefulWidget {
 
 class _MyWalletState extends State<MyWallet> {
   var _selectedIndex = 0;
+  final List<bool> _isFlippedList = List.generate(
+      cardBannerList.length,
+          (index) => false,
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,23 +63,43 @@ class _MyWalletState extends State<MyWallet> {
               itemCount: cardBannerList.length,
               itemBuilder: (context, index) {
                 var banner = cardBannerList[index];
+                var isFlipped = _isFlippedList[index];
                 // 카드 선택 여부에 따라 크기 변경
                 var _scale = _selectedIndex == index ? 1.0 : 0.7;
+                double _angle = 0;
 
-                // 크기 애니메이션 구현
+                // 카드 스와이프 애니메이션 구현
                 return TweenAnimationBuilder(
-                  duration: const Duration(milliseconds: 350),
-                  tween: Tween(begin: _scale, end: _scale),
-                  curve: Curves.ease,
-                  child: CardItem(
-                    cardBanner: banner,
-                  ),
-                  builder: (context, value, child) {
-                    return Transform.scale(
-                      scale: value,
-                      child: child,
-                    );
-                  },
+                    duration: const Duration(milliseconds: 350),
+                    tween: Tween(begin: _scale, end: _scale),
+                    curve: Curves.ease,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        setState(() {
+                          _isFlippedList[index] = !_isFlippedList[index];
+                          _angle = (_angle + 3.14) % (2 * 3.14);
+                        });
+                      },
+                      child: AnimatedContainer(
+                        //tween: Tween<double>(begin: 0, end:_angle),
+                        duration: const Duration(milliseconds: 500),
+                        alignment: Alignment.center,
+                        transform: Matrix4.identity()
+                          ..setEntry(3, 2, 0.001)
+                          ..rotateY(isFlipped ? 3.14 : 0),
+                        child: CardItem(
+                          cardBanner: banner,
+                          isFlipped: _isFlippedList[index],
+                        ),
+                      ),
+                    ),
+                    builder: (context, value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: child,
+                      );
+                    },
                 );
               },
             ),

@@ -3,9 +3,11 @@ import 'package:once_front/src/screens/mywallet/cardbanner.dart';
 
 class CardItem extends StatelessWidget {
   final CardBanner cardBanner;
+  final bool isFlipped;
   const CardItem({
     Key? key,
-    required this.cardBanner,
+    required this.cardBanner, 
+    required this.isFlipped,
   }) : super(key: key);
 
   @override
@@ -14,11 +16,14 @@ class CardItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 10.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.0),
-        image: DecorationImage(
-          image: NetworkImage(cardBanner.thumbnailUrl),
-          fit: BoxFit.cover,
+        color: isFlipped ? Colors.grey : null,
+        image: !isFlipped
+          ? DecorationImage(
+            image: NetworkImage(cardBanner.thumbnailUrl),
+            fit: BoxFit.cover,
+          )
+            : null,
         ),
-      ),
     );
   }
 }
