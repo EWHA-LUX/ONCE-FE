@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:once_front/src/screens/mywallet/cardbanner.dart';
 import 'package:once_front/style.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
@@ -14,22 +17,22 @@ class MyWallet extends StatefulWidget {
 
 class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin {
 
-  var _selectedIndex = 0;
-  late AnimationController _lineAnimationController;
+  var _selectedIndex = 0; // 현재 선택된 카드
 
+  // 카드 뒤집기
+  double angle = 0;
+  void _flip(int index) {
+    setState(() {
+      _isFlippedList[index] = !_isFlippedList[index];
+      //angle = (angle + pi) % (2 * pi);
+    });
+  }
+
+  // 카드 뒤집기 여부 확인 리스트
   final List<bool> _isFlippedList = List.generate(
       cardBannerList.length,
           (index) => false,
   );
-
-  @override
-  void initState() {
-    super.initState();
-    _lineAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +41,8 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
       appBar: EmptyAppBar(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        //mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
+          // 상단 타이틀
           const Padding(
             padding: EdgeInsets.only(left: 28.0, top: 60.0),
             child: Text(
@@ -48,6 +51,7 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
             ),
           ),
           const SizedBox(height: 5),
+          // 상단 세미 타이틀
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -61,8 +65,8 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
             ],
           ),
           const SizedBox(height: 45),
+          // 보유 카드 위젯
           Container(
-            // 카드 위젯 margin 및 height 정의
             margin: const EdgeInsets.symmetric(vertical: 10.0),
             height: 350,
             // 페이지에 따라 index 변경
@@ -70,11 +74,9 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
               onPageChanged: (index) {
                 setState(() {
                   _selectedIndex = index;
-                  print(_lineAnimationController.status);
-                  _lineAnimationController.forward(from:0.0);
                 });
               },
-              // 카드 좌우 오버랩 설정
+              // 좌우 오버랩 카드 설정
               controller: PageController(viewportFraction: 0.6),
               itemCount: cardBannerList.length,
               itemBuilder: (context, index) {
@@ -85,51 +87,42 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
                 double _angle = 0;
 
                 // 카드 스와이프 애니메이션 구현
-                return TweenAnimationBuilder(
-                    duration: const Duration(milliseconds: 350),
-                    tween: Tween(begin: _scale, end: _scale),
-                    curve: Curves.ease,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        setState(() {
-                          _isFlippedList[index] = !_isFlippedList[index];
-                          _angle = (_angle + 3.14) % (2 * 3.14);
-                        });
-                      },
-                      child: AnimatedContainer(
-                        //tween: Tween<double>(begin: 0, end:_angle),
-                        duration: const Duration(milliseconds: 500),
-                        alignment: Alignment.center,
-                        transform: Matrix4.identity()
-                          ..setEntry(3, 2, 0.001)
-                          ..rotateY(isFlipped ? 3.14 : 0),
-                        child: CardItem(
-                          cardBanner: banner,
-                          isFlipped: _isFlippedList[index],
-                        ),
-                      ),
-                    ),
-                    builder: (context, value, child) {
+                return GestureDetector(
+                  onTap: () => _flip(index),
+                  child: TweenAnimationBuilder(
+                    tween: Tween<double>(begin: 0, end: _isFlippedList[index] ? pi : 0),
+                    duration: Duration(seconds: 1),
+                    builder: (BuildContext context, double val, __) {
                       return Transform.scale(
-                        scale: value,
-                        child: child,
+                        scale: _scale,
+                        child: Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.identity()
+                            ..setEntry(3, 2, 0.001)
+                            ..rotateY(val),
+                          child: CardItem(
+                            cardBanner: banner,
+                            isFlipped: _isFlippedList[index],
+                          ),
+                        ),
                       );
                     },
+                  ),
                 );
               },
             ),
           ),
+          // 카드 인디케이터
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // indicator 개수 동적으로 생성
               ...List.generate(cardBannerList.length, (index) =>
                   Indicator(isActive: _selectedIndex == index ? true : false),
               )
             ],
           ),
           const SizedBox(height: 20),
+          // 하단 화이트 박스 생성
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
@@ -150,6 +143,7 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
                   ],
                 ),
                 padding: const EdgeInsets.all(20.0),
+                // 카드 이름
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -166,6 +160,7 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
                       ),
                     ),
                     const SizedBox(height: 20),
+                    // 남은 실적 정보
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Text(
@@ -179,6 +174,7 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
                       ),
                     ),
                     const SizedBox(height: 10),
+                    // 실적 그래프
                     Container(
                       child: ListView(
                         shrinkWrap: true,
