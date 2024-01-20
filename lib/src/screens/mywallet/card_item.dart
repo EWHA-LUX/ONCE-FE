@@ -6,7 +6,7 @@ class CardItem extends StatelessWidget {
   final bool isFlipped;
   const CardItem({
     Key? key,
-    required this.cardBanner, 
+    required this.cardBanner,
     required this.isFlipped,
   }) : super(key: key);
 
@@ -18,12 +18,12 @@ class CardItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.0),
         color: isFlipped ? Color(0xF2E5E5E5) : null,
         image: !isFlipped
-          ? DecorationImage(
-            image: NetworkImage(cardBanner.thumbnailUrl),
-            fit: BoxFit.cover,
-          )
+            ? DecorationImage(
+          image: NetworkImage(cardBanner.thumbnailUrl),
+          fit: BoxFit.cover,
+        )
             : null,
-        ),
+      ),
     );
   }
 }

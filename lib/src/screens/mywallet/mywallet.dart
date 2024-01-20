@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:once_front/src/screens/mywallet/cardbanner.dart';
 import 'package:once_front/style.dart';
@@ -30,8 +31,8 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
 
   // 카드 뒤집기 여부 확인 리스트
   final List<bool> _isFlippedList = List.generate(
-      cardBannerList.length,
-          (index) => false,
+    cardBannerList.length,
+        (index) => false,
   );
 
   @override
@@ -42,29 +43,60 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          // 상단 타이틀
-          const Padding(
-            padding: EdgeInsets.only(left: 28.0, top: 60.0),
-            child: Text(
-              '모든 카드 혜택을 한눈에',
-              style: TextStyles.TitleKorean,
-            ),
-          ),
-          const SizedBox(height: 5),
-          // 상단 세미 타이틀
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 뒤로가기 버튼
               Padding(
-                padding: EdgeInsets.only(left: 28.0, top: 1),
-                child: Text(
-                  '루스님을 위해 맞춤화된 카드 혜택 정보를 알아보세요.',
-                  style: TextStyles.SemiTitle,
+                padding: const EdgeInsets.only(left: 24.0, top: 30.0),
+                child: GestureDetector(
+                  child: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Colors.black,
+                  ),
+                  onTap: () {
+                    Get.back();
+                  },
                 ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // 상단 타이틀
+                  const Padding(
+                    padding: EdgeInsets.only(left: 28.0, top: 20.0),
+                    child: Text(
+                      '모든 카드 혜택을 한눈에',
+                      style: TextStyles.TitleKorean,
+                    ),
+                  ),
+                  // 알림 아이콘
+                  Padding(
+                    padding: EdgeInsets.only(right: 27.0, top: 20.0),
+                    child: GestureDetector(
+                      child: SvgPicture.asset(
+                        'assets/images/icons/alarm_icon.svg',
+                        width: 28,
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pushNamed("/notification");
+                      },
+                    ),
+                  )
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 45),
+          const SizedBox(height: 5),
+          // 상단 세미 타이틀
+          const Padding(
+            padding: EdgeInsets.only(left: 28.0, top: 1),
+            child: Text(
+              '루스님을 위해 맞춤화된 카드 혜택 정보를 알아보세요.',
+              style: TextStyles.SemiTitle,
+            ),
+          ),
+          const SizedBox(height: 34),
           // 보유 카드 위젯
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10.0),
@@ -121,7 +153,7 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
               )
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           // 하단 화이트 박스 생성
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -234,4 +266,3 @@ class Indicator extends StatelessWidget {
     );
   }
 }
-
