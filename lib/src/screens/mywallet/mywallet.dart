@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:once_front/src/screens/mywallet/cardbanner.dart';
 import 'package:once_front/style.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'card_item.dart';
 
 class MyWallet extends StatefulWidget {
@@ -11,12 +12,25 @@ class MyWallet extends StatefulWidget {
   _MyWalletState createState() => _MyWalletState();
 }
 
-class _MyWalletState extends State<MyWallet> {
+class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin {
+
   var _selectedIndex = 0;
+  late AnimationController _lineAnimationController;
+
   final List<bool> _isFlippedList = List.generate(
       cardBannerList.length,
           (index) => false,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _lineAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +60,7 @@ class _MyWalletState extends State<MyWallet> {
               ),
             ],
           ),
-          const SizedBox(height: 50),
+          const SizedBox(height: 45),
           Container(
             // 카드 위젯 margin 및 height 정의
             margin: const EdgeInsets.symmetric(vertical: 10.0),
@@ -56,6 +70,8 @@ class _MyWalletState extends State<MyWallet> {
               onPageChanged: (index) {
                 setState(() {
                   _selectedIndex = index;
+                  print(_lineAnimationController.status);
+                  _lineAnimationController.forward(from:0.0);
                 });
               },
               // 카드 좌우 오버랩 설정
@@ -113,6 +129,87 @@ class _MyWalletState extends State<MyWallet> {
               )
             ],
           ),
+          const SizedBox(height: 20),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              const SizedBox(height: 20),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 23.0),
+                height: 130,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.25),
+                      spreadRadius: 0,
+                      blurRadius: 3,
+                      offset: Offset(0, 1),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text(
+                        cardBannerList[_selectedIndex].cardName,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 17,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text(
+                        "이번 달 실적까지 ${cardBannerList[_selectedIndex].remainAmount}원 남았어요.",
+                        style: const TextStyle(
+                          color: Color(0xFF767676),
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          LinearPercentIndicator(
+                            width: 300,
+                            animation: true,
+                            lineHeight: 6,
+                            animationDuration: 900,
+                            percent: cardBannerList[_selectedIndex].performance,
+                            barRadius: Radius.circular(20),
+                            //progressColor: Colors.black,
+                            linearGradient: const LinearGradient(
+                              colors: [
+                                Color(0xff9982da),
+                                Color(0xff8396dc),
+                              ],
+                              stops: [0.0, 1.0],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            backgroundColor: Color(0xffd2d2d2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -132,12 +229,13 @@ class Indicator extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 350),
       margin: const EdgeInsets.symmetric(horizontal: 4.0),
-      width: isActive ? 22.0 : 8.0,
+      width: isActive ? 18.0 : 8.0,
       height: 8.0,
       decoration: BoxDecoration(
-        color: isActive ? Colors.black : Colors.grey,
         borderRadius: BorderRadius.circular(8.0),
+        color: isActive ? Color(0xFF525252): Color(0xFFBDBDBD),
       ),
     );
   }
 }
+

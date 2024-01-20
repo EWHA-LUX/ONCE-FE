@@ -16,7 +16,7 @@ class CardItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 10.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.0),
-        color: isFlipped ? Colors.grey : null,
+        color: isFlipped ? Color(0xF2E5E5E5) : null,
         image: !isFlipped
           ? DecorationImage(
             image: NetworkImage(cardBanner.thumbnailUrl),
