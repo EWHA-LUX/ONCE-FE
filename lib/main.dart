@@ -3,8 +3,11 @@ import 'package:get/get.dart';
 import 'package:once_front/src/screens/home/home.dart';
 import 'package:once_front/src/screens/home/notification.dart';
 import 'package:once_front/src/screens/home/setting.dart';
+import 'package:once_front/src/screens/mypage/chat_history.dart';
+import 'package:once_front/src/screens/mypage/maincard_manage.dart';
 import 'package:once_front/src/screens/mypage/monthly_benefit.dart';
 import 'package:once_front/src/screens/mypage/mypage.dart';
+import 'package:once_front/src/screens/mypage/user_edit.dart';
 import 'package:once_front/src/screens/mywallet/mywallet.dart';
 
 void main() {
@@ -26,7 +29,10 @@ class MyApp extends StatelessWidget {
         GetPage(name: "/setting", page: () => const Setting()),
         GetPage(name: "/mywallet", page: () => const MyWallet()),
         GetPage(name: "/mypage", page: () => const MyPage()),
+        GetPage(name: "/mypage/edit", page: () => const UserEditPage()),
         GetPage(name: "/mypage/benefit", page: () => const MonthlyBenefit()),
+        GetPage(name: "/mypage/chat-history", page: () => const ChatHistory()),
+        GetPage(name: "/mypage/maincard-manage", page: () => const MaincardManage()),
       ],
     );
   }
