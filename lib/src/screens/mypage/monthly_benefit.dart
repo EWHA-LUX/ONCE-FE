@@ -19,7 +19,7 @@ class MonthlyBenefit extends StatelessWidget {
         children: [
           Container(
             // 상단 그라데이션 배경
-            height: 550,
+            height: 560,
             width: MediaQuery.of(context).size.width,
             decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -96,102 +96,106 @@ class MonthlyBenefit extends StatelessWidget {
             ),
           ),
           // 혜택 조회 상단 화이트 박스
-          Positioned(
-            top: 150,
-            left: MediaQuery.of(context).size.width / 2 - 190,
-            child: Container(
-              width: 380,
-              height: 220,
-              decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(25),
-                  ),
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                      color: Colors.grey,
-                      spreadRadius: 0.3,
-                      blurRadius: 2,
-                      offset: Offset(0, 1),
-                    )
-                  ]
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 30.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
-                    Text(
-                      '$month월의 혜택',
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 2.0),
-                          child: Text(
-                            '이번 달 목표까지 5,600원 부족해요.',
-                            style: TextStyle(
-                                fontFamily: 'Pretendard',
-                                fontSize: 13,
-                                fontWeight: FontWeight.w300,
-                                color: Color(0xff767676)),
+            Stack(
+              children: [
+                Positioned(
+                  top: 160,
+                  left: MediaQuery.of(context).size.width / 2 - 190,
+                  child: Container(
+                    width: 380,
+                    height: 230,
+                    decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(25),
+                        ),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            color: Colors.grey,
+                            spreadRadius: 0.3,
+                            blurRadius: 2,
+                            offset: Offset(0, 1),
                           ),
-                        ),
-                        // 목표 수정하기 버튼 - 추가
-                        Padding(
-                          padding: EdgeInsets.only(right: 2.0),
-                        ),
-                      ],
+                        ],
                     ),
-                    Stack(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 60.0, top: 20.0),
-                          child: Container(
-                            child: Circular_arc(
-                              key: UniqueKey(),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 40.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 180),
+                      Text(
+                        '$month월의 혜택',
+                        style: const TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: 2.0),
+                            child: Text(
+                              '이번 달 목표까지 5,600원 부족해요.',
+                              style: TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w300,
+                                  color: Color(0xff767676)),
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 110.0, top: 40.0),
-                          child: Column(
-                            children: [
-                              SvgPicture.asset(
-                                'assets/images/3d_icons/coins_3d_icon.svg',
-                                width: 80,
-                              ),
-                              const SizedBox(height: 2),
-                              const Text(
-                                '126,000원 할인',
-                                style: TextStyle(
-                                  fontFamily: 'Pretendard',
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ],
+                          // 목표 수정하기 버튼 - 추가
+                          Padding(
+                            padding: EdgeInsets.only(right: 2.0),
                           ),
-                        ),
-                      ],
-                    )
-                  ],
+                        ],
+                      ),
+                      Stack(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: 60.0, top: 20.0),
+                            child: Container(
+                              child: Circular_arc(
+                                key: UniqueKey(),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 110.0, top: 40.0),
+                            child: Column(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/images/3d_icons/coins_3d_icon.svg',
+                                  width: 80,
+                                ),
+                                const SizedBox(height: 2),
+                                const Text(
+                                  '126,000원 할인',
+                                  style: TextStyle(
+                                    fontFamily: 'Pretendard',
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ),
           const Padding(
-            padding: EdgeInsets.only(left: 28.0, top: 410),
+            padding: EdgeInsets.only(left: 28.0, top: 430),
             child: Text(
               '혜택 자세히 보기',
               style: TextStyle(
