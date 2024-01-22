@@ -103,7 +103,7 @@ class MonthlyBenefit extends StatelessWidget {
                   left: MediaQuery.of(context).size.width / 2 - 190,
                   child: Container(
                     width: 380,
-                    height: 230,
+                    height: 240,
                     decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.all(
@@ -167,7 +167,7 @@ class MonthlyBenefit extends StatelessWidget {
                             ),
                           ),
                           Padding(
-                            padding: EdgeInsets.only(left: 110.0, top: 40.0),
+                            padding: EdgeInsets.only(left: 115.0, top: 40.0),
                             child: Column(
                               children: [
                                 SvgPicture.asset(
@@ -185,6 +185,30 @@ class MonthlyBenefit extends StatelessWidget {
                                   ),
                                 ),
                               ],
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 49.0, top: 137.0),
+                            child: Text(
+                              '0%',
+                              style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 15,
+                                fontWeight: FontWeight.w300,
+                                color: Color(0xff767676),
+                              ),
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 255.0, top: 137.0),
+                            child: Text(
+                              '100%',
+                              style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 15,
+                                fontWeight: FontWeight.w300,
+                                color: Color(0xff767676),
+                              ),
                             ),
                           ),
                         ],
@@ -270,11 +294,20 @@ class _Circular_arcState extends State<Circular_arc> with SingleTickerProviderSt
       ],
     );
 
+    LinearGradient whitegradient = const LinearGradient(
+      begin: Alignment.topRight,
+      end: Alignment.topLeft,
+      colors: [
+        Color(0xffe7e7e7),
+        Color(0xE7E7E7FF),
+      ],
+    );
+
     return Stack(
       children: [
         CustomPaint(
           size: const Size(210, 210),
-          painter: ProgressArc(0.0, gradient, true),
+          painter: ProgressArc(3.14, whitegradient, false),
         ),
         CustomPaint(
           size: const Size(210, 210),
