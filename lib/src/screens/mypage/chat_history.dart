@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 
+import 'chat_item.dart';
+
 class ChatHistory extends StatefulWidget {
   const ChatHistory({super.key});
 
@@ -145,7 +147,7 @@ class _ChatHistoryState extends State<ChatHistory> {
                     goToPreviousMonth();
                   },
                 ),
-                Text('${formattedDate}',
+                Text(formattedDate,
                     style: const TextStyle(
                         fontFamily: 'Pretendard',
                         fontSize: 18,
@@ -170,18 +172,29 @@ class _ChatHistoryState extends State<ChatHistory> {
   }
 
   Widget _chatList(context) {
+    Map<String, List<ChatItem>> groupedData = {};
+
+    // chatData로 그룹화
+    for (ChatItem chatItem in chatDataList) {
+      if (!groupedData.containsKey(chatItem.chatDate)) {
+        groupedData[chatItem.chatDate] = [];
+      }
+      groupedData[chatItem.chatDate]!.add(chatItem);
+    }
+
     return Padding(
       padding: const EdgeInsets.only(top: 45.0, left: 23, right: 23),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children:  [
+        children: [
           const Text(
             '대화 목록',
             style: TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.black),
+              fontFamily: 'Pretendard',
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 10.0),
@@ -192,13 +205,97 @@ class _ChatHistoryState extends State<ChatHistory> {
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20)
+                  topRight: Radius.circular(20),
                 ),
-
               ),
-
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    for (var entry in groupedData.entries)
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 23.0, vertical: 20.0),
+                            child: Row(
+                              children: [
+                                Text(
+                                  entry.key, // chatDate
+                                  style: const TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xff767676)),
+                                ),
+                                const Expanded(
+                                  child: Divider(
+                                    color: Color(0xff767676),
+                                    thickness: 1.5,
+                                    indent: 20,
+                                    endIndent: 15,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: entry.value.length,
+                            itemBuilder: (context, index) {
+                              ChatItem chatItem = entry.value[index];
+                              return ListTile(
+                                title: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            chatItem.keyword,
+                                            style: const TextStyle(
+                                              fontFamily: 'Pretendard',
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            chatItem.cardName,
+                                            style: const TextStyle(
+                                                fontFamily: 'Pretendard',
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500,
+                                                color: Color(0xff0083EE)),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        chatItem.chatTime,
+                                        style: const TextStyle(
+                                            fontFamily: 'Pretendard',
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
+                                            color: Color(0xff767676)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
             ),
-          )
+          ),
         ],
       ),
     );
