@@ -130,9 +130,9 @@ class MonthlyBenefit extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                      children: const [
                         Padding(
                           padding: EdgeInsets.only(left: 2.0),
                           child: Text(

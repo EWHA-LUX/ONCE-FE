@@ -16,6 +16,7 @@ class MyPage extends StatelessWidget {
 
   Widget _gradationBody(context) {
     return Stack(
+      clipBehavior: Clip.none,
       children: [
         Container(
           // 상단 그라데이션 베경
