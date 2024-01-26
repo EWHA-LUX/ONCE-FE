@@ -11,10 +11,10 @@ class NoticeWidget extends StatelessWidget {
 
   NoticeWidget(
       {Key? key,
-      required this.type,
-      required this.hasCheck,
-      required this.content,
-      required this.announceDate})
+        required this.type,
+        required this.hasCheck,
+        required this.content,
+        required this.announceDate})
       : super(key: key);
 
   Widget type1Widget() {
@@ -33,29 +33,33 @@ class NoticeWidget extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      content,
-                      style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 15,
-                          fontWeight:
-                              hasCheck ? FontWeight.w500 : FontWeight.w800),
+                    Container(
+                      width: 260,
+                      child: Text(
+                        content,
+                        style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 15,
+                            fontWeight:
+                            hasCheck ? FontWeight.w500 : FontWeight.w800),
+                        overflow: TextOverflow.ellipsis, // Add this line
+                      ),
                     ),
                     hasCheck
                         ? const SizedBox(
-                            width: 0,
-                          )
+                      width: 0,
+                    )
                         : Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Container(
-                              width: 5.0,
-                              height: 5.0,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xffFF3838), // 점의 색상
-                              ),
-                            ),
-                          )
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Container(
+                        width: 5.0,
+                        height: 5.0,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xffFF3838), // 점의 색상
+                        ),
+                      ),
+                    )
                   ],
                 ),
                 const SizedBox(
@@ -107,29 +111,33 @@ class NoticeWidget extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(
-                    content,
-                    style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 15,
-                        fontWeight:
-                            hasCheck ? FontWeight.w500 : FontWeight.w800),
+                  Container(
+                    width: 260,
+                    child: Text(
+                      content,
+                      style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 15,
+                          fontWeight:
+                          hasCheck ? FontWeight.w500 : FontWeight.w800),
+                      overflow: TextOverflow.ellipsis, // Add this line
+                    ),
                   ),
                   hasCheck
                       ? const SizedBox(
-                          width: 0,
-                        )
+                    width: 0,
+                  )
                       : Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Container(
-                            width: 5.0,
-                            height: 5.0,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xffFF3838), // 점의 색상
-                            ),
-                          ),
-                        )
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Container(
+                      width: 5.0,
+                      height: 5.0,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xffFF3838), // 점의 색상
+                      ),
+                    ),
+                  )
                 ],
               ),
               const SizedBox(
@@ -179,13 +187,17 @@ class NoticeWidget extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(
-                    content,
-                    style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 15,
-                        fontWeight:
-                        hasCheck ? FontWeight.w500 : FontWeight.w800),
+                  Container(
+                    width: 260,
+                    child: Text(
+                      content,
+                      style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 15,
+                          fontWeight:
+                          hasCheck ? FontWeight.w500 : FontWeight.w800),
+                      overflow: TextOverflow.ellipsis, // Add this line
+                    ),
                   ),
                   hasCheck
                       ? const SizedBox(
@@ -251,13 +263,17 @@ class NoticeWidget extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(
-                    content,
-                    style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 15,
-                        fontWeight:
-                        hasCheck ? FontWeight.w500 : FontWeight.w800),
+                  Container(
+                    width: 260,
+                    child: Text(
+                      content,
+                      style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 15,
+                          fontWeight:
+                          hasCheck ? FontWeight.w500 : FontWeight.w800),
+                      overflow: TextOverflow.ellipsis, // Add this line
+                    ),
                   ),
                   hasCheck
                       ? const SizedBox(
@@ -305,13 +321,14 @@ class NoticeWidget extends StatelessWidget {
             ],
           ),
         )
-      ],    );
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     switch (type) {
-      // type에 따라 다른 위젯
+    // type에 따라 다른 위젯
       case NoticeType.TYPE1:
         return type1Widget();
       case NoticeType.TYPE2:
