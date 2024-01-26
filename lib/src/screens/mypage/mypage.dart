@@ -27,8 +27,8 @@ class MyPage extends StatelessWidget {
               begin: Alignment.topRight,
               end: Alignment.topLeft,
               colors: [
-                Color(0xff5B87FD),
-                Color(0xff978EFD),
+                Color(0xff4472fc),
+                Color(0xff8877d5),
               ],
             ),
             borderRadius: BorderRadius.only(

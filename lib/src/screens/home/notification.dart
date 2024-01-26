@@ -85,7 +85,7 @@ class PushNotification extends StatelessWidget {
           ),
           NoticeWidget(
             type: NoticeType.TYPE1,
-            content: "이대역 스타벅스 근처이시군요. 현대 M 카드 사용 ..",
+            content: "이대역 스타벅스 근처이시군요. 현대 M 카드 사용해 보세요.",
             announceDate: "11/18/2023 19:35:45",
             hasCheck: false,
           ),
@@ -97,7 +97,7 @@ class PushNotification extends StatelessWidget {
           ),
           NoticeWidget(
             type: NoticeType.TYPE1,
-            content: "다이소 신촌본점 근처이시군요. 신한 플래티넘 카 ..",
+            content: "다이소 신촌본점이시군요. 신한 플래티넘 카드를 사용해 보세요.",
             announceDate: "11/18/2023 12:27:58",
             hasCheck: false,
           )
@@ -148,7 +148,7 @@ class PushNotification extends StatelessWidget {
           ),
           NoticeWidget(
             type: NoticeType.TYPE1,
-            content: "GS25 신촌 이화점 근처이시군요. 신한 플래티넘 카 ..",
+            content: "GS25 신촌 이화점 근처이시군요. 신한 플래티넘 카드를 사용해 보세요.",
             announceDate: "11/05/2023 11:26:18",
             hasCheck: true,
           ),
@@ -160,7 +160,7 @@ class PushNotification extends StatelessWidget {
           ),
           NoticeWidget(
             type: NoticeType.TYPE3,
-            content: "9월 16일 원스가 업데이트 되었어요. 확인해 보세..",
+            content: "9월 16일 원스가 업데이트 되었어요. 확인해 보세요.",
             announceDate: "9/16/2023 9:00:00",
             hasCheck: true,
           ),
@@ -184,11 +184,21 @@ class PushNotification extends StatelessWidget {
           ),
           NoticeWidget(
             type: NoticeType.TYPE1,
-            content: "신촌역 스타벅스 근처이시군요. 신한 플래티넘 카 ..",
+            content: "신촌역 스타벅스 근처이시군요. 신한 플래티넘 카드를 사용해 보세요.",
             announceDate: "9/12/2023 17:26:38",
             hasCheck: true,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _notificationArea(context) {
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [_today(context), _lastWeek(context)],
+        ),
       ),
     );
   }
@@ -200,7 +210,7 @@ class PushNotification extends StatelessWidget {
       appBar: EmptyAppBar(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [_title(context), _today(context), _lastWeek(context)],
+        children: [_title(context), _notificationArea(context)],
       ),
     );
   }
