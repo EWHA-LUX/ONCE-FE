@@ -30,7 +30,7 @@ class Login extends StatelessWidget {
         ) ,
         Positioned(
           top: 150,
-          left: 160,
+          left : MediaQuery.of(context).size.width / 2 - 50,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -64,7 +64,7 @@ class Login extends StatelessWidget {
         children: [
           _gradationBody(context),
           Padding(
-            padding: const EdgeInsets.only(top: 300.0, left: 50.0),
+            padding: EdgeInsets.only(top: 300.0, left: MediaQuery.of(context).size.width / 2 - 160),
             child: Stack(
               children: [
                 Container(
@@ -90,11 +90,14 @@ class Login extends StatelessWidget {
                   ),
                 ),
                 const Padding(
-                  padding: const EdgeInsets.only(top: 70.0, left: 25.0),
+                  padding: const EdgeInsets.only(top: 68.0, left: 25.0),
                   child: SizedBox(
                     width: 270,
-                    height: 35,
+                    height: 40,
                     child: TextField(
+                      style: TextStyle(
+                        fontSize: 13,
+                      ),
                       decoration: InputDecoration(
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide.none,
@@ -123,11 +126,14 @@ class Login extends StatelessWidget {
                   ),
                 ),
                 const Padding(
-                  padding: const EdgeInsets.only(top: 155.0, left: 25.0),
+                  padding: const EdgeInsets.only(top: 153.0, left: 25.0),
                   child: SizedBox(
                     width: 270,
-                    height: 35,
+                    height: 40,
                     child: TextField(
+                      style: TextStyle(
+                        fontSize: 13,
+                      ),
                       decoration: InputDecoration(
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide.none,
@@ -144,26 +150,30 @@ class Login extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 700.0, left: 20.0),
+                  padding: const EdgeInsets.only(left: 7.0, top: 260),
                   child: GestureDetector(
                     child: Container(
                       height: 50,
-                      width: 320,
+                      width: 310,
                       decoration: BoxDecoration(
                         borderRadius: const BorderRadius.all(
                             Radius.circular(20)
                         ),
                         border: Border.all(
-                          color: ColorStyles.mainBlue,
+                          color: Color(0xff599cff),
+                          width: 1.5,
                         ),
                       ),
-                      child: const Text(
-                        '로그인',
-                        style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: ColorStyles.mainBlue,
+                      child: const Padding(
+                        padding: EdgeInsets.only(left: 130.0, top: 10),
+                        child: Text(
+                          '로그인',
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xff599cff),
+                          ),
                         ),
                       ),
                     ),
@@ -173,7 +183,7 @@ class Login extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 800.0, left: 20.0),
+                  padding: const EdgeInsets.only(top: 325.0, left: 17.0),
                   child: Row(
                     children: [
                       GestureDetector(
@@ -181,23 +191,24 @@ class Login extends StatelessWidget {
                           '회원가입',
                           style: TextStyle(
                             fontFamily: 'Pretendard',
-                            fontSize: 13,
+                            fontSize: 14,
                             fontWeight: FontWeight.w400,
-                            color: ColorStyles.grey,
+                            color: Color(0xff858585),
                           ),
                         ),
                         onTap: () {
                           Navigator.of(context).pushNamed("/"); // 차후 변경
                         },
                       ),
+                      const SizedBox(width: 122),
                       GestureDetector(
                         child: const Text(
-                          '아이디 비밀번호 찾기',
+                          '아이디/비밀번호 찾기',
                           style: TextStyle(
                             fontFamily: 'Pretendard',
-                            fontSize: 13,
+                            fontSize: 14,
                             fontWeight: FontWeight.w400,
-                            color: ColorStyles.grey,
+                            color: Color(0xff858585),
                           ),
                         ),
                         onTap: () {
