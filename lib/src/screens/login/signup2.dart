@@ -3,12 +3,57 @@ import 'package:flutter/services.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:get/get.dart';
 import 'package:once_front/style.dart';
+import 'package:flutter_svg/svg.dart';
 
-class Signup2 extends StatelessWidget {
-  const Signup2({super.key});
+class Signup2 extends StatefulWidget {
+  const Signup2({Key? key}) : super(key: key);
+
+  @override
+  _Signup2State createState() => _Signup2State();
+}
+
+class _Signup2State extends State<Signup2> {
+
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+  int passwordsMatch = 0;
+
+  void checkPasswordMatch() {
+    String password = passwordController.text;
+    String confirmPassword = confirmPasswordController.text;
+
+    setState(() {
+      if (password.isEmpty || confirmPassword.isEmpty) {
+        passwordsMatch = 0;
+      } else if (password == confirmPassword){
+        passwordsMatch = 1;
+      } else {
+        passwordsMatch = 2;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    Widget? suffixIcons;
+    if (passwordsMatch == 1) {
+      suffixIcons = Container(
+        margin: EdgeInsets.all(8),
+        child: SvgPicture.asset(
+          'assets/images/icons/signup_check_icon.svg',
+          width: 15,
+        ),
+      );
+    } else if (passwordsMatch == 2) {
+      suffixIcons = Container(
+        margin: EdgeInsets.all(8),
+        child: SvgPicture.asset(
+          'assets/images/icons/signup_uncheck_icon.svg',
+          width: 15,
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
@@ -31,7 +76,7 @@ class Signup2 extends StatelessWidget {
                           color: Colors.black,
                         ),
                         onTap: () {
-                          Get.back();
+                          Navigator.of(context).pushNamed("/signup/1");
                         },
                       ),
                     ),
@@ -121,7 +166,7 @@ class Signup2 extends StatelessWidget {
             Positioned(
               child: Padding(
                 padding: EdgeInsets.only(left: MediaQuery.of(context).size.width / 2 - 172.5 ),
-                child: const Column(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -142,9 +187,14 @@ class Signup2 extends StatelessWidget {
                       width: 345,
                       height: 40,
                       child: TextField(
+                        controller: passwordController,
                         style: TextStyle(
                           fontSize: 13,
                         ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(6),
+                        ],
                         decoration: InputDecoration(
                           hintText: '여섯 자리 숫자 입력',
                           focusedBorder: OutlineInputBorder(
@@ -171,11 +221,11 @@ class Signup2 extends StatelessWidget {
             Positioned(
               child: Padding(
                 padding: EdgeInsets.only(left: MediaQuery.of(context).size.width / 2 - 172.5 ),
-                child: const Column(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       '비밀번호 확인',
                       textAlign: TextAlign.left,
                       style:TextStyle(
@@ -185,17 +235,26 @@ class Signup2 extends StatelessWidget {
                         color: Colors.black,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 13,
                     ),
                     SizedBox(
                       width: 345,
                       height: 40,
                       child: TextField(
-                        style: TextStyle(
+                        controller: confirmPasswordController,
+                        style: const TextStyle(
                           fontSize: 13,
                         ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(6),
+                        ],
+                        onChanged: (value) {
+                          checkPasswordMatch();
+                        },
                         decoration: InputDecoration(
+
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -207,9 +266,39 @@ class Signup2 extends StatelessWidget {
                           filled: true,
                           fillColor: Colors.white,
                           contentPadding: EdgeInsets.only(top: 2.0, left: 14.0),
+                          suffixIcon: suffixIcons,
                         ),
                       ),
                     ),
+                    const SizedBox(height: 9),
+                    if (passwordsMatch == 1)
+                      const Padding(
+                        padding: EdgeInsets.only(left: 9),
+                        child: Text(
+                          '비밀번호가 일치합니다.',
+                          textAlign: TextAlign.left,
+                          style:TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ),
+                    if (passwordsMatch == 2)
+                      const Padding(
+                        padding: EdgeInsets.only(left: 9),
+                        child: Text(
+                          '비밀번호가 일치하지 않습니다.',
+                          textAlign: TextAlign.left,
+                          style:TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
