@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
-import 'package:get/get.dart';
 import 'package:once_front/style.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -116,11 +115,11 @@ class _Signup2State extends State<Signup2> {
             Positioned(
               child: Padding(
                 padding: EdgeInsets.only(left: MediaQuery.of(context).size.width / 2 - 172.5 ),
-                child: const Column(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       '아이디',
                       textAlign: TextAlign.left,
                       style:TextStyle(
@@ -130,29 +129,50 @@ class _Signup2State extends State<Signup2> {
                         color: Colors.black,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 13,
                     ),
                     SizedBox(
                       width: 345,
                       height: 40,
                       child: TextField(
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                         ),
                         decoration: InputDecoration(
                           hintText: 'onceonce1234',
-                          focusedBorder: OutlineInputBorder(
+                          focusedBorder: const OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.all(Radius.circular(20.0)),
                           ),
-                          enabledBorder: OutlineInputBorder(
+                          enabledBorder: const OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.all(Radius.circular(20.0)),
                           ),
                           filled: true,
                           fillColor: Colors.white,
                           contentPadding: EdgeInsets.only(top: 2.0, left: 14.0),
+                          suffixIcon: Container(
+                            margin: EdgeInsets.all(8),
+                            child: SvgPicture.asset(
+                              'assets/images/icons/signup_check_icon.svg', // SVG 파일의 경로
+                              width: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 9),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 9),
+                      child: Text(
+                        '사용 가능한 아이디입니다.',
+                        textAlign: TextAlign.left,
+                        style:TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.green,
                         ),
                       ),
                     ),
@@ -170,7 +190,7 @@ class _Signup2State extends State<Signup2> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       '비밀번호',
                       textAlign: TextAlign.left,
                       style:TextStyle(
@@ -180,7 +200,7 @@ class _Signup2State extends State<Signup2> {
                         color: Colors.black,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 13,
                     ),
                     SizedBox(
@@ -188,14 +208,15 @@ class _Signup2State extends State<Signup2> {
                       height: 40,
                       child: TextField(
                         controller: passwordController,
-                        style: TextStyle(
+                        obscureText: true,
+                        style: const TextStyle(
                           fontSize: 13,
                         ),
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                           LengthLimitingTextInputFormatter(6),
                         ],
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: '여섯 자리 숫자 입력',
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide.none,
@@ -243,6 +264,7 @@ class _Signup2State extends State<Signup2> {
                       height: 40,
                       child: TextField(
                         controller: confirmPasswordController,
+                        obscureText: true,
                         style: const TextStyle(
                           fontSize: 13,
                         ),
@@ -255,11 +277,11 @@ class _Signup2State extends State<Signup2> {
                         },
                         decoration: InputDecoration(
 
-                          focusedBorder: OutlineInputBorder(
+                          focusedBorder: const OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.all(Radius.circular(20.0)),
                           ),
-                          enabledBorder: OutlineInputBorder(
+                          enabledBorder: const OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.all(Radius.circular(20.0)),
                           ),
@@ -304,7 +326,7 @@ class _Signup2State extends State<Signup2> {
               ),
             ),
             const SizedBox(
-              height: 270,
+              height: 260,
             ),
             Positioned(
               child: Padding(
