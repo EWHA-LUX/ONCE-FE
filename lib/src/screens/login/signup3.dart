@@ -13,13 +13,18 @@ class Signup3 extends StatefulWidget {
 
 class _Signup3State extends State<Signup3> {
   List<bool> isCardSelectedList = List.generate(6, (index) => false);
+  bool isAllSelected = false;
 
   Widget _cardContainer(int index, String cardName, String iconPath) {
 
     return InkWell(
       onTap: () {
         setState(() {
-          isCardSelectedList[index] = !isCardSelectedList[index];
+          if (isAllSelected) {
+            isCardSelectedList = List.generate(6, (index) => !isAllSelected);
+          } else {
+            isCardSelectedList[index] = !isCardSelectedList[index];
+          }
         });
       },
       child: Stack(
@@ -31,12 +36,12 @@ class _Signup3State extends State<Signup3> {
               width: 110,
               height: 110,
               decoration: BoxDecoration(
-                color: isCardSelectedList[index] ? const Color(0xffdceefd) : Colors.white,
+                color: isCardSelectedList[index] || isAllSelected ? const Color(0xffdceefd) : Colors.white,
                 borderRadius: BorderRadius.all(
-                  Radius.circular(isCardSelectedList[index] ? 20 : 20), // Apply borderRadius based on selection state
+                  Radius.circular(isCardSelectedList[index] || isAllSelected ? 20 : 20), // Apply borderRadius based on selection state
                 ),
                 border: Border.all(
-                  color: isCardSelectedList[index] ? Color(0xff3d6dc4) : Colors.transparent,
+                  color: isCardSelectedList[index] || isAllSelected ? Color(0xff3d6dc4) : Colors.transparent,
                   width: 1,
                 ),
               ),
@@ -128,11 +133,22 @@ class _Signup3State extends State<Signup3> {
             Padding(
               padding: EdgeInsets.only(left: MediaQuery.of(context).size.width - 150 ),
               child: Row(
-                //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SvgPicture.asset(
-                    "assets/images/icons/card_uncheck_icon.svg",
-                    width: 18,
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        // Toggle the state of "전체 카드사 선택"
+                        isAllSelected = !isAllSelected;
+                        // If "전체 카드사 선택" is toggled, update individual card states accordingly
+                        if (isAllSelected) {
+                          isCardSelectedList = List.generate(6, (index) => isAllSelected);
+                        }
+                      });
+                    },
+                    child: SvgPicture.asset(
+                      isAllSelected? "assets/images/icons/card_check_icon.svg" : "assets/images/icons/card_uncheck_icon.svg",
+                      width: 18,
+                    ),
                   ),
                   const SizedBox(
                     width: 12,
