@@ -4,43 +4,62 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/style.dart';
 
-class Signup3 extends StatelessWidget {
-  const Signup3({super.key});
+class Signup3 extends StatefulWidget {
+  const Signup3({Key? key}) : super(key: key);
 
-  Widget _cardContainer(context, String cardName, String iconPath) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 5),
-          child: Container(
-            width: 110,
-            height: 110,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(
-                Radius.circular(20),
+  @override
+  _Signup3State createState() => _Signup3State();
+}
+
+class _Signup3State extends State<Signup3> {
+  List<bool> isCardSelectedList = List.generate(6, (index) => false);
+
+  Widget _cardContainer(int index, String cardName, String iconPath) {
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          isCardSelectedList[index] = !isCardSelectedList[index];
+        });
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 5),
+            child: Container(
+              width: 110,
+              height: 110,
+              decoration: BoxDecoration(
+                color: isCardSelectedList[index] ? const Color(0xffdceefd) : Colors.white,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(isCardSelectedList[index] ? 20 : 20), // Apply borderRadius based on selection state
+                ),
+                border: Border.all(
+                  color: isCardSelectedList[index] ? Color(0xff3d6dc4) : Colors.transparent,
+                  width: 1,
+                ),
               ),
             ),
           ),
-        ),
-        SvgPicture.asset(
-          iconPath,
-          width: 47,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 80),
-          child: Text(
-            cardName,
-            style: const TextStyle(
-              fontFamily: 'Pretendard',
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-              color: Color(0xff464646),
+          SvgPicture.asset(
+            iconPath,
+            width: 47,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 80),
+            child: Text(
+              cardName,
+              style: const TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                color: Color(0xff464646),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -104,7 +123,7 @@ class Signup3 extends StatelessWidget {
               ),
             ),
             const SizedBox(
-              height: 30,
+              height: 35,
             ),
             Padding(
               padding: EdgeInsets.only(left: MediaQuery.of(context).size.width - 150 ),
@@ -131,7 +150,7 @@ class Signup3 extends StatelessWidget {
               ),
             ),
             const SizedBox(
-              height: 15,
+              height: 20,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -145,9 +164,9 @@ class Signup3 extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _cardContainer(context, "신한카드", "assets/images/card_logo/shinhan_logo.svg"),
-                            _cardContainer(context, "현대카드", "assets/images/card_logo/hyundai_logo.svg"),
-                            _cardContainer(context, "국민카드", "assets/images/card_logo/kookmin_logo.svg"),
+                            _cardContainer(0, "신한카드", "assets/images/card_logo/shinhan_logo.svg"),
+                            _cardContainer(1, "현대카드", "assets/images/card_logo/hyundai_logo.svg"),
+                            _cardContainer(2, "국민카드", "assets/images/card_logo/kookmin_logo.svg"),
                           ],
                         ),
                         const SizedBox(
@@ -156,9 +175,9 @@ class Signup3 extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _cardContainer(context, "삼성카드", "assets/images/card_logo/samsung_logo.svg"),
-                            _cardContainer(context, "롯데카드", "assets/images/card_logo/lotte_logo.svg"),
-                            _cardContainer(context, "하나카드", "assets/images/card_logo/hana_logo.svg"),
+                            _cardContainer(3, "삼성카드", "assets/images/card_logo/samsung_logo.svg"),
+                            _cardContainer(4, "롯데카드", "assets/images/card_logo/lotte_logo.svg"),
+                            _cardContainer(5, "하나카드", "assets/images/card_logo/hana_logo.svg"),
                           ],
                         ),
                       ],
