@@ -5,6 +5,10 @@ import 'package:once_front/src/screens/home/notification.dart';
 import 'package:once_front/src/screens/home/setting.dart';
 import 'package:once_front/src/screens/login/loading.dart';
 import 'package:once_front/src/screens/login/login.dart';
+import 'package:once_front/src/screens/login/signup1.dart';
+import 'package:once_front/src/screens/login/signup2.dart';
+import 'package:once_front/src/screens/login/signup3.dart';
+import 'package:once_front/src/screens/login/signup4.dart';
 import 'package:once_front/src/screens/mypage/chat_history.dart';
 import 'package:once_front/src/screens/mypage/maincard_manage.dart';
 import 'package:once_front/src/screens/mypage/monthly_benefit.dart';
@@ -39,6 +43,10 @@ class MyApp extends StatelessWidget {
         GetPage(name: "/codef", page: () => const RegisterMainCard()),
         GetPage(name: "/loading", page: () => const Loading()),
         GetPage(name: "/login", page: () => const Login()),
+        GetPage(name: "/signup/1", page: () => Signup1()),
+        GetPage(name: "/signup/2", page: () => Signup2()),
+        GetPage(name: "/signup/3", page: () => Signup3()),
+        GetPage(name: "/signup/4", page: () => Signup4()),
       ],
     );
   }
