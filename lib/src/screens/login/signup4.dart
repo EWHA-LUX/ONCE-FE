@@ -14,7 +14,7 @@ class Signup4 extends StatefulWidget {
 class _Signup4State extends State<Signup4> {
 
   List<bool> isCardSelectedList = List.generate(6, (index) => false);
-  List<bool> isCardCompanyList = List.generate(2, (index) => false);
+  List<bool> isCardCompanyList = List.generate(3, (index) => false);
   List<String> filteredCardNames = [];
 
   TextEditingController _searchController = TextEditingController();
@@ -59,12 +59,12 @@ class _Signup4State extends State<Signup4> {
               width: 93,
               height: 31,
               decoration: BoxDecoration(
-                color: isCardSelectedList[index] ? const Color(0xffdceefd) : Colors.white,
+                color: isCardCompanyList[index] ? const Color(0xffdceefd) : Colors.white,
                 borderRadius: BorderRadius.all(
-                  Radius.circular(isCardSelectedList[index] ? 13 : 13), // Apply borderRadius based on selection state
+                  Radius.circular(isCardCompanyList[index] ? 13 : 13), // Apply borderRadius based on selection state
                 ),
                 border: Border.all(
-                  color: isCardSelectedList[index] ? Color(0xff3d6dc4) : Colors.transparent,
+                  color: isCardCompanyList[index] ? Color(0xff3d6dc4) : Colors.transparent,
                   width: 0.7,
                 ),
               ),
