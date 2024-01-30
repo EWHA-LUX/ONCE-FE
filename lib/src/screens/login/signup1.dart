@@ -4,8 +4,20 @@ import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:get/get.dart';
 import 'package:once_front/style.dart';
 
-class Signup1 extends StatelessWidget {
-  const Signup1({super.key});
+class Signup1 extends StatefulWidget {
+  @override
+  _Signup1 createState() => _Signup1();
+}
+
+class _Signup1 extends State<Signup1> {
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String name = '';
+  String nickname = '';
+  String phoneNumber = '';
+  String birthYear = '';
+  String birthMonth = '';
+  String birthDay = '';
 
   @override
   Widget build(BuildContext context) {
@@ -22,18 +34,147 @@ class Signup1 extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Positioned(
-                      top: 25,
-                      left: 25,
-                      child: GestureDetector(
-                        child: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: Colors.black,
+                    Row(
+                      children: [
+                        Positioned(
+                          top: 25,
+                          left: 25,
+                          child: GestureDetector(
+                            child: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: Colors.black,
+                            ),
+                            onTap: () {
+                              Get.back();
+                            },
+                          ),
                         ),
-                        onTap: () {
-                          Get.back();
-                        },
-                      ),
+                        Padding(
+                          padding: EdgeInsets.only(left: MediaQuery.of(context).size.width - 200),
+                          child: Row(
+                            children: [
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    width: 21,
+                                    height: 21,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topRight,
+                                        end: Alignment.topLeft,
+                                        colors: [
+                                          Color(0xff4472fc),
+                                          Color(0xff8877d5),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const Center(
+                                    child: Text(
+                                      '1',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Pretendard',
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w300,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                height: 2,
+                                width: 12,
+                                color: Color(0xffd5d5d5),
+                              ),
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    width: 21,
+                                    height: 21,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xffd5d5d5),
+                                    ),
+                                  ),
+                                  const Center(
+                                    child: Text(
+                                      '2',
+                                      style: TextStyle(
+                                        color: Color(0xff757575),
+                                        fontFamily: 'Pretendard',
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w300,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                height: 2,
+                                width: 12,
+                                color: Color(0xffd5d5d5),
+                              ),
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    width: 21,
+                                    height: 21,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xffd5d5d5),
+                                    ),
+                                  ),
+                                  const Center(
+                                    child: Text(
+                                      '3',
+                                      style: TextStyle(
+                                        color: Color(0xff757575),
+                                        fontFamily: 'Pretendard',
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w300,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                height: 2,
+                                width: 12,
+                                color: Color(0xffd5d5d5),
+                              ),
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    width: 21,
+                                    height: 21,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xffd5d5d5),
+                                    ),
+                                  ),
+                                  const Center(
+                                    child: Text(
+                                      '4',
+                                      style: TextStyle(
+                                        color: Color(0xff757575),
+                                        fontFamily: 'Pretendard',
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w300,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 32.0),
