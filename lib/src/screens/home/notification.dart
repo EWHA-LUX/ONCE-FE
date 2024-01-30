@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/src/components/notice_popup_widget.dart';
 import 'package:once_front/src/components/notice_widget.dart';
@@ -122,7 +121,7 @@ class PushNotification extends StatelessWidget {
                   context,
                   NoticePopupType.TYPE1,
                   "이대역 스타벅스 근처이시군요.\n 현대 M 카드 사용해 보세요!",
-                  "지도 위치",
+                  "37.5570574, 126.946402",
                   "11/18/2023 19:35:45");
             },
           ),

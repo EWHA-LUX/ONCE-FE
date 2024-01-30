@@ -1,13 +1,15 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
 
 enum NoticePopupType { TYPE1, TYPE2, TYPE3, TYPE4 }
 
-class NoticePopupWidget extends StatelessWidget {
+class NoticePopupWidget extends StatefulWidget {
   NoticePopupType type;
   String content;
   String moreInfo;
@@ -21,17 +23,37 @@ class NoticePopupWidget extends StatelessWidget {
       required this.announceDate})
       : super(key: key);
 
+  @override
+  State<NoticePopupWidget> createState() => _NoticePopupWidgetState();
+}
+
+class _NoticePopupWidgetState extends State<NoticePopupWidget> {
+  Completer<GoogleMapController> _controller = Completer();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   // type 1 - 결제 카드 추천
   Widget popup1Widget() {
+    // 문자열 좌표로 변환
+    List<String> coordinates = widget.moreInfo.split(', ');
+    double latitude = double.parse(coordinates[0]);
+    double longitude = double.parse(coordinates[1]);
+
     return Padding(
-      padding: const EdgeInsets.only(top: 30.0, left: 30.0),
+      padding: const EdgeInsets.only(top: 30.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GestureDetector(
-            child: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: Color(0xff767676),
+            child: const Padding(
+              padding: EdgeInsets.only(left: 20.0),
+              child: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Color(0xff767676),
+              ),
             ),
             onTap: () {
               Get.back();
@@ -58,7 +80,7 @@ class NoticePopupWidget extends StatelessWidget {
                       height: 8,
                     ),
                     Text(
-                      announceDate,
+                      widget.announceDate,
                       style: const TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 11,
@@ -77,16 +99,39 @@ class NoticePopupWidget extends StatelessWidget {
               ],
             ),
           ),
-          // ****** 지도 추가 ******
-          Text(moreInfo),
-          // ********************
-          Text(
-            content,
-            style: const TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30.0),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 150,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: GoogleMap(
+                      mapType: MapType.normal,
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(latitude, longitude), // 스타벅스 이대역점
+                        zoom: 18,
+                      ),
+                      onMapCreated: (GoogleMapController controller) {
+                        _controller.complete(controller);
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  widget.content,
+                  style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black),
+                ),
+              ],
+            ),
           )
         ],
       ),
@@ -133,7 +178,7 @@ class NoticePopupWidget extends StatelessWidget {
                       height: 8,
                     ),
                     Text(
-                      announceDate,
+                      widget.announceDate,
                       style: const TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 11,
@@ -175,7 +220,7 @@ class NoticePopupWidget extends StatelessWidget {
                                 lineWidth: 8.0,
                                 percent: 0.7,
                                 center: Text(
-                                  '${(double.parse(moreInfo) * 100).toInt()}%',
+                                  '${(double.parse(widget.moreInfo) * 100).toInt()}%',
                                   style: const TextStyle(
                                       fontFamily: 'Pretendard',
                                       fontSize: 20,
@@ -199,7 +244,7 @@ class NoticePopupWidget extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15.0),
                           child: Text(
-                            content,
+                            widget.content,
                             style: const TextStyle(
                                 fontFamily: 'Pretendard',
                                 fontSize: 12,
@@ -255,7 +300,7 @@ class NoticePopupWidget extends StatelessWidget {
                       height: 8,
                     ),
                     Text(
-                      announceDate,
+                      widget.announceDate,
                       style: const TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 11,
@@ -287,7 +332,7 @@ class NoticePopupWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    content,
+                    widget.content,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                         fontFamily: 'Pretendard',
@@ -371,7 +416,7 @@ class NoticePopupWidget extends StatelessWidget {
                       height: 8,
                     ),
                     Text(
-                      announceDate,
+                      widget.announceDate,
                       style: const TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 11,
@@ -403,7 +448,7 @@ class NoticePopupWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CachedNetworkImage(
-                    imageUrl: moreInfo,
+                    imageUrl: widget.moreInfo,
                     width: 65,
                   ),
                   const SizedBox(
@@ -412,7 +457,7 @@ class NoticePopupWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 28.0),
                     child: Text(
-                      content,
+                      widget.content,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                           fontFamily: 'Pretendard',
@@ -432,7 +477,7 @@ class NoticePopupWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    switch (type) {
+    switch (widget.type) {
       // type에 따라 다른 위젯
       case NoticePopupType.TYPE1:
         return popup1Widget();
