@@ -21,6 +21,11 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def googlemapApiKey = localProperties.getProperty("googlemap.api.key")
+if (googlemapApiKey == null) {
+    throw new GradleException("Google Api Key not found. Define location with google.api.key in the local.properties file.")
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
@@ -48,17 +53,22 @@ android {
         applicationId "com.once.once_front"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
+//        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 20
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
 
     buildTypes {
+        debug {
+            manifestPlaceholders = [googlemapApiKey: googlemapApiKey]
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
+            manifestPlaceholders = [googlemapApiKey: googlemapApiKey]
         }
     }
 }
