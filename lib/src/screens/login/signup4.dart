@@ -18,6 +18,13 @@ class _Signup4State extends State<Signup4> {
   List<String> filteredCardNames = [];
 
   TextEditingController _searchController = TextEditingController();
+  String _selectedCardCompany = "현대카드";
+  // 선택된 상단탭 카드사
+  // 처음에 1번 탭에 있는 카드사가 무조건 선택되도록 설정
+  int _selectedCardCompanyIndex = 0;
+  _Signup4State() {
+    isCardCompanyList[0] = true;
+  }
 
   List<String> allCardNames = [
     '현대카드 M Boost',
@@ -25,12 +32,11 @@ class _Signup4State extends State<Signup4> {
     '현대카드M Edition3',
     '우리동네 GS 삼성카드',
     '국만행복 삼성체크카드 v2',
-    '롯데카드 M Boost',
-    '롯데카드 ZERO Edition2',
-    '롯데카드M Edition3',
-    '롯데카드 GS 삼성카드',
-    '롯데카드 삼성체크카드 v2',
-    // Add other card names
+    '삼성카드 원스원스 카드',
+    '삼성카드 루스루스 카드',
+    '삼성카드M Example 카드',
+    '삼성카드 S7 카드',
+    '삼성카드 원스체크카드 v2',
   ];
 
   // 카드 이름 검색창
@@ -46,9 +52,16 @@ class _Signup4State extends State<Signup4> {
   // 카드 회사명 상단 탭
   Widget _cardCompany(int index, String iconPath, String cardCompany) {
     return InkWell(
+      // 카드사는 한번에 하나만 선택할 수 있도록 설정
+      // 다른 카드사를 탭 -> 현재 카드사 선택 해제 -> 선택한 카드사 선택됨
       onTap: () {
         setState(() {
-          isCardCompanyList[index] = !isCardCompanyList[index];
+          if (_selectedCardCompanyIndex != -1) {
+            isCardCompanyList[_selectedCardCompanyIndex] = false;
+          }
+          _selectedCardCompany = cardCompany;
+          _selectedCardCompanyIndex = index;
+          isCardCompanyList[index] = true;
         });
       },
       child: Stack(
@@ -61,7 +74,7 @@ class _Signup4State extends State<Signup4> {
               decoration: BoxDecoration(
                 color: isCardCompanyList[index] ? const Color(0xffdceefd) : Colors.white,
                 borderRadius: BorderRadius.all(
-                  Radius.circular(isCardCompanyList[index] ? 13 : 13), // Apply borderRadius based on selection state
+                  Radius.circular(isCardCompanyList[index] ? 13 : 13),
                 ),
                 border: Border.all(
                   color: isCardCompanyList[index] ? Color(0xff3d6dc4) : Colors.transparent,
@@ -116,7 +129,7 @@ class _Signup4State extends State<Signup4> {
               decoration: BoxDecoration(
                 color: isCardSelectedList[index] ? const Color(0xffdceefd) : Colors.white,
                 borderRadius: BorderRadius.all(
-                  Radius.circular(isCardSelectedList[index] ? 20 : 20), // Apply borderRadius based on selection state
+                  Radius.circular(isCardSelectedList[index] ? 20 : 20),
                 ),
                 border: Border.all(
                   color: isCardSelectedList[index] ? Color(0xff3d6dc4) : Colors.transparent,
@@ -279,25 +292,39 @@ class _Signup4State extends State<Signup4> {
                           children: [
                             _cardCompany(0, "assets/images/card_logo/hyundai_logo.svg", "현대카드"),
                             _cardCompany(1, "assets/images/card_logo/samsung_logo.svg", "삼성카드"),
-                            _cardCompany(2, "assets/images/card_logo/lotte_logo.svg", "롯데카드"),
                           ],
                         ),
                         const SizedBox(
                           height: 25,
                         ),
-                        Column(
-                          children: [
-                            _cardContainer(0, "assets/images/card_logo/card_example_img.svg", "신용카드", allCardNames[0]),
-                            const SizedBox(height: 10),
-                            _cardContainer(1, "assets/images/card_logo/card_example_img.svg", "신용카드", allCardNames[1]),
-                            const SizedBox(height: 10),
-                            _cardContainer(2, "assets/images/card_logo/card_example_img.svg", "신용카드", allCardNames[2]),
-                            const SizedBox(height: 10),
-                            _cardContainer(3, "assets/images/card_logo/card_example_img.svg", "체크카드", allCardNames[3]),
-                            const SizedBox(height: 10),
-                            _cardContainer(4, "assets/images/card_logo/card_example_img.svg", "체크카드", allCardNames[4]),
-                          ],
-                        ),
+                        if (_selectedCardCompany == "현대카드")
+                          Column(
+                            children: [
+                              _cardContainer(0, "assets/images/card_logo/card_example_img.svg", "신용카드", allCardNames[0]),
+                              const SizedBox(height: 10),
+                              _cardContainer(1, "assets/images/card_logo/card_example_img.svg", "신용카드", allCardNames[1]),
+                              const SizedBox(height: 10),
+                              _cardContainer(2, "assets/images/card_logo/card_example_img.svg", "신용카드", allCardNames[2]),
+                              const SizedBox(height: 10),
+                              _cardContainer(3, "assets/images/card_logo/card_example_img.svg", "체크카드", allCardNames[3]),
+                              const SizedBox(height: 10),
+                              _cardContainer(4, "assets/images/card_logo/card_example_img.svg", "체크카드", allCardNames[4]),
+                            ],
+                          ),
+                        if (_selectedCardCompany == "삼성카드")
+                          Column(
+                            children: [
+                              _cardContainer(0, "assets/images/card_logo/card_example_img.svg", "신용카드", allCardNames[5]),
+                              const SizedBox(height: 10),
+                              _cardContainer(1, "assets/images/card_logo/card_example_img.svg", "신용카드", allCardNames[6]),
+                              const SizedBox(height: 10),
+                              _cardContainer(2, "assets/images/card_logo/card_example_img.svg", "신용카드", allCardNames[7]),
+                              const SizedBox(height: 10),
+                              _cardContainer(3, "assets/images/card_logo/card_example_img.svg", "체크카드", allCardNames[8]),
+                              const SizedBox(height: 10),
+                              _cardContainer(4, "assets/images/card_logo/card_example_img.svg", "체크카드", allCardNames[9]),
+                            ],
+                          ),
                       ],
                     ),
                   ),
