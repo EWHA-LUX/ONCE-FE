@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 
 class UserEditPage extends StatelessWidget {
   const UserEditPage({super.key});
@@ -37,24 +38,23 @@ class UserEditPage extends StatelessWidget {
             ),
           ),
         ),
+        Padding(
+          padding: EdgeInsets.only(left: 25, top: 65),
+          child: GestureDetector(
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+            ),
+            onTap: () {
+              Get.back();
+            },
+          ),
+        ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-              padding: EdgeInsets.only(left: 25, top: 65),
-              child: GestureDetector(
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white,
-                ),
-                onTap: () {
-                  Get.back();
-                },
-              ),
-            ),
-            Padding(
-              // 가운데 정렬하는 방법 찾아보기 -------------------------------------
-              // Expanded, Center 불가능
-              padding: EdgeInsets.only(top: 65, left: 95),
+              padding: EdgeInsets.only(top: 65),
               child: Text(
                 '내 정보 수정하기',
                 style: TextStyle(
@@ -67,27 +67,32 @@ class UserEditPage extends StatelessWidget {
             ),
           ],
         ),
-        Padding(
-          padding: EdgeInsets.only(top: 123, left: MediaQuery.of(context).size.width / 2 - 78.0),
-          child: Container(
-            decoration: const BoxDecoration(
-                shape: BoxShape.circle, color: Colors.white
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(100),
-              child: SizedBox(
-                width: 174,
-                height: 174,
-                child: CachedNetworkImage(
-                  imageUrl: userProfileImg,
-                  fit: BoxFit.cover,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 123),
+              child: Container(
+                decoration: const BoxDecoration(
+                    shape: BoxShape.circle, color: Colors.white
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: SizedBox(
+                    width: 174,
+                    height: 174,
+                    child: CachedNetworkImage(
+                      imageUrl: userProfileImg,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
         Padding(
-          padding: EdgeInsets.only(top: 257, left: MediaQuery.of(context).size.width / 2 + 48.0),
+          padding: EdgeInsets.only(top: 257, left: MediaQuery.of(context).size.width / 2 + 45),
           child: Container(
             width: 35,
             height: 35,
@@ -105,32 +110,40 @@ class UserEditPage extends StatelessWidget {
             ),
           ),
         ),
-        // 가운데 정렬하는 방법 찾아보기 -------------------------------------
-        Padding(
-          padding: EdgeInsets.only(top: 310, left: 183),
-          child: Text(
-            '$userNickname 님',
-            style: TextStyle(
-              fontFamily: 'Pretendard',
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 310),
+              child: Text(
+                '$userNickname 님',
+                style: TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
             ),
-          ),
+          ],
         ),
-        // 가운데 정렬하는 방법 찾아보기 -------------------------------------
-        Padding(
-          padding: EdgeInsets.only(top: 335, left: 170),
-          child: Text(
-            userId,
-            style: TextStyle(
-              fontFamily: 'Pretendard',
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: Color(0xffc5c5c5),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 335),
+              child: Text(
+                userId,
+                style: TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xffc5c5c5),
+                ),
+              ),
             ),
-          ),
-        ),
+          ],
+        )
       ],
     );
   }
@@ -248,7 +261,7 @@ class UserEditPage extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 40, top: 17),
+                  padding: const EdgeInsets.only(left: 37, top: 17),
                   child: Text(
                     userPhoneNum,
                     style: TextStyle(
@@ -325,7 +338,7 @@ class UserEditPage extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 70, top: 17),
+                  padding: const EdgeInsets.only(left: 67, top: 17),
                   child: Text(
                     userSignupDate,
                     style: TextStyle(
