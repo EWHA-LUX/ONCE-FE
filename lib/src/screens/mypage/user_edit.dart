@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
+import 'package:image_picker/image_picker.dart';
 
 class UserEditPage extends StatelessWidget {
   const UserEditPage({super.key});
@@ -16,6 +16,15 @@ class UserEditPage extends StatelessWidget {
   final String userPassword = "";
   final String userSignupDate = "2024.01.01";
   final String userProfileImg = "https://i.pinimg.com/originals/f1/5d/1a/f15d1a3ba005d7f28b72d3b9dee53cdd.jpg";
+
+
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) {
+      return;
+    }
+    String imagePath = pickedFile.path;
+  }
 
   Widget _gradationBody(context) {
     return Stack(
@@ -91,21 +100,23 @@ class UserEditPage extends StatelessWidget {
             ),
           ],
         ),
-        Padding(
-          padding: EdgeInsets.only(top: 257, left: MediaQuery.of(context).size.width / 2 + 45),
-          child: Container(
-            width: 35,
-            height: 35,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xffeeeeee),
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                'assets/images/icons/camera_icon.svg',
-                width: 20,
-                height: 20,
-                color: Colors.black,
+        GestureDetector(
+          onTap: _pickImage,
+          child: Padding(
+            padding: EdgeInsets.only(top: 257, left: MediaQuery.of(context).size.width / 2 + 45),
+            child: Container(
+              width: 35,
+              height: 35,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xffeeeeee),
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  'assets/images/icons/camera_icon.svg',
+                  width: 20,
+                  height: 20,
+                ),
               ),
             ),
           ),
