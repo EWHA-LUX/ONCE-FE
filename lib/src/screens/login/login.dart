@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:once_front/style.dart';
+import 'package:once_front/src/components/empty_app_bar.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});
@@ -11,26 +9,26 @@ class Login extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          height: MediaQuery.of(context).size.height/2,
+          height: MediaQuery.of(context).size.height / 2,
           width: MediaQuery.of(context).size.width,
           decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.topLeft,
-                colors: [
-                  Color(0xff5B87FD),
-                  Color(0xff978EFD),
-                ],
-              ),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.elliptical(300.0, 130.0),
-                bottomRight: Radius.elliptical(300.0, 130.0),
-              ),
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.topLeft,
+              colors: [
+                Color(0xff5B87FD),
+                Color(0xff978EFD),
+              ],
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.elliptical(300.0, 130.0),
+              bottomRight: Radius.elliptical(300.0, 130.0),
+            ),
           ),
-        ) ,
+        ),
         Positioned(
           top: 150,
-          left : MediaQuery.of(context).size.width / 2 - 50,
+          left: MediaQuery.of(context).size.width / 2 - 50,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -58,13 +56,14 @@ class Login extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xfff5f5f5),
+      backgroundColor: const Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
       body: Stack(
         children: [
           _gradationBody(context),
           Padding(
-            padding: EdgeInsets.only(top: 300.0, left: MediaQuery.of(context).size.width / 2 - 160),
+            padding: EdgeInsets.only(
+                top: 300.0, left: MediaQuery.of(context).size.width / 2 - 160),
             child: Stack(
               children: [
                 Container(
@@ -81,7 +80,7 @@ class Login extends StatelessWidget {
                   padding: EdgeInsets.only(left: 25, top: 35),
                   child: Text(
                     '아이디',
-                    style:TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -90,7 +89,7 @@ class Login extends StatelessWidget {
                   ),
                 ),
                 const Padding(
-                  padding: const EdgeInsets.only(top: 68.0, left: 25.0),
+                  padding: EdgeInsets.only(top: 68.0, left: 25.0),
                   child: SizedBox(
                     width: 270,
                     height: 40,
@@ -108,7 +107,9 @@ class Login extends StatelessWidget {
                           borderRadius: BorderRadius.all(Radius.circular(20.0)),
                         ),
                         filled: true,
-                        fillColor: Color(0xffeaeaea),
+                        fillColor: Color(0xffeeeeee),
+                        contentPadding: EdgeInsets.fromLTRB(12, 12, 12, 12),
+                        isCollapsed: true,
                       ),
                     ),
                   ),
@@ -117,7 +118,7 @@ class Login extends StatelessWidget {
                   padding: EdgeInsets.only(left: 25, top: 120),
                   child: Text(
                     '비밀번호',
-                    style:TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -126,7 +127,7 @@ class Login extends StatelessWidget {
                   ),
                 ),
                 const Padding(
-                  padding: const EdgeInsets.only(top: 153.0, left: 25.0),
+                  padding: EdgeInsets.only(top: 153.0, left: 25.0),
                   child: SizedBox(
                     width: 270,
                     height: 40,
@@ -144,28 +145,30 @@ class Login extends StatelessWidget {
                           borderRadius: BorderRadius.all(Radius.circular(20.0)),
                         ),
                         filled: true,
-                        fillColor: Color(0xffeaeaea),
+                        fillColor: Color(0xffeeeeee),
+                        contentPadding: EdgeInsets.fromLTRB(12, 12, 12, 12),
+                        isCollapsed: true,
                       ),
                     ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 7.0, top: 260),
-                  child: GestureDetector(
+                  child: InkWell(
+                    splashColor: Color(0xff599cff).withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(20.0),
                     child: Container(
                       height: 50,
                       width: 310,
                       decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(
-                            Radius.circular(20)
-                        ),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
                         border: Border.all(
-                          color: Color(0xff599cff),
+                          color: const Color(0xff599cff),
                           width: 1.5,
                         ),
                       ),
-                      child: const Padding(
-                        padding: EdgeInsets.only(left: 130.0, top: 10),
+                      child: const Center(
                         child: Text(
                           '로그인',
                           style: TextStyle(
@@ -178,7 +181,7 @@ class Login extends StatelessWidget {
                       ),
                     ),
                     onTap: () {
-                      Navigator.of(context).pushNamed("/");
+                      Navigator.of(context).pushNamed("/"); // ** 변경 필요 **
                     },
                   ),
                 ),
@@ -197,7 +200,7 @@ class Login extends StatelessWidget {
                           ),
                         ),
                         onTap: () {
-                          Navigator.of(context).pushNamed("/"); // 차후 변경
+                          Navigator.of(context).pushNamed("/signup/1");
                         },
                       ),
                       const SizedBox(width: 122),
@@ -212,7 +215,7 @@ class Login extends StatelessWidget {
                           ),
                         ),
                         onTap: () {
-                          Navigator.of(context).pushNamed("/"); // 차후 변경
+                          Navigator.of(context).pushNamed("/"); // ** 변경 필요 **
                         },
                       )
                     ],
