@@ -68,11 +68,20 @@ class _Signup2State extends State<Signup2> {
   Widget StepWidget() {
     return Row(
       children: [
-        StepIcon('1', false),
+        StepIcon('1', true),
         Container(
           height: 2,
           width: 12,
-          color: Color(0xffd5d5d5),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.topLeft,
+              colors: [
+                Color(0xff4472fc),
+                Color(0xff8877d5),
+              ],
+            ),
+          ),
         ),
         StepIcon('2', true),
         Container(
@@ -160,8 +169,7 @@ class _Signup2State extends State<Signup2> {
         children: [
           Positioned(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25.0),
+              padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
