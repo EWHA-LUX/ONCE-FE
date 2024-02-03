@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       theme: ThemeData(),
-      initialRoute: "/",
+      initialRoute: "/login",
       getPages: [
         GetPage(name: "/", page: () => const Home()),
         GetPage(name: "/notification", page: () => const PushNotification()),
