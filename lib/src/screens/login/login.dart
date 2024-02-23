@@ -1,9 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
+import 'package:dio/dio.dart';
+
 
 class Login extends StatelessWidget {
-  const Login({super.key});
+  Login({super.key});
+
+  final TextEditingController loginIdController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  void _login(BuildContext context, String loginId, String password) async {
+    final String apiUrl = 'http://43.200.52.136:8080/user/login';
+
+    try {
+      var response = await Dio().post(
+        apiUrl,
+        data: {"loginId": loginId, "password": password},
+      );
+      Map<String, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        String accessToken = responseData['result']['accessToken'];
+        String refreshToken = responseData['result']['refreshToken'];
+
+        // 토큰 local storage 저장
+        final storage = new FlutterSecureStorage();
+        await storage.write(key: 'accessToken', value: accessToken);
+        await storage.write(key: 'refreshToken', value: refreshToken);
+
+        Navigator.of(context).pushNamed("/");
+      } else {
+        showDialog( // ** 차후 수정 필요 **
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("로그인 실패"),
+              content: Text("아이디 또는 비밀번호가 잘못되었습니다."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text("확인"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) { // ** 차후 수정 필요 **
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   Widget _gradationBody(context) {
     return Stack(
@@ -88,12 +156,13 @@ class Login extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 68.0, left: 25.0),
                   child: SizedBox(
                     width: 270,
                     height: 40,
                     child: TextField(
+                      controller: loginIdController,
                       style: TextStyle(
                         fontSize: 13,
                       ),
@@ -126,12 +195,14 @@ class Login extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 153.0, left: 25.0),
                   child: SizedBox(
                     width: 270,
                     height: 40,
                     child: TextField(
+                      controller: passwordController,
+                      obscureText: true,
                       style: TextStyle(
                         fontSize: 13,
                       ),
@@ -181,7 +252,7 @@ class Login extends StatelessWidget {
                       ),
                     ),
                     onTap: () {
-                      Navigator.of(context).pushNamed("/"); // ** 변경 필요 **
+                      _login(context, loginIdController.text, passwordController.text);
                     },
                   ),
                 ),
