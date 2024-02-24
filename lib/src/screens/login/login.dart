@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:dio/dio.dart';
 
@@ -10,9 +11,9 @@ class Login extends StatelessWidget {
 
   final TextEditingController loginIdController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
+  final String BASE_URL = Constants.baseUrl;
   void _login(BuildContext context, String loginId, String password) async {
-    final String apiUrl = 'http://43.200.52.136:8080/user/login';
+    final String apiUrl = '${BASE_URL}/user/login';
 
     try {
       var response = await Dio().post(
