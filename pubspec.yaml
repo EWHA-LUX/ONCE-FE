@@ -28,6 +28,8 @@ dependencies:
   percent_indicator: ^4.2.3
   google_maps_flutter: ^2.3.0
   flutter_native_splash: ^2.2.19
+  dio: ^4.0.0
+  flutter_secure_storage: ^4.2.0
 
 dev_dependencies:
   flutter_test:
