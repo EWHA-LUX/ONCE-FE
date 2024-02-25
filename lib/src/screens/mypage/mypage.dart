@@ -1,18 +1,91 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
-class MyPage extends StatelessWidget {
+class MyPage extends StatefulWidget {
   const MyPage({super.key});
 
-  final int ownedCardCount = 5;
-  final int month = 8;
-  final int receivedBenefit = 75000;
-  final int benefitGoal = 130000;
-  final String userProfileImg = "https://i.pinimg.com/originals/f1/5d/1a/f15d1a3ba005d7f28b72d3b9dee53cdd.jpg";
+  @override
+  State<MyPage> createState() => _MyPageState();
+}
+
+class _MyPageState extends State<MyPage> {
+  final String BASE_URL = Constants.baseUrl;
+
+  String nickname = '';
+  String userProfileImg = '';
+  int ownedCardCount = 0;
+  int month = 0;
+  int receivedBenefit = 0;
+  int benefitGoal = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _mypage(context);
+  }
+
+  void _updateState(Map<dynamic, dynamic> responseData) {
+    setState(() {
+      nickname = responseData['result']['nickname'];
+      userProfileImg = responseData['result']['userProfileImg'];
+      ownedCardCount = responseData['result']['ownedCardCount'];
+      month = responseData['result']['month'];
+      receivedBenefit = responseData['result']['receivedBenefit'];
+      benefitGoal = responseData['result']['benefitGoal'];
+    });
+  }
+
+  Future<void> _mypage(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/mypage';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      var response = await dio.get(
+        apiUrl
+      );
+      Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        _updateState(responseData);
+      }
+    } catch (e) {
+      // ** 차후 수정 필요 **
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   Widget _gradationBody(context) {
     return Stack(
@@ -60,9 +133,9 @@ class MyPage extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '루스 님',
-                    style: TextStyle(
+                  Text(
+                    '$nickname 님',
+                    style: const TextStyle(
                         fontFamily: 'Pretendard',
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
