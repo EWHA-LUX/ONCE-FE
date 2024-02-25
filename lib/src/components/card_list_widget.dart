@@ -7,6 +7,7 @@ class CardListWidget extends StatelessWidget {
   String cardName;
   String cardCompany;
   String cardImg;
+  int ownedCardId;
 
   CardListWidget(
       {Key? key,
@@ -14,7 +15,8 @@ class CardListWidget extends StatelessWidget {
       required this.isCreditCard,
       required this.cardName,
       required this.cardCompany,
-      required this.cardImg})
+      required this.cardImg,
+      required this.ownedCardId})
       : super(key: key);
 
   @override
@@ -31,32 +33,49 @@ class CardListWidget extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.only(left: 28.0),
+          padding: const EdgeInsets.only(left: 20.0),
           child: Row(
-            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CachedNetworkImage(
-                imageUrl: cardImg,
-                width: 46,
-              ),
+              cardCompany == '국민카드' ||
+                      cardCompany == '신한카드' ||
+                      cardCompany == '하나카드' ||
+                      cardCompany == '롯데카드'
+                  ? Transform.rotate(
+                      angle: 3.1415926535897932 / 2, // 90 degrees in radians
+                      child: CachedNetworkImage(
+                        imageUrl: cardImg,
+                        width: 63,
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(left: 12.0, right: 10),
+                      child: CachedNetworkImage(
+                        imageUrl: cardImg,
+                        width: 41,
+                      ),
+                    ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 28.0),
+                  padding: const EdgeInsets.only(left: 20.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Text(
-                            cardName,
-                            style: const TextStyle(
-                                fontFamily: 'Pretendard',
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black),
+                          Container(
+                            width: 140,
+                            child: Text(
+                              cardName,
+                              style: const TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 8,
                           ),
                           isMain
@@ -68,7 +87,7 @@ class CardListWidget extends StatelessWidget {
                               : SizedBox(width: 0)
                         ],
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 5,
                       ),
                       Text(

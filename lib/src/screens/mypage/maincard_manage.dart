@@ -1,11 +1,81 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/card_list_widget.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 
-class MaincardManage extends StatelessWidget {
+class MaincardManage extends StatefulWidget {
   const MaincardManage({super.key});
+
+  @override
+  State<MaincardManage> createState() => _MaincardManageState();
+}
+
+class _MaincardManageState extends State<MaincardManage> {
+  final String BASE_URL = Constants.baseUrl;
+
+  int cardCount = 0;
+  List<dynamic> cardList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getCardList(context);
+  }
+
+  void _updateState(Map<dynamic, dynamic> responseData) {
+    setState(() {
+      cardCount = responseData['result']['cardCount'];
+      cardList = responseData['result']['cardList'];
+    });
+  }
+
+  // [Get] 카드 목록 조회
+  Future<void> _getCardList(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/mypage/maincard';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      var response = await dio.get(apiUrl);
+      Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        _updateState(responseData);
+      }
+    } catch (e) {
+      // ** 차후 수정 필요 **
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   Widget _gradationBody(context) {
     return Stack(
@@ -120,7 +190,7 @@ class MaincardManage extends StatelessWidget {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: const [
                         Text(
                           '카드 추가하기',
                           style: TextStyle(
@@ -161,48 +231,21 @@ class MaincardManage extends StatelessWidget {
     return Expanded(
       child: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(
-              left: MediaQuery.of(context).size.width / 2 - 170),
-          child: Column(
-            children: [
-              CardListWidget(
-                  isMain: true,
-                  isCreditCard: true,
-                  cardName: "M BOOST",
-                  cardCompany: "현대카드",
-                  cardImg:
-                      "https://img.hyundaicard.com/img/com/card/card_M3PBT_h.png"),
-              CardListWidget(
-                  isMain: false,
-                  isCreditCard: true,
-                  cardName: "ZERO Edition2",
-                  cardCompany: "현대카드",
-                  cardImg:
-                      "https://img.hyundaicard.com/img/com/card/card_MZROE2_h.png"),
-              CardListWidget(
-                  isMain: false,
-                  isCreditCard: true,
-                  cardName: "M Edition3",
-                  cardCompany: "현대카드",
-                  cardImg:
-                      "https://img.hyundaicard.com/img/com/card/card_MSKTE3_h.png"),
-              CardListWidget(
-                  isMain: false,
-                  isCreditCard: false,
-                  cardName: "카드의정석 EVERY CHECK",
-                  cardCompany: "우리카드",
-                  cardImg:
-                      "https://pc.wooricard.com/webcontent/cdPrdImgFileList/2023/7/17/f7886e80-e7cb-4f54-b30c-bf9bd0a351f4.gif"),
-              CardListWidget(
-                  isMain: false,
-                  isCreditCard: true,
-                  cardName: "LOCA LIKIT Shop",
-                  cardCompany: "롯데카드",
-                  cardImg:
-                      "https://image.lottecard.co.kr/UploadFiles/ecenterPath/cdInfo/ecenterCdInfoP13955-A13955_nm1_v.png"),
-            ],
-          ),
-        ),
+            padding: EdgeInsets.only(
+                left: MediaQuery.of(context).size.width / 2 - 170),
+            child: Column(
+              children: List.generate(cardCount, (index) {
+                Map<dynamic, dynamic> card = cardList[index];
+                return CardListWidget(
+                  ownedCardId: card['ownedCardId'],
+                  isMain: card['isMain'],
+                  isCreditCard: card['isCreditCard'],
+                  cardName: card['cardName'],
+                  cardCompany: card['cardCompany'],
+                  cardImg: card['cardImg'],
+                );
+              }),
+            )),
       ),
     );
   }
