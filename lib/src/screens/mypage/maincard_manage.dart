@@ -243,6 +243,11 @@ class _MaincardManageState extends State<MaincardManage> {
                   cardName: card['cardName'],
                   cardCompany: card['cardCompany'],
                   cardImg: card['cardImg'],
+                  onUpdate: () {
+                    setState(() {
+                      _getCardList(context);
+                    });
+                  },
                 );
               }),
             )),
