@@ -78,6 +78,52 @@ class _MaincardManageState extends State<MaincardManage> {
     }
   }
 
+  // [Patch] 주카드 해제
+  Future<void> _releaseMaincard(BuildContext context, int ownedCardId) async {
+    final String apiUrl = '${BASE_URL}/mypage/maincard';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      var response = await dio.patch('$apiUrl/$ownedCardId');
+      Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        setState(() {
+          _getCardList(context);
+        });
+      }
+    } catch (e) {
+      // ** 차후 수정 필요 **
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   Widget _gradationBody(context) {
     return Stack(
       clipBehavior: Clip.none,
@@ -228,7 +274,7 @@ class _MaincardManageState extends State<MaincardManage> {
   }
 
   // 주카드 해제 팝업 띄우기
-  void showPopup(context, cardName, cardImg, cardCompany) {
+  void showPopup(context, cardName, cardImg, cardCompany, ownedCardId) {
     showDialog(
         context: context,
         barrierDismissible: false, // 팝업 밖에는 안 눌리게
@@ -322,24 +368,30 @@ class _MaincardManageState extends State<MaincardManage> {
                           const SizedBox(
                             width: 10,
                           ),
-                          Container(
-                            width: 75,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              color: const Color(0xff0083ee),
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '해제',
-                                style: TextStyle(
-                                  fontFamily: 'Pretendard',
-                                  color: Colors.white,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w500,
+                          GestureDetector(
+                            child: Container(
+                              width: 75,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: const Color(0xff0083ee),
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  '해제',
+                                  style: TextStyle(
+                                    fontFamily: 'Pretendard',
+                                    color: Colors.white,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ),
+                            onTap: () {
+                              _releaseMaincard(context, ownedCardId);
+                              Navigator.pop(context);
+                            },
                           ),
                         ],
                       ),
@@ -377,7 +429,7 @@ class _MaincardManageState extends State<MaincardManage> {
                         ),
                         onTap: () {
                           showPopup(context, card['cardName'], card['cardImg'],
-                              card['cardCompany']);
+                              card['cardCompany'], card['ownedCardId']);
                         },
                       )
                     : CardListWidget(
