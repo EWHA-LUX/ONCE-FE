@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -226,6 +227,129 @@ class _MaincardManageState extends State<MaincardManage> {
     );
   }
 
+  // 주카드 해제 팝업 띄우기
+  void showPopup(context, cardName, cardImg, cardCompany) {
+    showDialog(
+        context: context,
+        barrierDismissible: false, // 팝업 밖에는 안 눌리게
+        builder: (context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: 430,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 40.0),
+                      child: Text(
+                        cardName,
+                        style: const TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 20,
+                          color: Color(0xff0083EE),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 7,
+                    ),
+                    const Text(
+                      '주카드를 해제하시겠어요?',
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 20,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 65,
+                    ),
+                    cardCompany == '국민카드' ||
+                            cardCompany == '신한카드' ||
+                            cardCompany == '하나카드' ||
+                            cardCompany == '롯데카드'
+                        ? Center(
+                            child: Transform.rotate(
+                              angle: 3.1415926535897932 / 2,
+                              child: CachedNetworkImage(
+                                imageUrl: cardImg,
+                                width: 200,
+                              ),
+                            ),
+                          )
+                        : CachedNetworkImage(
+                            imageUrl: cardImg,
+                            width: 200,
+                          ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 65.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            child: Container(
+                              width: 75,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: const Color(0xfff2f2f2),
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  '취소',
+                                  style: TextStyle(
+                                    fontFamily: 'Pretendard',
+                                    color: Color(0xff767676),
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            onTap: () {
+                              Get.back();
+                            },
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Container(
+                            width: 75,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: const Color(0xff0083ee),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                '해제',
+                                style: TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                )),
+          );
+        });
+  }
+
   // 내 카드 목록 위젯
   Widget _cardList(context) {
     return Expanded(
@@ -236,19 +360,39 @@ class _MaincardManageState extends State<MaincardManage> {
             child: Column(
               children: List.generate(cardCount, (index) {
                 Map<dynamic, dynamic> card = cardList[index];
-                return CardListWidget(
-                  ownedCardId: card['ownedCardId'],
-                  isMain: card['isMain'],
-                  isCreditCard: card['isCreditCard'],
-                  cardName: card['cardName'],
-                  cardCompany: card['cardCompany'],
-                  cardImg: card['cardImg'],
-                  onUpdate: () {
-                    setState(() {
-                      _getCardList(context);
-                    });
-                  },
-                );
+                return card['isMain']
+                    ? GestureDetector(
+                        child: CardListWidget(
+                          ownedCardId: card['ownedCardId'],
+                          isMain: card['isMain'],
+                          isCreditCard: card['isCreditCard'],
+                          cardName: card['cardName'],
+                          cardCompany: card['cardCompany'],
+                          cardImg: card['cardImg'],
+                          onUpdate: () {
+                            setState(() {
+                              _getCardList(context);
+                            });
+                          },
+                        ),
+                        onTap: () {
+                          showPopup(context, card['cardName'], card['cardImg'],
+                              card['cardCompany']);
+                        },
+                      )
+                    : CardListWidget(
+                        ownedCardId: card['ownedCardId'],
+                        isMain: card['isMain'],
+                        isCreditCard: card['isCreditCard'],
+                        cardName: card['cardName'],
+                        cardCompany: card['cardCompany'],
+                        cardImg: card['cardImg'],
+                        onUpdate: () {
+                          setState(() {
+                            _getCardList(context);
+                          });
+                        },
+                      );
               }),
             )),
       ),
