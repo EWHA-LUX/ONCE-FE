@@ -199,7 +199,7 @@ class _ChatHistoryState extends State<ChatHistory> {
           Padding(
             padding: const EdgeInsets.only(top: 10.0),
             child: Container(
-              height: MediaQuery.of(context).size.height - 330,
+              height: MediaQuery.of(context).size.height - 200,
               width: MediaQuery.of(context).size.width,
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -308,8 +308,13 @@ class _ChatHistoryState extends State<ChatHistory> {
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
-      body: Column(
-        children: [_gradationBody(context, formattedDate), _chatList(context)],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _gradationBody(context, formattedDate),
+            _chatList(context)
+          ],
+        ),
       ),
     );
   }
