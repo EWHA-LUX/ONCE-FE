@@ -15,11 +15,15 @@ class MonthlyBenefit extends StatelessWidget {
   Widget _gradationBody(context) {
     return SingleChildScrollView(
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           Container(
             // 상단 그라데이션 배경
             height: 560,
-            width: MediaQuery.of(context).size.width,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width,
             decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topRight,
@@ -90,37 +94,36 @@ class MonthlyBenefit extends StatelessWidget {
                 )),
           ),
           // 혜택 조회 상단 화이트 박스
-          Stack(
-            children: [
-              Positioned(
-                top: 160,
-                left: MediaQuery.of(context).size.width / 2 - 170,
-                child: Container(
-                  width: 340,
-                  height: 230,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(25),
-                    ),
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                        color: Colors.grey,
-                        spreadRadius: 0.3,
-                        blurRadius: 2,
-                        offset: Offset(0, 1),
-                      ),
-                    ],
-                  ),
+          Positioned(
+            top: 160,
+            left: MediaQuery
+                .of(context)
+                .size
+                .width / 2 - 170,
+            child: Container(
+              width: 340,
+              height: 230,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(25),
                 ),
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                    color: Colors.grey,
+                    spreadRadius: 0.3,
+                    blurRadius: 2,
+                    offset: Offset(0, 1),
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 40.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 175),
-                    Text(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0, top: 20.0),
+                    child: Text(
                       '$month월의 혜택',
                       style: const TextStyle(
                         fontFamily: 'Pretendard',
@@ -129,120 +132,107 @@ class MonthlyBenefit extends StatelessWidget {
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Text(
-                          '이번 달 목표까지 5,600원 부족해요.',
-                          style: TextStyle(
-                              fontFamily: 'Pretendard',
-                              fontSize: 13,
-                              fontWeight: FontWeight.w300,
-                              color: Color(0xff767676)),
-                        ),
-                        SizedBox(width: 15,),
-                        // 목표 수정하기 버튼
-                        GestureDetector(
-                          child: Container(
-                            width: 110,
-                            height: 25,
-                            decoration: const BoxDecoration(
-                              color: Color(0xffF2F2F2),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(20),
-                              ),
-                            ),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Text(
-                                    '목표 수정하기',
-                                    style: TextStyle(
-                                        fontFamily: 'Pretendard',
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w400,
-                                        color: Color(0xff828282)),
-                                  ),
-                                  SizedBox(
-                                    width: 8,
-                                  ),
-                                  Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    size: 10,
-                                    color: Color(0xff828282),
-                                  ),
-                                ],
-                              ),
-                            ),
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            '이번 달 목표까지 5,600원 부족해요.',
+                            style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w300,
+                                color: Color(0xff767676)),
                           ),
-                          onTap: () {
 
-                          },
-                        ),
-                      ],
-                    ),
-                    Stack(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 50.0, top: 20.0),
-                          child: Container(
-                            child: Circular_arc(
-                              key: UniqueKey(),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 105.0, top: 40.0),
-                          child: Column(
-                            children: [
-                              SvgPicture.asset(
-                                'assets/images/3d_icons/coins_3d_icon.svg',
-                                width: 80,
-                              ),
-                              const SizedBox(height: 2),
-                              const Text(
-                                '126,000원 할인',
-                                style: TextStyle(
-                                  fontFamily: 'Pretendard',
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
+                          // 목표 수정하기 버튼
+                          GestureDetector(
+                            child: Container(
+                              width: 110,
+                              height: 25,
+                              decoration: const BoxDecoration(
+                                color: Color(0xffF2F2F2),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(20),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(left: 40.0, top: 137.0),
-                          child: Text(
-                            '0%',
-                            style: TextStyle(
-                              fontFamily: 'Pretendard',
-                              fontSize: 15,
-                              fontWeight: FontWeight.w300,
-                              color: Color(0xff767676),
+                              child: Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Text(
+                                      '목표 수정하기',
+                                      style: TextStyle(
+                                          fontFamily: 'Pretendard',
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w400,
+                                          color: Color(0xff828282)),
+                                    ),
+                                    SizedBox(
+                                      width: 8,
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      size: 10,
+                                      color: Color(0xff828282),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
+                            onTap: () {},
+                          ),
+                        ],
+                      ),
+                  ),
+                  Stack(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: MediaQuery
+                                .of(context)
+                                .size
+                                .width / 2 - 130,
+                            top: 20.0),
+                        child: Container(
+                          child: Circular_arc(
+                            key: UniqueKey(),
                           ),
                         ),
-                        const Padding(
-                          padding: EdgeInsets.only(left: 245.0, top: 137.0),
-                          child: Text(
-                            '100%',
-                            style: TextStyle(
-                              fontFamily: 'Pretendard',
-                              fontSize: 15,
-                              fontWeight: FontWeight.w300,
-                              color: Color(0xff767676),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: MediaQuery
+                                .of(context)
+                                .size
+                                .width / 2 - 75,
+                            top: 40.0),
+                        child: Column(
+                          children: [
+                            SvgPicture.asset(
+                              'assets/images/3d_icons/coins_3d_icon.svg',
+                              width: 80,
                             ),
-                          ),
+                            const SizedBox(height: 2),
+                            const Text(
+                              '126,000원 할인',
+                              style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    )
-                  ],
-                ),
+                      ),
+                    ],
+                  )
+                ],
               ),
-            ],
+            ),
           ),
           const Padding(
             padding: EdgeInsets.only(left: 28.0, top: 430),
@@ -487,11 +477,11 @@ class _Circular_arcState extends State<Circular_arc>
     return Stack(
       children: [
         CustomPaint(
-          size: const Size(210, 210),
+          size: const Size(130, 130),
           painter: ProgressArc(3.14, whitegradient, false),
         ),
         CustomPaint(
-          size: const Size(210, 210),
+          size: const Size(130, 130),
           painter: ProgressArc(animation.value, gradient, false),
         ),
       ],
