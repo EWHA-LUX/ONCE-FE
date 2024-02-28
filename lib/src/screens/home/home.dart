@@ -1,5 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/chat_bubble.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/style.dart';
@@ -13,6 +16,42 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  // ==================== API 통신 ====================
+  final String BASE_URL = Constants.baseUrl;
+
+  String nickname = '';
+  List<dynamic> keywordList = [];
+
+  void _updateState(Map<dynamic, dynamic> responseData) {
+    setState(() {
+      nickname = responseData['result']['nickname'];
+      keywordList = responseData['result']['keywordList'];
+    });
+  }
+
+  // [Get] 홈화면 기본 정보
+  Future<void> _homeInfo(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/home/basic';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    var response = await dio.get(apiUrl);
+    Map<dynamic, dynamic> responseData = response.data;
+    print(responseData);
+
+    if (responseData['code'] == 1000) {
+      _updateState(responseData);
+    }
+  }
+
+  // ==================== 챗봇 대화 입력 ====================
   TextEditingController userInputController = TextEditingController();
   String keyword = '';
   String initFormattedTime = '';
@@ -33,6 +72,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     initializeTime();
+    _homeInfo(context);
   }
 
   @override
@@ -246,6 +286,7 @@ class _HomeState extends State<Home> {
               borderRadius: BorderRadius.circular(10.0))),
       onPressed: () {
         // 카드 추천 API - keyword, price
+        // _cardRecommend(context, keyword, paymentAmount);
       },
       child: Text(finishText,
           style: const TextStyle(
@@ -365,11 +406,48 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Widget _keywordBox(String keywordText) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0, right: 5.0),
+      child: GestureDetector(
+        child: Container(
+          height: 30,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                color: const Color(0xff0083EE),
+              ),
+              borderRadius: BorderRadius.circular(13)),
+          child: Center(
+              child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(keywordText),
+          )),
+        ),
+        onTap: () {
+          setState(() {
+            keyword = keywordText;
+          });
+        },
+      ),
+    );
+  }
+
   Widget _chatArea() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _chatbotFirstSay("루스님, 어디서 결제하시나요?", initFormattedTime),
+        _chatbotFirstSay("$nickname님, 어디서 결제하시나요?", initFormattedTime),
+        Padding(
+          padding: const EdgeInsets.only(left: 75.0),
+          child: Row(
+            children: [
+              _keywordBox(keywordList[0]),
+              _keywordBox(keywordList[1]),
+              _keywordBox(keywordList[2]),
+            ],
+          ),
+        ),
         const SizedBox(
           height: 20,
         ),
@@ -380,8 +458,7 @@ class _HomeState extends State<Home> {
           height: 20,
         ),
         keyword.isNotEmpty
-            ? _chatbotSecondSay(
-                '${keyword}에서 결제하시는 군요!', userInputFormattedTime)
+            ? _chatbotSecondSay('$keyword에서 결제하시는 군요!', userInputFormattedTime)
             : const SizedBox()
       ],
     );
