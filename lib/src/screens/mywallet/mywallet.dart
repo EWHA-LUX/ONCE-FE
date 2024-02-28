@@ -16,12 +16,13 @@ class MyWallet extends StatefulWidget {
   _MyWalletState createState() => _MyWalletState();
 }
 
-class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin {
-
+class _MyWalletState extends State<MyWallet>
+    with SingleTickerProviderStateMixin {
   var _selectedIndex = 0; // 현재 선택된 카드
 
   // 카드 뒤집기
   double angle = 0;
+
   void _flip(int index) {
     setState(() {
       _isFlippedList[index] = !_isFlippedList[index];
@@ -32,13 +33,13 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
   // 카드 뒤집기 여부 확인 리스트
   final List<bool> _isFlippedList = List.generate(
     cardBannerList.length,
-        (index) => false,
+    (index) => false,
   );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xfff5f5f5),
+      backgroundColor: const Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -72,7 +73,7 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
                   ),
                   // 알림 아이콘
                   Padding(
-                    padding: EdgeInsets.only(right: 27.0, top: 20.0),
+                    padding: const EdgeInsets.only(right: 27.0, top: 20.0),
                     child: GestureDetector(
                       child: SvgPicture.asset(
                         'assets/images/icons/alarm_icon.svg',
@@ -122,7 +123,8 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
                 return GestureDetector(
                   onTap: () => _flip(index),
                   child: TweenAnimationBuilder(
-                    tween: Tween<double>(begin: 0, end: _isFlippedList[index] ? pi : 0),
+                    tween: Tween<double>(
+                        begin: 0, end: _isFlippedList[index] ? pi : 0),
                     duration: Duration(seconds: 1),
                     builder: (BuildContext context, double val, __) {
                       return Transform.scale(
@@ -144,43 +146,49 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
               },
             ),
           ),
+          const SizedBox(
+            height: 10,
+          ),
           // 카드 인디케이터
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ...List.generate(cardBannerList.length, (index) =>
-                  Indicator(isActive: _selectedIndex == index ? true : false),
+              ...List.generate(
+                cardBannerList.length,
+                (index) =>
+                    Indicator(isActive: _selectedIndex == index ? true : false),
               )
             ],
           ),
           const SizedBox(height: 16),
           // 하단 화이트 박스 생성
           Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
               const SizedBox(height: 20),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 23.0),
                 height: 130,
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20.0),
+                  borderRadius: BorderRadius.circular(25.0),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withOpacity(0.25),
                       spreadRadius: 0,
                       blurRadius: 3,
-                      offset: Offset(0, 1),
+                      offset: const Offset(0, 1),
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.all(20.0),
                 // 카드 이름
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      padding: const EdgeInsets.only(left: 20.0),
                       child: Text(
                         cardBannerList[_selectedIndex].cardName,
                         style: const TextStyle(
@@ -194,7 +202,7 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
                     const SizedBox(height: 20),
                     // 남은 실적 정보
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Text(
                         "이번 달 실적까지 ${cardBannerList[_selectedIndex].remainAmount}원 남았어요.",
                         style: const TextStyle(
@@ -205,34 +213,28 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
                     // 실적 그래프
-                    Container(
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          LinearPercentIndicator(
-                            width: 300,
-                            animation: true,
-                            lineHeight: 6,
-                            animationDuration: 900,
-                            percent: cardBannerList[_selectedIndex].performance,
-                            barRadius: Radius.circular(20),
-                            //progressColor: Colors.black,
-                            linearGradient: const LinearGradient(
-                              colors: [
-                                Color(0xff9982da),
-                                Color(0xff8396dc),
-                              ],
-                              stops: [0.0, 1.0],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            backgroundColor: Color(0xffd2d2d2),
-                          ),
-                        ],
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: LinearPercentIndicator(
+                        // width: 300,
+                        animation: true,
+                        lineHeight: 8.0,
+                        animationDuration: 900,
+                        percent: cardBannerList[_selectedIndex].performance,
+                        barRadius: const Radius.circular(20),
+                        linearGradient: const LinearGradient(
+                          colors: [
+                            Color(0xff5B87FD),
+                            Color(0xff978EFD),
+                          ],
+                          begin: Alignment.topRight,
+                          end: Alignment.topLeft,
+                        ),
+                        backgroundColor: const Color(0xfff2f2f2),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -247,6 +249,7 @@ class _MyWalletState extends State<MyWallet> with SingleTickerProviderStateMixin
 // indicator원으로 현재 선택된 페이지 표시
 class Indicator extends StatelessWidget {
   final bool isActive;
+
   const Indicator({
     Key? key,
     required this.isActive,
@@ -261,7 +264,7 @@ class Indicator extends StatelessWidget {
       height: 8.0,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.0),
-        color: isActive ? Color(0xFF525252): Color(0xFFBDBDBD),
+        color: isActive ? Color(0xFF4383E4) : Color(0xffAACCFF),
       ),
     );
   }

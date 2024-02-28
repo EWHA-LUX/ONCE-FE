@@ -67,9 +67,7 @@ class _HomeState extends State<Home> {
             onTap: () {
               resetState();
               initializeTime();
-              setState(() {
-
-              });
+              setState(() {});
             },
           ),
         ),
@@ -311,7 +309,7 @@ class _HomeState extends State<Home> {
         Padding(
           padding: const EdgeInsets.only(left: 65.0),
           child: Container(
-            margin: const EdgeInsets.only(top: 8, right: 220),
+            margin: const EdgeInsets.only(top: 8, right: 200),
             padding: const EdgeInsets.symmetric(
               horizontal: 15,
               vertical: 8,
