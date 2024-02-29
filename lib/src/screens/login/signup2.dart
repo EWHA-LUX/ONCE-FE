@@ -3,18 +3,105 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/style.dart';
+import 'package:once_front/constants.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Signup2 extends StatefulWidget {
-  const Signup2({Key? key}) : super(key: key);
+  final String username;
+  final String nickname;
+  final String userPhoneNum;
+  final String birthday;
+
+  Signup2({
+    Key? key,
+    required this.username,
+    required this.nickname,
+    required this.userPhoneNum,
+    required this.birthday,
+  }) : super(key: key);
 
   @override
   _Signup2State createState() => _Signup2State();
 }
 
 class _Signup2State extends State<Signup2> {
+  final String BASE_URL = Constants.baseUrl;
+  TextEditingController loginIdController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   int passwordsMatch = 0;
+
+  void _signup(BuildContext context, String username, String loginId,
+      String nickname, String password, String userPhoneNum,
+      String birthday) async {
+      final String apiUrl = '${BASE_URL}/user/signup';
+
+    try {
+      var response = await Dio().post(
+        apiUrl,
+        data: {
+          "username": username,
+          "loginId": loginId,
+          "nickname": nickname,
+          "password": password,
+          "userPhoneNum": userPhoneNum,
+          "birthday": birthday
+        },
+      );
+      Map<String, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        String accessToken = responseData['result']['accessToken'];
+        String refreshToken = responseData['result']['refreshToken'];
+
+        // 토큰 local storage 저장
+        final storage = new FlutterSecureStorage();
+        await storage.write(key: 'accessToken', value: accessToken);
+        await storage.write(key: 'refreshToken', value: refreshToken);
+
+        Navigator.of(context).pushNamed("/signup/3");
+      } else {
+        showDialog( // ** 차후 수정 필요 **
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("회원가입 실패"),
+              content: Text("회원가입 정보가 잘못되었습니다."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text("확인"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) { // ** 차후 수정 필요 **
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   void checkPasswordMatch() {
     String password = passwordController.text;
@@ -37,20 +124,20 @@ class _Signup2State extends State<Signup2> {
       height: 21,
       decoration: isCurrentStep
           ? const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.topLeft,
-                colors: [
-                  Color(0xff4472fc),
-                  Color(0xff8877d5),
-                ],
-              ),
-            )
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.topLeft,
+          colors: [
+            Color(0xff4472fc),
+            Color(0xff8877d5),
+          ],
+        ),
+      )
           : const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xffd5d5d5),
-            ),
+        shape: BoxShape.circle,
+        color: Color(0xffd5d5d5),
+      ),
       child: Center(
         child: Text(
           num,
@@ -169,7 +256,8 @@ class _Signup2State extends State<Signup2> {
         children: [
           Positioned(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25.0),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 25.0, vertical: 25.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -195,7 +283,8 @@ class _Signup2State extends State<Signup2> {
                         ),
                         SizedBox(
                           height: 40,
-                          child: TextField(
+                          child: TextFormField(
+                            controller: loginIdController,
                             style: const TextStyle(
                               fontSize: 13,
                             ),
@@ -204,17 +293,17 @@ class _Signup2State extends State<Signup2> {
                               focusedBorder: const OutlineInputBorder(
                                 borderSide: BorderSide.none,
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(20.0)),
+                                BorderRadius.all(Radius.circular(20.0)),
                               ),
                               enabledBorder: const OutlineInputBorder(
                                 borderSide: BorderSide.none,
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(20.0)),
+                                BorderRadius.all(Radius.circular(20.0)),
                               ),
                               filled: true,
                               fillColor: Colors.white,
                               contentPadding:
-                                  EdgeInsets.fromLTRB(12, 12, 12, 12),
+                              EdgeInsets.fromLTRB(12, 12, 12, 12),
                               isCollapsed: true,
                               suffixIcon: Container(
                                 margin: EdgeInsets.all(8),
@@ -274,17 +363,17 @@ class _Signup2State extends State<Signup2> {
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide.none,
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(20.0)),
+                                BorderRadius.all(Radius.circular(20.0)),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide.none,
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(20.0)),
+                                BorderRadius.all(Radius.circular(20.0)),
                               ),
                               filled: true,
                               fillColor: Colors.white,
                               contentPadding:
-                                  EdgeInsets.fromLTRB(12, 12, 12, 12),
+                              EdgeInsets.fromLTRB(12, 12, 12, 12),
                               isCollapsed: true,
                             ),
                           ),
@@ -325,17 +414,17 @@ class _Signup2State extends State<Signup2> {
                               focusedBorder: const OutlineInputBorder(
                                 borderSide: BorderSide.none,
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(20.0)),
+                                BorderRadius.all(Radius.circular(20.0)),
                               ),
                               enabledBorder: const OutlineInputBorder(
                                 borderSide: BorderSide.none,
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(20.0)),
+                                BorderRadius.all(Radius.circular(20.0)),
                               ),
                               filled: true,
                               fillColor: Colors.white,
                               contentPadding:
-                                  EdgeInsets.fromLTRB(12, 12, 12, 12),
+                              EdgeInsets.fromLTRB(12, 12, 12, 12),
                               isCollapsed: true,
                               suffixIcon: suffixIcons,
                             ),
@@ -386,7 +475,7 @@ class _Signup2State extends State<Signup2> {
                                 ],
                               ),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
+                              BorderRadius.all(Radius.circular(20)),
                             ),
                             child: const Align(
                               alignment: Alignment.center,
@@ -402,7 +491,15 @@ class _Signup2State extends State<Signup2> {
                             ),
                           ),
                           onTap: () {
-                            Navigator.of(context).pushNamed("/signup/3");
+                            _signup(
+                              context,
+                              widget.username,
+                              loginIdController.text,
+                              widget.nickname,
+                              passwordController.text,
+                              widget.userPhoneNum,
+                              widget.birthday,
+                            );
                           },
                         ),
                       ],

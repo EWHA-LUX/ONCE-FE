@@ -23,7 +23,7 @@ class _Signup1 extends State<Signup1> {
     String year = birthYearController.text;
     String month = birthMonthController.text;
     String day = birthDayController.text;
-    return '$year-$month-$day';
+    return '$year.$month.$day';
   }
 
   Widget StepIcon(String num, bool isCurrentStep) {
