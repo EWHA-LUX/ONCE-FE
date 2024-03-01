@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:get/get.dart';
 import 'package:once_front/style.dart';
+import 'package:once_front/src/screens/login/signup2.dart';
 
 class Signup1 extends StatefulWidget {
   @override
@@ -11,12 +12,19 @@ class Signup1 extends StatefulWidget {
 
 class _Signup1 extends State<Signup1> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String name = '';
-  String nickname = '';
-  String phoneNumber = '';
-  String birthYear = '';
-  String birthMonth = '';
-  String birthDay = '';
+  TextEditingController nameController = TextEditingController();
+  TextEditingController nicknameController = TextEditingController();
+  TextEditingController phoneNumberController = TextEditingController();
+  TextEditingController birthYearController = TextEditingController();
+  TextEditingController birthMonthController = TextEditingController();
+  TextEditingController birthDayController = TextEditingController();
+
+  String combineBirthday() {
+    String year = birthYearController.text;
+    String month = birthMonthController.text;
+    String day = birthDayController.text;
+    return '$year.$month.$day';
+  }
 
   Widget StepIcon(String num, bool isCurrentStep) {
     return Container(
@@ -137,9 +145,10 @@ class _Signup1 extends State<Signup1> {
           const SizedBox(
             height: 15,
           ),
-          const SizedBox(
+          SizedBox(
             height: 40,
-            child: TextField(
+            child: TextFormField(
+              controller: nameController,
               style: TextStyle(
                 fontSize: 13,
               ),
@@ -176,9 +185,10 @@ class _Signup1 extends State<Signup1> {
           const SizedBox(
             height: 15,
           ),
-          const SizedBox(
+          SizedBox(
             height: 40,
-            child: TextField(
+            child: TextFormField(
+              controller: nicknameController,
               style: TextStyle(
                 fontSize: 13,
               ),
@@ -217,7 +227,8 @@ class _Signup1 extends State<Signup1> {
           ),
           SizedBox(
             height: 40,
-            child: TextField(
+            child: TextFormField(
+              controller: phoneNumberController,
               style: const TextStyle(
                 fontSize: 13,
               ),
@@ -266,7 +277,8 @@ class _Signup1 extends State<Signup1> {
               SizedBox(
                 width: 82,
                 height: 40,
-                child: TextField(
+                child: TextFormField(
+                  controller: birthYearController,
                   style: const TextStyle(
                     fontSize: 13,
                   ),
@@ -297,7 +309,8 @@ class _Signup1 extends State<Signup1> {
               SizedBox(
                 width: 82,
                 height: 40,
-                child: TextField(
+                child: TextFormField(
+                  controller: birthMonthController,
                   style: const TextStyle(
                     fontSize: 13,
                   ),
@@ -328,7 +341,8 @@ class _Signup1 extends State<Signup1> {
               SizedBox(
                 width: 82,
                 height: 40,
-                child: TextField(
+                child: TextFormField(
+                  controller: birthDayController,
                   style: const TextStyle(
                     fontSize: 13,
                   ),
@@ -386,7 +400,13 @@ class _Signup1 extends State<Signup1> {
               ),
             ),
             onTap: () {
-              Navigator.of(context).pushNamed("/signup/2");
+              String birthday = combineBirthday();
+              Get.to(() => Signup2(
+                username: nameController.text,
+                nickname: nicknameController.text,
+                userPhoneNum: phoneNumberController.text,
+                birthday: birthday,
+              ));
             },
           ),
         ]));
