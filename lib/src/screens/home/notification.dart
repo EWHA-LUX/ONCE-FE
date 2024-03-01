@@ -5,6 +5,7 @@ import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/src/components/notice_popup_widget.dart';
 import 'package:once_front/src/components/notice_widget.dart';
+import 'package:once_front/src/screens/login/loading.dart';
 
 class PushNotification extends StatefulWidget {
   const PushNotification({super.key});
@@ -21,10 +22,12 @@ class _PushNotificationState extends State<PushNotification> {
   List<dynamic> announceTodayList = [];
   List<dynamic> announcePastList = [];
 
+  late Future<void> _noticeListFuture;
+
   @override
   void initState() {
     super.initState();
-    _noticeList(context);
+    _noticeListFuture = _noticeList();
   }
 
   void _updateState(Map<dynamic, dynamic> responseData) {
@@ -37,7 +40,7 @@ class _PushNotificationState extends State<PushNotification> {
   }
 
   // [Get] 알림 리스트 조회
-  Future<void> _noticeList(BuildContext context) async {
+  Future<void> _noticeList() async {
     // ==================== API 통신 ====================
     final String apiUrl = '${BASE_URL}/home/announcement';
 
@@ -279,8 +282,7 @@ class _PushNotificationState extends State<PushNotification> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget notificationUI(context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: EmptyAppBar(),
@@ -288,6 +290,23 @@ class _PushNotificationState extends State<PushNotification> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [_title(context), _notificationArea(context)],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: _noticeListFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Loading();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          // 데이터가 로드된 후에 표시할 화면
+          return notificationUI(context);
+        }
+      },
     );
   }
 }
