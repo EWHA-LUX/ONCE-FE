@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -53,34 +55,39 @@ class _PushNotificationState extends State<PushNotification> {
 
     final dio = Dio(baseOptions);
 
+    var response = await dio.get(apiUrl);
+    Map<dynamic, dynamic> responseData = response.data;
+    print(responseData);
+
+    if (responseData['code'] == 1000) {
+      _updateState(responseData);
+    }
+  }
+
+  // [Get] 알림 상세 조회
+  FutureOr<Map<dynamic, dynamic>?> _noticePopup(int announceId) async {
+    // ==================== API 통신 ====================
+    final String apiUrl = '${BASE_URL}/home/announcement';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
     try {
-      var response = await dio.get(apiUrl);
+      var response = await dio.get('$apiUrl/$announceId');
       Map<dynamic, dynamic> responseData = response.data;
       print(responseData);
 
       if (responseData['code'] == 1000) {
-        _updateState(responseData);
+        return responseData;
       }
     } catch (e) {
-      // ** 차후 수정 필요 **
-      print(e.toString());
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("오류 발생"),
-            content: Text("서버와 통신 중 오류가 발생했습니다."),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("확인"),
-              ),
-            ],
-          );
-        },
-      );
+      rethrow;
     }
   }
 
@@ -171,7 +178,7 @@ class _PushNotificationState extends State<PushNotification> {
         });
   }
 
-  NoticeType _mapType(int type) {
+  NoticeType _mapNoticeType(int type) {
     switch (type) {
       case 0:
         return NoticeType.TYPE1;
@@ -183,6 +190,21 @@ class _PushNotificationState extends State<PushNotification> {
         return NoticeType.TYPE4;
       default:
         return NoticeType.TYPE1;
+    }
+  }
+
+  NoticePopupType _mapPopupType(int type) {
+    switch (type) {
+      case 0:
+        return NoticePopupType.TYPE1;
+      case 1:
+        return NoticePopupType.TYPE2;
+      case 2:
+        return NoticePopupType.TYPE3;
+      case 3:
+        return NoticePopupType.TYPE4;
+      default:
+        return NoticePopupType.TYPE1;
     }
   }
 
@@ -208,11 +230,34 @@ class _PushNotificationState extends State<PushNotification> {
               if (index % 2 == 0) {
                 final noticeIndex = index ~/ 2;
                 final announcement = announceTodayList[noticeIndex];
-                return NoticeWidget(
-                  type: _mapType(announcement['type']),
-                  content: announcement['content'],
-                  announceDate: announcement['announceDate'],
-                  hasCheck: announcement['hasCheck'],
+                return GestureDetector(
+                  child: NoticeWidget(
+                    type: _mapNoticeType(announcement['type']),
+                    content: announcement['content'],
+                    announceDate: announcement['announceDate'],
+                    hasCheck: announcement['hasCheck'],
+                  ),
+                  onTap: () async {
+                    try {
+                      Map<dynamic, dynamic>? responseData =
+                          await _noticePopup(announcement['announceId']);
+
+                      _noticeListFuture = _noticeList();
+
+                      if (responseData != null) {
+                        showPopup(
+                            context,
+                            _mapPopupType(responseData['result']['type']),
+                            responseData['result']['content']
+                                .toString()
+                                .replaceAll('. ', '.\n'),
+                            responseData['result']['moreInfo'].toString(),
+                            responseData['result']['announceDate']);
+                      }
+                    } catch (e) {
+                      print(e.toString());
+                    }
+                  },
                 );
               } else {
                 return const Padding(
@@ -251,11 +296,34 @@ class _PushNotificationState extends State<PushNotification> {
               if (index % 2 == 0) {
                 final noticeIndex = index ~/ 2;
                 final announcement = announcePastList[noticeIndex];
-                return NoticeWidget(
-                  type: _mapType(announcement['type']),
-                  content: announcement['content'],
-                  announceDate: announcement['announceDate'],
-                  hasCheck: announcement['hasCheck'],
+                return GestureDetector(
+                  child: NoticeWidget(
+                    type: _mapNoticeType(announcement['type']),
+                    content: announcement['content'],
+                    announceDate: announcement['announceDate'],
+                    hasCheck: announcement['hasCheck'],
+                  ),
+                  onTap: () async {
+                    try {
+                      Map<dynamic, dynamic>? responseData =
+                          await _noticePopup(announcement['announceId']);
+
+                      _noticeListFuture = _noticeList();
+
+                      if (responseData != null) {
+                        showPopup(
+                            context,
+                            _mapPopupType(responseData['result']['type']),
+                            responseData['result']['content']
+                                .toString()
+                                .replaceAll('. ', '.\n'),
+                            responseData['result']['moreInfo'].toString(),
+                            responseData['result']['announceDate']);
+                      }
+                    } catch (e) {
+                      print(e.toString());
+                    }
+                  },
                 );
               } else {
                 return const Padding(
