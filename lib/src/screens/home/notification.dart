@@ -1,10 +1,95 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/src/components/notice_popup_widget.dart';
 import 'package:once_front/src/components/notice_widget.dart';
+import 'package:once_front/src/screens/login/loading.dart';
 
-class PushNotification extends StatelessWidget {
+class PushNotification extends StatefulWidget {
   const PushNotification({super.key});
+
+  @override
+  State<PushNotification> createState() => _PushNotificationState();
+}
+
+class _PushNotificationState extends State<PushNotification> {
+  final String BASE_URL = Constants.baseUrl;
+
+  String nickname = '';
+  int announceCount = 0;
+  List<dynamic> announceTodayList = [];
+  List<dynamic> announcePastList = [];
+
+  late Future<void> _noticeListFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _noticeListFuture = _noticeList();
+  }
+
+  void _updateState(Map<dynamic, dynamic> responseData) {
+    setState(() {
+      nickname = responseData['result']['nickname'];
+      announceCount = responseData['result']['announceCount'];
+      announceTodayList = responseData['result']['announceTodayList'];
+      announcePastList = responseData['result']['announcePastList'];
+    });
+  }
+
+  // [Get] 알림 리스트 조회
+  Future<void> _noticeList() async {
+    // ==================== API 통신 ====================
+    final String apiUrl = '${BASE_URL}/home/announcement';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    var response = await dio.get(apiUrl);
+    Map<dynamic, dynamic> responseData = response.data;
+    print(responseData);
+
+    if (responseData['code'] == 1000) {
+      _updateState(responseData);
+    }
+  }
+
+  // [Get] 알림 상세 조회
+  FutureOr<Map<dynamic, dynamic>?> _noticePopup(int announceId) async {
+    // ==================== API 통신 ====================
+    final String apiUrl = '${BASE_URL}/home/announcement';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      var response = await dio.get('$apiUrl/$announceId');
+      Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        return responseData;
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   Widget _title(context) {
     return Column(
@@ -35,26 +120,26 @@ class PushNotification extends StatelessWidget {
               fontSize: 23,
               fontWeight: FontWeight.w600),
         ),
-        const Padding(
-          padding: EdgeInsets.only(top: 12.0),
+        Padding(
+          padding: const EdgeInsets.only(top: 12.0),
           child: Text.rich(TextSpan(children: <TextSpan>[
             TextSpan(
-              text: '루스 님에게',
-              style: TextStyle(
+              text: '$nickname 님에게',
+              style: const TextStyle(
                   fontFamily: 'Pretendard',
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                   color: Color(0xff767676)),
             ),
             TextSpan(
-              text: ' 3개의 새로운 알림',
-              style: TextStyle(
+              text: ' $announceCount개의 새로운 알림',
+              style: const TextStyle(
                   fontFamily: 'Pretendard',
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: Color(0xff366FFF)),
             ),
-            TextSpan(
+            const TextSpan(
               text: '이 도착했습니다.',
               style: TextStyle(
                   fontFamily: 'Pretendard',
@@ -93,6 +178,37 @@ class PushNotification extends StatelessWidget {
         });
   }
 
+  NoticeType _mapNoticeType(int type) {
+    switch (type) {
+      case 0:
+        return NoticeType.TYPE1;
+      case 1:
+        return NoticeType.TYPE2;
+      case 2:
+        return NoticeType.TYPE3;
+      case 3:
+        return NoticeType.TYPE4;
+      default:
+        return NoticeType.TYPE1;
+    }
+  }
+
+  NoticePopupType _mapPopupType(int type) {
+    switch (type) {
+      case 0:
+        return NoticePopupType.TYPE1;
+      case 1:
+        return NoticePopupType.TYPE2;
+      case 2:
+        return NoticePopupType.TYPE3;
+      case 3:
+        return NoticePopupType.TYPE4;
+      default:
+        return NoticePopupType.TYPE1;
+    }
+  }
+
+  // 오늘 알림 리스트
   Widget _today(context) {
     return Padding(
       padding: const EdgeInsets.only(top: 30.0, left: 25.0),
@@ -109,39 +225,56 @@ class PushNotification extends StatelessWidget {
                   fontWeight: FontWeight.w700),
             ),
           ),
-          GestureDetector(
-            child: NoticeWidget(
-              type: NoticeType.TYPE1,
-              content: "이대역 스타벅스 근처이시군요. 현대 M 카드 사용해 보세요.",
-              announceDate: "11/18/2023 19:35:45",
-              hasCheck: false,
-            ),
-            onTap: () {
-              showPopup(
-                  context,
-                  NoticePopupType.TYPE1,
-                  "이대역 스타벅스 근처이시군요.\n 현대 M 카드 사용해 보세요!",
-                  "37.5570574, 126.946402",
-                  "11/18/2023 19:35:45");
-            },
-          ),
-          const Padding(
-            padding: EdgeInsets.only(right: 25.0),
-            child: Divider(
-              color: Color(0xff767676), // 가로줄의 색상
-            ),
-          ),
-          NoticeWidget(
-            type: NoticeType.TYPE1,
-            content: "다이소 신촌본점이시군요. 신한 플래티넘 카드를 사용해 보세요.",
-            announceDate: "11/18/2023 12:27:58",
-            hasCheck: false,
+          Column(
+            children: List.generate(announceTodayList.length * 2 - 1, (index) {
+              if (index % 2 == 0) {
+                final noticeIndex = index ~/ 2;
+                final announcement = announceTodayList[noticeIndex];
+                return GestureDetector(
+                  child: NoticeWidget(
+                    type: _mapNoticeType(announcement['type']),
+                    content: announcement['content'],
+                    announceDate: announcement['announceDate'],
+                    hasCheck: announcement['hasCheck'],
+                  ),
+                  onTap: () async {
+                    try {
+                      Map<dynamic, dynamic>? responseData =
+                          await _noticePopup(announcement['announceId']);
+
+                      _noticeListFuture = _noticeList();
+
+                      if (responseData != null) {
+                        showPopup(
+                            context,
+                            _mapPopupType(responseData['result']['type']),
+                            responseData['result']['content']
+                                .toString()
+                                .replaceAll('. ', '.\n'),
+                            responseData['result']['moreInfo'].toString(),
+                            responseData['result']['announceDate']);
+                      }
+                    } catch (e) {
+                      print(e.toString());
+                    }
+                  },
+                );
+              } else {
+                return const Padding(
+                  padding: EdgeInsets.only(right: 25.0),
+                  child: Divider(
+                    color: Color(0xff767676),
+                  ),
+                );
+              }
+            }),
           )
         ],
       ),
     );
   }
 
+  // 지난 주 알림 리스트
   Widget _lastWeek(context) {
     return Padding(
       padding: const EdgeInsets.only(top: 30.0, left: 25.0),
@@ -158,101 +291,50 @@ class PushNotification extends StatelessWidget {
                   fontWeight: FontWeight.w700),
             ),
           ),
-          GestureDetector(
-            child: NoticeWidget(
-              type: NoticeType.TYPE2,
-              content: "11월 목표 혜택 달성까지 7,000원 남았어요.",
-              announceDate: "11/15/2023 09:00:00",
-              hasCheck: false,
-            ),
-            onTap: () {
-              showPopup(context, NoticePopupType.TYPE2,
-                  "11월 목표 혜택 달성까지 7,000원 남았어요.", "0.7", "11/15/2023 09:00:00");
-            },
-          ),
-          const Padding(
-            padding: EdgeInsets.only(right: 25.0),
-            child: Divider(
-              color: Color(0xff767676), // 가로줄의 색상
-            ),
-          ),
-          GestureDetector(
-            child: NoticeWidget(
-              type: NoticeType.TYPE2,
-              content: "11월 목표 혜택 달성까지 7,000원 남았어요.",
-              announceDate: "11/08/2023 09:00:00",
-              hasCheck: true,
-            ),
-            onTap: () {},
-          ),
-          const Padding(
-            padding: EdgeInsets.only(right: 25.0),
-            child: Divider(
-              color: Color(0xff767676), // 가로줄의 색상
-            ),
-          ),
-          NoticeWidget(
-            type: NoticeType.TYPE1,
-            content: "GS25 신촌 이화점 근처이시군요. 신한 플래티넘 카드를 사용해 보세요.",
-            announceDate: "11/05/2023 11:26:18",
-            hasCheck: true,
-          ),
-          const Padding(
-            padding: EdgeInsets.only(right: 25.0),
-            child: Divider(
-              color: Color(0xff767676), // 가로줄의 색상
-            ),
-          ),
-          GestureDetector(
-            child: NoticeWidget(
-              type: NoticeType.TYPE3,
-              content: "9월 16일 원스가 업데이트 되었어요. 확인해 보세요.",
-              announceDate: "9/16/2023 9:00:00",
-              hasCheck: true,
-            ),
-            onTap: () {
-              showPopup(
-                  context,
-                  NoticePopupType.TYPE3,
-                  "2024년 09월 16일\n원스가 새롭게 업데이트 되었어요!",
-                  "url",
-                  "9/16/2023 9:00:00");
-            },
-          ),
-          const Padding(
-            padding: EdgeInsets.only(right: 25.0),
-            child: Divider(
-              color: Color(0xff767676), // 가로줄의 색상
-            ),
-          ),
-          GestureDetector(
-            child: NoticeWidget(
-              type: NoticeType.TYPE4,
-              content: "이번 달 현대 M카드 실적까지 35,000원 남았어요.",
-              announceDate: "9/15/2023 11:56:20",
-              hasCheck: true,
-            ),
-            onTap: () {
-              showPopup(
-                  context,
-                  NoticePopupType.TYPE4,
-                  "이번 달 현대 M카드 실적까지 35000원 남았어요!",
-                  "https://img.hyundaicard.com/img/com/card/card_MSKTE3_h.png",
-                  "9/15/2023 11:56:20");
-            },
-          ),
-          const Padding(
-            padding: EdgeInsets.only(right: 25.0),
-            child: Divider(
-              color: Color(0xff767676), // 가로줄의 색상
-            ),
-          ),
-          NoticeWidget(
-            type: NoticeType.TYPE1,
-            content: "신촌역 스타벅스 근처이시군요. 신한 플래티넘 카드를 사용해 보세요.",
-            announceDate: "9/12/2023 17:26:38",
-            hasCheck: true,
-          ),
+          Column(
+            children: List.generate(announcePastList.length * 2 - 1, (index) {
+              if (index % 2 == 0) {
+                final noticeIndex = index ~/ 2;
+                final announcement = announcePastList[noticeIndex];
+                return GestureDetector(
+                  child: NoticeWidget(
+                    type: _mapNoticeType(announcement['type']),
+                    content: announcement['content'],
+                    announceDate: announcement['announceDate'],
+                    hasCheck: announcement['hasCheck'],
+                  ),
+                  onTap: () async {
+                    try {
+                      Map<dynamic, dynamic>? responseData =
+                          await _noticePopup(announcement['announceId']);
+
+                      _noticeListFuture = _noticeList();
+
+                      if (responseData != null) {
+                        showPopup(
+                            context,
+                            _mapPopupType(responseData['result']['type']),
+                            responseData['result']['content']
+                                .toString()
+                                .replaceAll('. ', '.\n'),
+                            responseData['result']['moreInfo'].toString(),
+                            responseData['result']['announceDate']);
+                      }
+                    } catch (e) {
+                      print(e.toString());
+                    }
+                  },
+                );
+              } else {
+                return const Padding(
+                  padding: EdgeInsets.only(right: 25.0),
+                  child: Divider(
+                    color: Color(0xff767676),
+                  ),
+                );
+              }
+            }),
+          )
         ],
       ),
     );
@@ -268,8 +350,7 @@ class PushNotification extends StatelessWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget notificationUI(context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: EmptyAppBar(),
@@ -277,6 +358,23 @@ class PushNotification extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [_title(context), _notificationArea(context)],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: _noticeListFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Loading();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          // 데이터가 로드된 후에 표시할 화면
+          return notificationUI(context);
+        }
+      },
     );
   }
 }

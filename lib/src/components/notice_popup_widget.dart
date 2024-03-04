@@ -28,7 +28,7 @@ class NoticePopupWidget extends StatefulWidget {
 }
 
 class _NoticePopupWidgetState extends State<NoticePopupWidget> {
-  Completer<GoogleMapController> _controller = Completer();
+  final Completer<GoogleMapController> _controller = Completer();
 
   @override
   void initState() {
@@ -110,7 +110,7 @@ class _NoticePopupWidgetState extends State<NoticePopupWidget> {
                     child: GoogleMap(
                       mapType: MapType.normal,
                       initialCameraPosition: CameraPosition(
-                        target: LatLng(latitude, longitude), // 스타벅스 이대역점
+                        target: LatLng(latitude, longitude), // 지도 위치
                         zoom: 18,
                       ),
                       onMapCreated: (GoogleMapController controller) {
@@ -124,11 +124,13 @@ class _NoticePopupWidgetState extends State<NoticePopupWidget> {
                 ),
                 Text(
                   widget.content,
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black),
+                    fontFamily: 'Pretendard',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
                 ),
               ],
             ),
