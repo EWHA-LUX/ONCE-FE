@@ -10,6 +10,7 @@ import 'package:once_front/style.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../../constants.dart';
+import '../login/loading.dart';
 import 'card_item.dart';
 
 class MyWallet extends StatefulWidget {
@@ -23,6 +24,7 @@ class _MyWalletState extends State<MyWallet>
     with SingleTickerProviderStateMixin {
 
   final String BASE_URL = Constants.baseUrl;
+  late Future<void> _mywalletListFuture;
 
   var _selectedIndex = 0; // 현재 선택된 카드
   late List<Map<String, dynamic>> _cardList;
@@ -111,12 +113,30 @@ class _MyWalletState extends State<MyWallet>
   @override
   void initState() {
     super.initState();
+    _mywalletListFuture = _getMyWallet(context);
     _isFlippedList = [];
     _getMyWallet(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: _mywalletListFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Loading();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          // 데이터가 로드된 후에 표시할 화면
+          return _buildContent(context);
+        }
+      },
+    );
+  }
+
+  @override
+  Widget _buildContent(BuildContext context) {
     _isFlippedList = List.generate(_cardList.length, (index) => false);
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
