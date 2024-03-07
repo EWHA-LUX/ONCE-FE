@@ -1,12 +1,15 @@
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:once_front/src/screens/mywallet/cardbanner.dart';
+import 'package:intl/intl.dart';
 import 'package:once_front/style.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import '../../../constants.dart';
 import 'card_item.dart';
 
 class MyWallet extends StatefulWidget {
@@ -18,7 +21,11 @@ class MyWallet extends StatefulWidget {
 
 class _MyWalletState extends State<MyWallet>
     with SingleTickerProviderStateMixin {
+
+  final String BASE_URL = Constants.baseUrl;
+
   var _selectedIndex = 0; // 현재 선택된 카드
+  late List<Map<String, dynamic>> _cardList;
 
   // 카드 뒤집기
   double angle = 0;
@@ -26,18 +33,91 @@ class _MyWalletState extends State<MyWallet>
   void _flip(int index) {
     setState(() {
       _isFlippedList[index] = !_isFlippedList[index];
-      //angle = (angle + pi) % (2 * pi);
     });
   }
 
   // 카드 뒤집기 여부 확인 리스트
-  final List<bool> _isFlippedList = List.generate(
-    cardBannerList.length,
-    (index) => false,
-  );
+  late List<bool> _isFlippedList;
+
+  void _updateState(Map<dynamic, dynamic> responseData) {
+    setState(() {
+      List<dynamic> ownedCardList = responseData['result']['ownedCardList'];
+      _cardList = ownedCardList.map((card) {
+        return {
+          'cardName': card['cardName'],
+          'cardType': card['cardType'],
+          'cardImg': card['cardImg'],
+          'isMaincard': card['isMaincard'],
+          'performanceCondition': card['performanceCondition'],
+          'currentPerformance': card['currentPerformance'],
+          'remainPerformance': card['remainPerformance'],
+          'cardBenefitList': List<Map<String, dynamic>>.from(card['cardBenefitList'].map((benefit) => {
+            'category': benefit['category'],
+            'benefit': benefit['benefit'],
+          })),
+        };
+      }).toList();
+      _isFlippedList = List.generate(
+        _cardList.length,
+            (index) => false,
+      );
+    });
+  }
+
+  // [Get] 마이월렛 조회
+  Future<void> _getMyWallet(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/card';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      var response = await dio.get(apiUrl);
+      Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        _updateState(responseData);
+      }
+    } catch (e) {
+      // ** 차후 수정 필요 **
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _isFlippedList = [];
+    _getMyWallet(context);
+  }
 
   @override
   Widget build(BuildContext context) {
+    _isFlippedList = List.generate(_cardList.length, (index) => false);
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
@@ -111,13 +191,13 @@ class _MyWalletState extends State<MyWallet>
               },
               // 좌우 오버랩 카드 설정
               controller: PageController(viewportFraction: 0.6),
-              itemCount: cardBannerList.length,
+              itemCount: _cardList.length,
               itemBuilder: (context, index) {
-                var banner = cardBannerList[index];
-                var isFlipped = _isFlippedList[index];
+                var banner = _cardList[index];
+                //var isFlipped = _isFlippedList[index];
                 // 카드 선택 여부에 따라 크기 변경
                 var _scale = _selectedIndex == index ? 1.0 : 0.7;
-                double _angle = 0;
+                //double _angle = 0;
 
                 // 카드 스와이프 애니메이션 구현
                 return GestureDetector(
@@ -135,7 +215,7 @@ class _MyWalletState extends State<MyWallet>
                             ..setEntry(3, 2, 0.001)
                             ..rotateY(val),
                           child: CardItem(
-                            cardBanner: banner,
+                            cardImg: _cardList[index]['cardImg'],
                             isFlipped: _isFlippedList[index],
                           ),
                         ),
@@ -154,7 +234,7 @@ class _MyWalletState extends State<MyWallet>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ...List.generate(
-                cardBannerList.length,
+                _cardList.length,
                 (index) =>
                     Indicator(isActive: _selectedIndex == index ? true : false),
               )
@@ -190,7 +270,7 @@ class _MyWalletState extends State<MyWallet>
                     Padding(
                       padding: const EdgeInsets.only(left: 20.0),
                       child: Text(
-                        cardBannerList[_selectedIndex].cardName,
+                        _cardList[_selectedIndex]['cardName'],
                         style: const TextStyle(
                           color: Colors.black,
                           fontFamily: 'Pretendard',
@@ -204,7 +284,7 @@ class _MyWalletState extends State<MyWallet>
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Text(
-                        "이번 달 실적까지 ${cardBannerList[_selectedIndex].remainAmount}원 남았어요.",
+                        "이번 달 실적까지 ${NumberFormat('#,###').format(_cardList[_selectedIndex]['remainPerformance'])}원 남았어요.",
                         style: const TextStyle(
                           color: Color(0xFF767676),
                           fontFamily: 'Pretendard',
@@ -222,7 +302,9 @@ class _MyWalletState extends State<MyWallet>
                         animation: true,
                         lineHeight: 8.0,
                         animationDuration: 900,
-                        percent: cardBannerList[_selectedIndex].performance,
+                        percent: _cardList[_selectedIndex]['currentPerformance'] != null && _cardList[_selectedIndex]['performanceCondition'] != null
+                            ? _cardList[_selectedIndex]['currentPerformance'] / _cardList[_selectedIndex]['performanceCondition']
+                            : 0.0,
                         barRadius: const Radius.circular(20),
                         linearGradient: const LinearGradient(
                           colors: [

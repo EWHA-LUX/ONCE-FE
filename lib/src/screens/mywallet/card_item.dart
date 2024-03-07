@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:once_front/src/screens/mywallet/cardbanner.dart';
 
 class CardItem extends StatelessWidget {
-  final CardBanner cardBanner;
   final bool isFlipped;
+  final String cardImg;
   const CardItem({
     Key? key,
-    required this.cardBanner,
     required this.isFlipped,
+    required this.cardImg,
   }) : super(key: key);
 
   @override
@@ -19,7 +18,7 @@ class CardItem extends StatelessWidget {
         color: isFlipped ? Color(0xF2E5E5E5) : null,
         image: !isFlipped
             ? DecorationImage(
-          image: NetworkImage(cardBanner.thumbnailUrl),
+          image: NetworkImage(cardImg),
           fit: BoxFit.cover,
         )
             : null,
