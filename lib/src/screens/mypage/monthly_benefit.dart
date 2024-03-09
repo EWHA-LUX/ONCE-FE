@@ -1,16 +1,88 @@
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:flutter_svg/svg.dart';
 
-class MonthlyBenefit extends StatelessWidget {
+class MonthlyBenefit extends StatefulWidget {
   const MonthlyBenefit({super.key});
+
+  @override
+  State<MonthlyBenefit> createState() => _MonthlyBenefitState();
+}
+
+class _MonthlyBenefitState extends State<MonthlyBenefit> {
+  final String BASE_URL = Constants.baseUrl;
+
+  String nickname = '';
+  int benefitGoal = 0;
+
+  int newBenefitGoal = 0;
 
   final int month = 8;
   final String remainAmount = "5,600";
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserInfo(context);
+  }
+
+  void _updateState(Map<dynamic, dynamic> responseData) {
+    setState(() {
+      nickname = responseData['result']['nickname'];
+      benefitGoal = responseData['result']['benefitGoal'];
+      newBenefitGoal = benefitGoal;
+    });
+  }
+
+  Future<void> _getUserInfo(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/mypage';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      var response = await dio.get(apiUrl);
+      Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        _updateState(responseData);
+      }
+    } catch (e) {
+      // ** 차후 수정 필요 **
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   Widget _gradationBody(context) {
     return SingleChildScrollView(
@@ -20,10 +92,7 @@ class MonthlyBenefit extends StatelessWidget {
           Container(
             // 상단 그라데이션 배경
             height: 560,
-            width: MediaQuery
-                .of(context)
-                .size
-                .width,
+            width: MediaQuery.of(context).size.width,
             decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topRight,
@@ -96,10 +165,7 @@ class MonthlyBenefit extends StatelessWidget {
           // 혜택 조회 상단 화이트 박스
           Positioned(
             top: 160,
-            left: MediaQuery
-                .of(context)
-                .size
-                .width / 2 - 170,
+            left: MediaQuery.of(context).size.width / 2 - 170,
             child: Container(
               width: 340,
               height: 230,
@@ -121,80 +187,256 @@ class MonthlyBenefit extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20.0, top: 20.0),
-                    child: Text(
-                      '$month월의 혜택',
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, top: 20.0),
+                        child: Text(
+                          '$month월의 혜택',
+                          style: const TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
-                    ),
+                      // 목표 수정하기 버튼
+                      GestureDetector(
+                        child: const Padding(
+                          padding: EdgeInsets.only(top: 10.0, right: 20.0),
+                          child: Icon(
+                            Icons.more_horiz,
+                            color: Color(0xffc2c2c2),
+                          ),
+                        ),
+                        onTap: () {
+                          showModalBottomSheet(
+                              context: context,
+                              backgroundColor: const Color(0xffF7F8FC),
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(30),
+                                      topRight: Radius.circular(30))),
+                              builder: (BuildContext context) {
+                                return StatefulBuilder(builder:
+                                    (BuildContext context,
+                                        StateSetter setState) {
+                                  return Container(
+                                    height: 430,
+                                    margin: const EdgeInsets.only(
+                                      top: 20,
+                                      left: 25,
+                                      right: 25,
+                                      bottom: 30,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Center(
+                                          child: Container(
+                                            margin:
+                                                const EdgeInsets.only(top: 7),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                color: Color(0xffD5D7DF)),
+                                            width: 48,
+                                            height: 4,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 28.0, vertical: 60.0),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text.rich(TextSpan(children: <
+                                                      TextSpan>[
+                                                    TextSpan(
+                                                      text: '$nickname ',
+                                                      style: const TextStyle(
+                                                          fontFamily:
+                                                              'Pretendard',
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          color: Color(
+                                                              0xff366FFF)),
+                                                    ),
+                                                    const TextSpan(
+                                                      text: '님,',
+                                                      style: TextStyle(
+                                                          fontFamily:
+                                                              'Pretendard',
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: Colors.black),
+                                                    ),
+                                                  ])),
+                                                  const SizedBox(
+                                                    height: 5,
+                                                  ),
+                                                  const Text('목표를 변경하시겠어요?',
+                                                      style: TextStyle(
+                                                          fontFamily:
+                                                              'Pretendard',
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: Colors.black)),
+                                                ],
+                                              ),
+                                              Image.asset(
+                                                'assets/images/3d_icons/target_3d_icon.png',
+                                                width: 70,
+                                                height: 70,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        Center(
+                                          child: Text.rich(
+                                              TextSpan(children: <TextSpan>[
+                                            const TextSpan(
+                                              text: '현재 목표 금액은 ',
+                                              style: TextStyle(
+                                                  fontFamily: 'Pretendard',
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: Colors.black),
+                                            ),
+                                            TextSpan(
+                                              text: '$benefitGoal원 ',
+                                              style: const TextStyle(
+                                                  fontFamily: 'Pretendard',
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.black),
+                                            ),
+                                            const TextSpan(
+                                              text: '이에요!',
+                                              style: TextStyle(
+                                                  fontFamily: 'Pretendard',
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: Colors.black),
+                                            ),
+                                          ])),
+                                        ),
+                                        const SizedBox(
+                                          height: 25,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            GestureDetector(
+                                              child: Image.asset(
+                                                'assets/images/icons/minus_icon.png',
+                                                width: 25,
+                                                height: 25,
+                                              ),
+                                              onTap: () {
+                                                setState(() {
+                                                  newBenefitGoal -= 5000;
+                                                });
+                                              },
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8.0),
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 15,
+                                                  vertical: 8,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  border: Border.all(
+                                                      color: Colors.white),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child:
+                                                    Text('$newBenefitGoal 원'),
+                                              ),
+                                            ),
+                                            GestureDetector(
+                                              child: Image.asset(
+                                                'assets/images/icons/plus_icon.png',
+                                                width: 25,
+                                                height: 25,
+                                              ),
+                                              onTap: () {
+                                                setState(() {
+                                                  newBenefitGoal += 5000;
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          height: 60,
+                                        ),
+                                        Container(
+                                          width: 125,
+                                          height: 37,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xff0083EE),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: const Center(
+                                            child: Text('변경하기',
+                                                style: TextStyle(
+                                                  fontFamily: 'Pretendard',
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.white,
+                                                )),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                });
+                              });
+                        },
+                      )
+                    ],
                   ),
-                  Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            '이번 달 목표까지 5,600원 부족해요.',
-                            style: TextStyle(
-                                fontFamily: 'Pretendard',
-                                fontSize: 13,
-                                fontWeight: FontWeight.w300,
-                                color: Color(0xff767676)),
-                          ),
-
-                          // 목표 수정하기 버튼
-                          GestureDetector(
-                            child: Container(
-                              width: 110,
-                              height: 25,
-                              decoration: const BoxDecoration(
-                                color: Color(0xffF2F2F2),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
-                                ),
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Text(
-                                      '목표 수정하기',
-                                      style: TextStyle(
-                                          fontFamily: 'Pretendard',
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w400,
-                                          color: Color(0xff828282)),
-                                    ),
-                                    SizedBox(
-                                      width: 8,
-                                    ),
-                                    Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      size: 10,
-                                      color: Color(0xff828282),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            onTap: () {},
-                          ),
-                        ],
-                      ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Text(
+                      '이번 달 목표까지 5,600원 부족해요.',
+                      style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w300,
+                          color: Color(0xff767676)),
+                    ),
                   ),
                   Stack(
                     children: [
                       Padding(
                         padding: EdgeInsets.only(
-                            left: MediaQuery
-                                .of(context)
-                                .size
-                                .width / 2 - 130,
+                            left: MediaQuery.of(context).size.width / 2 - 130,
                             top: 20.0),
                         child: Container(
                           child: Circular_arc(
@@ -204,10 +446,7 @@ class MonthlyBenefit extends StatelessWidget {
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            left: MediaQuery
-                                .of(context)
-                                .size
-                                .width / 2 - 75,
+                            left: MediaQuery.of(context).size.width / 2 - 75,
                             top: 40.0),
                         child: Column(
                           children: [
