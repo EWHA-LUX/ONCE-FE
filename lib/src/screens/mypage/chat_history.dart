@@ -264,83 +264,102 @@ class _ChatHistoryState extends State<ChatHistory> {
                 ),
               ),
               child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    for (var entry in groupedChats.entries)
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 23.0, top: 15.0, bottom: 10.0),
-                            child: Row(
-                              children: [
-                                Text(
-                                  entry.key, // chatDate
-                                  style: const TextStyle(
-                                      fontFamily: 'Pretendard',
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xff767676)),
-                                ),
-                              ],
-                            ),
+                child: (chatCount == 0)
+                    ? Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              top: (MediaQuery.of(context).size.height - 400) /
+                                  2),
+                          child: const Text(
+                            '대화가 존재하지 않습니다.',
+                            style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xff767676)),
                           ),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: entry.value.length,
-                            itemBuilder: (context, index) {
-                              Map<String, dynamic> chatItem =
-                                  entry.value[index];
-                              return ListTile(
-                                title: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
+                        ),
+                      )
+                    : Column(
+                        children: [
+                          for (var entry in groupedChats.entries)
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 23.0, top: 15.0, bottom: 10.0),
+                                  child: Row(
                                     children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            chatItem['keyword'],
-                                            style: const TextStyle(
-                                              fontFamily: 'Pretendard',
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            chatItem['cardName'],
-                                            style: const TextStyle(
-                                                fontFamily: 'Pretendard',
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w500,
-                                                color: Color(0xff0083EE)),
-                                          ),
-                                        ],
-                                      ),
                                       Text(
-                                        chatItem['chatTime'],
+                                        entry.key, // chatDate
                                         style: const TextStyle(
                                             fontFamily: 'Pretendard',
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
                                             color: Color(0xff767676)),
                                       ),
                                     ],
                                   ),
                                 ),
-                              );
-                            },
-                          ),
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: entry.value.length,
+                                  itemBuilder: (context, index) {
+                                    Map<String, dynamic> chatItem =
+                                        entry.value[index];
+                                    return ListTile(
+                                      title: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  chatItem['keyword'],
+                                                  style: const TextStyle(
+                                                    fontFamily: 'Pretendard',
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  chatItem['cardName'],
+                                                  style: const TextStyle(
+                                                      fontFamily: 'Pretendard',
+                                                      fontSize: 15,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Color(0xff0083EE)),
+                                                ),
+                                              ],
+                                            ),
+                                            Text(
+                                              chatItem['chatTime'],
+                                              style: const TextStyle(
+                                                  fontFamily: 'Pretendard',
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: Color(0xff767676)),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                         ],
                       ),
-                  ],
-                ),
               ),
             ),
           ),
