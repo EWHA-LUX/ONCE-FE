@@ -1,10 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
-
-import 'chat_item.dart';
+import 'package:once_front/src/screens/login/loading.dart';
 
 class ChatHistory extends StatefulWidget {
   const ChatHistory({super.key});
@@ -14,12 +16,56 @@ class ChatHistory extends StatefulWidget {
 }
 
 class _ChatHistoryState extends State<ChatHistory> {
+  final String BASE_URL = Constants.baseUrl;
+
   late DateTime currentDate;
+
+  int chatCount = 0;
+  List<dynamic> chatList = [];
+
+  late Future<void> _chatHistoryFuture;
 
   @override
   void initState() {
     super.initState();
     currentDate = DateTime.now();
+    _chatHistoryFuture = _chatHistory('2024-01');
+  }
+
+  void _updateState(Map<dynamic, dynamic> responseData) {
+    setState(() {
+      chatCount = responseData['result']['chatCount'];
+      chatList = responseData['result']['chatList'];
+    });
+  }
+
+  // [Get] 챗봇 대화 조회
+  Future<void> _chatHistory(month) async {
+    // ==================== API 통신 ====================
+    final String apiUrl = '${BASE_URL}/mypage/chathistory';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    var response = await dio.get(apiUrl, queryParameters: {'month': month});
+    Map<dynamic, dynamic> responseData = response.data;
+    print(responseData);
+
+    if (responseData['code'] == 1000) {
+      _updateState(responseData);
+    }
+    if (responseData['code'] == 3200) {
+      setState(() {
+        chatCount = 0;
+        chatList = [];
+      });
+    }
   }
 
   void goToNextMonth() {
@@ -145,6 +191,9 @@ class _ChatHistoryState extends State<ChatHistory> {
                   ),
                   onTap: () {
                     goToPreviousMonth();
+                    String formattedDate =
+                        DateFormat('yyyy-MM').format(currentDate);
+                    _chatHistory(formattedDate);
                   },
                 ),
                 Text(formattedDate,
@@ -159,8 +208,11 @@ class _ChatHistoryState extends State<ChatHistory> {
                     size: 12,
                     color: Colors.black,
                   ),
-                  onTap: () {
+                  onTap: () async {
                     goToNextMonth();
+                    String formattedDate =
+                        DateFormat('yyyy-MM').format(currentDate);
+                    _chatHistory(formattedDate);
                   },
                 ),
               ],
@@ -172,14 +224,17 @@ class _ChatHistoryState extends State<ChatHistory> {
   }
 
   Widget _chatList(context) {
-    Map<String, List<ChatItem>> groupedData = {};
+    // chatDate로 그룹화
+    Map<String, List<Map<String, dynamic>>> groupedChats = {};
 
-    // chatData로 그룹화
-    for (ChatItem chatItem in chatDataList) {
-      if (!groupedData.containsKey(chatItem.chatDate)) {
-        groupedData[chatItem.chatDate] = [];
+    for (var chat in chatList) {
+      String date = chat['chatDate'];
+
+      if (!groupedChats.containsKey(date)) {
+        groupedChats[date] = [];
       }
-      groupedData[chatItem.chatDate]!.add(chatItem);
+
+      groupedChats[date]!.add(chat);
     }
 
     return Padding(
@@ -209,90 +264,102 @@ class _ChatHistoryState extends State<ChatHistory> {
                 ),
               ),
               child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    for (var entry in groupedData.entries)
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 23.0, vertical: 20.0),
-                            child: Row(
-                              children: [
-                                Text(
-                                  entry.key, // chatDate
-                                  style: const TextStyle(
-                                      fontFamily: 'Pretendard',
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xff767676)),
-                                ),
-                                const Expanded(
-                                  child: Divider(
-                                    color: Color(0xff767676),
-                                    thickness: 1.5,
-                                    indent: 20,
-                                    endIndent: 15,
-                                  ),
-                                ),
-                              ],
-                            ),
+                child: (chatCount == 0)
+                    ? Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              top: (MediaQuery.of(context).size.height - 400) /
+                                  2),
+                          child: const Text(
+                            '대화가 존재하지 않습니다.',
+                            style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xff767676)),
                           ),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: entry.value.length,
-                            itemBuilder: (context, index) {
-                              ChatItem chatItem = entry.value[index];
-                              return ListTile(
-                                title: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 30.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
+                        ),
+                      )
+                    : Column(
+                        children: [
+                          for (var entry in groupedChats.entries)
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 23.0, top: 15.0, bottom: 10.0),
+                                  child: Row(
                                     children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            chatItem.keyword,
-                                            style: const TextStyle(
-                                              fontFamily: 'Pretendard',
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            chatItem.cardName,
-                                            style: const TextStyle(
-                                                fontFamily: 'Pretendard',
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w500,
-                                                color: Color(0xff0083EE)),
-                                          ),
-                                        ],
-                                      ),
                                       Text(
-                                        chatItem.chatTime,
+                                        entry.key, // chatDate
                                         style: const TextStyle(
                                             fontFamily: 'Pretendard',
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
                                             color: Color(0xff767676)),
                                       ),
                                     ],
                                   ),
                                 ),
-                              );
-                            },
-                          ),
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: entry.value.length,
+                                  itemBuilder: (context, index) {
+                                    Map<String, dynamic> chatItem =
+                                        entry.value[index];
+                                    return ListTile(
+                                      title: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  chatItem['keyword'],
+                                                  style: const TextStyle(
+                                                    fontFamily: 'Pretendard',
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  chatItem['cardName'],
+                                                  style: const TextStyle(
+                                                      fontFamily: 'Pretendard',
+                                                      fontSize: 15,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Color(0xff0083EE)),
+                                                ),
+                                              ],
+                                            ),
+                                            Text(
+                                              chatItem['chatTime'],
+                                              style: const TextStyle(
+                                                  fontFamily: 'Pretendard',
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: Color(0xff767676)),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                         ],
                       ),
-                  ],
-                ),
               ),
             ),
           ),
@@ -301,10 +368,7 @@ class _ChatHistoryState extends State<ChatHistory> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    String formattedDate = DateFormat('yyyy년 MM월').format(currentDate);
-
+  Widget chatHistoryUI(context, formattedDate) {
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
@@ -316,6 +380,25 @@ class _ChatHistoryState extends State<ChatHistory> {
           ],
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String formattedDate = DateFormat('yyyy년 MM월').format(currentDate);
+
+    return FutureBuilder<void>(
+      future: _chatHistoryFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Loading();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          // 데이터가 로드된 후에 표시할 화면
+          return chatHistoryUI(context, formattedDate);
+        }
+      },
     );
   }
 }
