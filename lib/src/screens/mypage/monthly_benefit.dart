@@ -41,6 +41,52 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
     });
   }
 
+  // [Post] 목표 금액 변경
+  Future<void> _updateBenefitGoal(context, newBenefitGoal) async {
+    final String apiUrl = '${BASE_URL}/card/benefitgoal';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      var response =
+          await dio.post(apiUrl, data: {"benefitGoal": newBenefitGoal});
+      Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      // ** 차후 수정 필요 **
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // [Get] 유저 정보 가져오기
   Future<void> _getUserInfo(BuildContext context) async {
     final String apiUrl = '${BASE_URL}/mypage';
 
@@ -394,23 +440,29 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                         const SizedBox(
                                           height: 60,
                                         ),
-                                        Container(
-                                          width: 125,
-                                          height: 37,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xff0083EE),
-                                            borderRadius:
-                                                BorderRadius.circular(20),
+                                        GestureDetector(
+                                          child: Container(
+                                            width: 125,
+                                            height: 37,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xff0083EE),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: const Center(
+                                              child: Text('변경하기',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Pretendard',
+                                                    fontSize: 17,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.white,
+                                                  )),
+                                            ),
                                           ),
-                                          child: const Center(
-                                            child: Text('변경하기',
-                                                style: TextStyle(
-                                                  fontFamily: 'Pretendard',
-                                                  fontSize: 17,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.white,
-                                                )),
-                                          ),
+                                          onTap: () {
+                                            _updateBenefitGoal(
+                                                context, newBenefitGoal);
+                                          },
                                         )
                                       ],
                                     ),
