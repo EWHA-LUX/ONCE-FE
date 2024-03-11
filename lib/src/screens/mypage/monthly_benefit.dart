@@ -156,7 +156,8 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
       print(responseData);
 
       if (responseData['code'] == 1000) {
-        Navigator.pop(context);
+        _getUserInfo(context);
+        _getMontlyBenefit(context);
       }
     } catch (e) {
       // ** 차후 수정 필요 **
@@ -558,6 +559,7 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                             _updateBenefitGoal(
                                                 context, newBenefitGoal);
                                             Navigator.pop(context);
+                                            setState(() {});
                                             showSnackBar(context);
                                           },
                                         )
