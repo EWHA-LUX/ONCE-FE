@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: "/mywallet", page: () => const MyWallet()),
         GetPage(name: "/mypage", page: () => const MyPage()),
         GetPage(name: "/mypage/edit", page: () => const UserEditPage()),
-        GetPage(name: "/mypage/benefit", page: () => const MonthlyBenefit()),
+        GetPage(name: "/mypage/benefit", page: () => MonthlyBenefit()),
         GetPage(name: "/mypage/chat-history", page: () => const ChatHistory()),
         GetPage(name: "/mypage/maincard-manage", page: () => const MaincardManage()),
         GetPage(name: "/codef", page: () => const RegisterMainCard()),

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:intl/intl.dart';
 import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:get/get.dart';
@@ -10,10 +11,10 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:flutter_svg/svg.dart';
 
 class MonthlyBenefit extends StatefulWidget {
-  const MonthlyBenefit({super.key});
+  MonthlyBenefit({Key? key}) : super(key: key);
 
   @override
-  State<MonthlyBenefit> createState() => _MonthlyBenefitState();
+  _MonthlyBenefitState createState() => _MonthlyBenefitState();
 }
 
 class _MonthlyBenefitState extends State<MonthlyBenefit> {
@@ -21,15 +22,21 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
 
   String nickname = '';
   int benefitGoal = 0;
-
   int newBenefitGoal = 0;
 
-  final int month = 8;
-  final String remainAmount = "5,600";
+  DateTime dt = DateTime.now();
+  int? _month;
+  num? _receivedSum;
+  int? _remainBenefit;
+  late List<dynamic> _benefitList = [];
+  //late List<Map<String, dynamic>> _benefitList = [];
 
   @override
   void initState() {
     super.initState();
+    dt = DateTime.now();
+    _month = dt.month;
+    _getMontlyBenefit(context);
     _getUserInfo(context);
   }
 
@@ -39,6 +46,73 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
       benefitGoal = responseData['result']['benefitGoal'];
       newBenefitGoal = benefitGoal;
     });
+  }
+
+  void _updateBenefitState(Map<dynamic, dynamic> responseData) {
+    setState(() {
+      var result = responseData['result'];
+      var benefitList = result['benefitList'];
+
+      if (benefitList != null && benefitList.isNotEmpty) {
+        _benefitList = benefitList.map((benefit) {
+          return {
+            'category': benefit['category'],
+            'discountPriceSum': benefit['discountPriceSum'],
+            'priceSum': benefit['priceSum'],
+          };
+        }).toList();
+      } else {
+        _benefitList = [];
+      }
+
+      _month = result['month'] as int?;
+      _receivedSum = result['receivedSum'] ?? 0;
+      _remainBenefit = result['remainBenefit'] ?? 0;
+    });
+  }
+
+  // [Get] 월별 혜택 조회
+  Future<void> _getMontlyBenefit(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/card/benefit?month=$_month';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      var response = await dio.get(apiUrl);
+      Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        _updateBenefitState(responseData);
+      }
+    } catch (e) {
+      // ** 차후 수정 필요 **
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   // [Post] 목표 금액 변경
@@ -56,7 +130,7 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
 
     try {
       var response =
-          await dio.post(apiUrl, data: {"benefitGoal": newBenefitGoal});
+      await dio.post(apiUrl, data: {"benefitGoal": newBenefitGoal});
       Map<dynamic, dynamic> responseData = response.data;
       print(responseData);
 
@@ -138,7 +212,10 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
           Container(
             // 상단 그라데이션 배경
             height: 560,
-            width: MediaQuery.of(context).size.width,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width,
             decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topRight,
@@ -211,7 +288,10 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
           // 혜택 조회 상단 화이트 박스
           Positioned(
             top: 160,
-            left: MediaQuery.of(context).size.width / 2 - 170,
+            left: MediaQuery
+                .of(context)
+                .size
+                .width / 2 - 170,
             child: Container(
               width: 340,
               height: 230,
@@ -239,7 +319,7 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                       Padding(
                         padding: const EdgeInsets.only(left: 20.0, top: 20.0),
                         child: Text(
-                          '$month월의 혜택',
+                          '$_month월의 혜택',
                           style: const TextStyle(
                             fontFamily: 'Pretendard',
                             fontSize: 18,
@@ -268,7 +348,7 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                               builder: (BuildContext context) {
                                 return StatefulBuilder(builder:
                                     (BuildContext context,
-                                        StateSetter setState) {
+                                    StateSetter setState) {
                                   return Container(
                                     height: 430,
                                     margin: const EdgeInsets.only(
@@ -279,15 +359,15 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                     ),
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                      CrossAxisAlignment.center,
                                       children: [
                                         Center(
                                           child: Container(
                                             margin:
-                                                const EdgeInsets.only(top: 7),
+                                            const EdgeInsets.only(top: 7),
                                             decoration: BoxDecoration(
                                                 borderRadius:
-                                                    BorderRadius.circular(10),
+                                                BorderRadius.circular(10),
                                                 color: Color(0xffD5D7DF)),
                                             width: 48,
                                             height: 4,
@@ -298,13 +378,13 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                               horizontal: 28.0, vertical: 60.0),
                                           child: Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                            MainAxisAlignment.spaceBetween,
                                             children: [
                                               Column(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.start,
+                                                MainAxisAlignment.start,
                                                 crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                CrossAxisAlignment.start,
                                                 children: [
                                                   Text.rich(TextSpan(children: <
                                                       TextSpan>[
@@ -312,10 +392,10 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                                       text: '$nickname ',
                                                       style: const TextStyle(
                                                           fontFamily:
-                                                              'Pretendard',
+                                                          'Pretendard',
                                                           fontSize: 18,
                                                           fontWeight:
-                                                              FontWeight.w700,
+                                                          FontWeight.w700,
                                                           color: Color(
                                                               0xff366FFF)),
                                                     ),
@@ -323,10 +403,10 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                                       text: '님,',
                                                       style: TextStyle(
                                                           fontFamily:
-                                                              'Pretendard',
+                                                          'Pretendard',
                                                           fontSize: 18,
                                                           fontWeight:
-                                                              FontWeight.w600,
+                                                          FontWeight.w600,
                                                           color: Colors.black),
                                                     ),
                                                   ])),
@@ -336,10 +416,10 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                                   const Text('목표를 변경하시겠어요?',
                                                       style: TextStyle(
                                                           fontFamily:
-                                                              'Pretendard',
+                                                          'Pretendard',
                                                           fontSize: 18,
                                                           fontWeight:
-                                                              FontWeight.w600,
+                                                          FontWeight.w600,
                                                           color: Colors.black)),
                                                 ],
                                               ),
@@ -357,38 +437,41 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                         Center(
                                           child: Text.rich(
                                               TextSpan(children: <TextSpan>[
-                                            const TextSpan(
-                                              text: '현재 목표 금액은 ',
-                                              style: TextStyle(
-                                                  fontFamily: 'Pretendard',
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w400,
-                                                  color: Colors.black),
-                                            ),
-                                            TextSpan(
-                                              text: '$benefitGoal원 ',
-                                              style: const TextStyle(
-                                                  fontFamily: 'Pretendard',
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black),
-                                            ),
-                                            const TextSpan(
-                                              text: '이에요!',
-                                              style: TextStyle(
-                                                  fontFamily: 'Pretendard',
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w400,
-                                                  color: Colors.black),
-                                            ),
-                                          ])),
+                                                const TextSpan(
+                                                  text: '현재 목표 금액은 ',
+                                                  style: TextStyle(
+                                                      fontFamily: 'Pretendard',
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight
+                                                          .w400,
+                                                      color: Colors.black),
+                                                ),
+                                                TextSpan(
+                                                  text: '$benefitGoal원 ',
+                                                  style: const TextStyle(
+                                                      fontFamily: 'Pretendard',
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight
+                                                          .w600,
+                                                      color: Colors.black),
+                                                ),
+                                                const TextSpan(
+                                                  text: '이에요!',
+                                                  style: TextStyle(
+                                                      fontFamily: 'Pretendard',
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight
+                                                          .w400,
+                                                      color: Colors.black),
+                                                ),
+                                              ])),
                                         ),
                                         const SizedBox(
                                           height: 25,
                                         ),
                                         Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          MainAxisAlignment.center,
                                           children: [
                                             GestureDetector(
                                               child: Image.asset(
@@ -404,11 +487,11 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                             ),
                                             Padding(
                                               padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8.0),
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 8.0),
                                               child: Container(
                                                 padding:
-                                                    const EdgeInsets.symmetric(
+                                                const EdgeInsets.symmetric(
                                                   horizontal: 15,
                                                   vertical: 8,
                                                 ),
@@ -417,10 +500,10 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                                   border: Border.all(
                                                       color: Colors.white),
                                                   borderRadius:
-                                                      BorderRadius.circular(10),
+                                                  BorderRadius.circular(10),
                                                 ),
                                                 child:
-                                                    Text('$newBenefitGoal 원'),
+                                                Text('$newBenefitGoal 원'),
                                               ),
                                             ),
                                             GestureDetector(
@@ -447,7 +530,7 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                             decoration: BoxDecoration(
                                               color: const Color(0xff0083EE),
                                               borderRadius:
-                                                  BorderRadius.circular(20),
+                                              BorderRadius.circular(20),
                                             ),
                                             child: const Center(
                                               child: Text('변경하기',
@@ -473,22 +556,30 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                       )
                     ],
                   ),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20.0),
                     child: Text(
-                      '이번 달 목표까지 5,600원 부족해요.',
+                      _remainBenefit != null && _remainBenefit! > 0
+                          ? '이번 달 목표까지 ${NumberFormat('#,###').format(_remainBenefit!)}원 부족해요.'
+                          : _remainBenefit! < 0
+                          ? '목표를 달성했습니다.'
+                          : '목표를 입력해주세요.',
                       style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w300,
-                          color: Color(0xff767676)),
+                        fontFamily: 'Pretendard',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w300,
+                        color: Color(0xff767676),
+                      ),
                     ),
                   ),
                   Stack(
                     children: [
                       Padding(
                         padding: EdgeInsets.only(
-                            left: MediaQuery.of(context).size.width / 2 - 130,
+                            left: MediaQuery
+                                .of(context)
+                                .size
+                                .width / 2 - 130,
                             top: 20.0),
                         child: Container(
                           child: Circular_arc(
@@ -498,7 +589,10 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            left: MediaQuery.of(context).size.width / 2 - 75,
+                            left: MediaQuery
+                                .of(context)
+                                .size
+                                .width / 2 - 75,
                             top: 40.0),
                         child: Column(
                           children: [
@@ -507,8 +601,8 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                               width: 80,
                             ),
                             const SizedBox(height: 2),
-                            const Text(
-                              '126,000원 할인',
+                            Text(
+                              '${NumberFormat('#,###').format(_receivedSum)}원 할인',
                               style: TextStyle(
                                 fontFamily: 'Pretendard',
                                 fontSize: 15,
@@ -597,7 +691,7 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                           ),
                           // 해당 카테고리에서 받은 혜택
                           Text(
-                            benefitAmout,
+                            benefitAmout + ' 원',
                             style: const TextStyle(
                               fontFamily: 'Pretendard',
                               fontSize: 15,
@@ -618,7 +712,7 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            '할인 : $benefit',
+                            '할인 : $benefit 원',
                             style: const TextStyle(
                               fontFamily: 'Pretendard',
                               fontSize: 13,
@@ -664,52 +758,74 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
     );
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color(0xfff5f5f5),
-        appBar: EmptyAppBar(),
-        body: Stack(
+      backgroundColor: const Color(0xfff5f5f5),
+      appBar: EmptyAppBar(),
+      body: SingleChildScrollView(
+        child: Stack(
           clipBehavior: Clip.none,
           children: [
             _gradationBody(context),
             Padding(
               padding: const EdgeInsets.only(top: 460.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    _benefitCategory(
-                        context,
-                        "assets/images/3d_icons/pizza_3d_icon.svg",
-                        "음식점",
-                        "55,600원",
-                        "120,000원",
-                        0.6),
-                    const SizedBox(height: 13),
-                    _benefitCategory(
-                        context,
-                        "assets/images/3d_icons/convenience_store_3d_icon.svg",
-                        "편의점",
-                        "13,600원",
-                        "10,000원",
-                        0.4),
-                    const SizedBox(height: 13),
-                    _benefitCategory(
-                        context,
-                        "assets/images/3d_icons/game_3d_icon.svg",
-                        "영화관",
-                        "12,300원",
-                        "13,000원",
-                        0.2),
-                  ],
-                ),
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  ..._buildBenefitCategories(),
+                ],
               ),
             ),
           ],
-        ));
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildBenefitCategories() {
+    if (_benefitList != null && _benefitList.isNotEmpty) {
+      return _benefitList.map((benefit) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 13.0),
+          child: _benefitCategory(
+            context,
+            _getIconPathForCategory(benefit['category']),
+            benefit['category'],
+            _formatCurrency(benefit['priceSum']),
+            _formatCurrency(benefit['discountPriceSum']),
+            (benefit['discountPriceSum'] / benefit['priceSum']),
+          ),
+        );
+      }).toList();
+    } else {
+      return [];
+    }
+  }
+
+  String _getIconPathForCategory(String category) {
+    switch (category) {
+      case "편의점":
+        return "assets/images/3d_icons/convenience_store_3d_icon.svg";
+      case "문화생활":
+        return "assets/images/3d_icons/game_3d_icon.svg";
+      case "쇼핑":
+        return "assets/images/3d_icons/coffee_3d_icon.svg";
+      case "카페":
+        return "assets/images/3d_icons/coffee_3d_icon.svg";
+      case "베이커리":
+        return "assets/images/3d_icons/coffee_3d_icon.svg";
+      case "교통":
+        return "assets/images/3d_icons/coffee_3d_icon.svg";
+      default:
+        return "";
+    }
+  }
+
+  String _formatCurrency(int amount) {
+    final formatter = NumberFormat("#,###");
+    return formatter.format(amount);
   }
 }
 
