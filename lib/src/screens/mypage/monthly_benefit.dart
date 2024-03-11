@@ -811,13 +811,13 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
       case "문화생활":
         return "assets/images/3d_icons/game_3d_icon.svg";
       case "쇼핑":
-        return "assets/images/3d_icons/coffee_3d_icon.svg";
+        return "assets/images/3d_icons/shopping_3d_icon.svg";
       case "카페":
         return "assets/images/3d_icons/coffee_3d_icon.svg";
       case "베이커리":
-        return "assets/images/3d_icons/coffee_3d_icon.svg";
+        return "assets/images/3d_icons/bakery_3d_icon.svg";
       case "교통":
-        return "assets/images/3d_icons/coffee_3d_icon.svg";
+        return "assets/images/3d_icons/transport_3d_icon.svg";
       default:
         return "";
     }
