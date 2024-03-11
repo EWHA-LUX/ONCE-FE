@@ -10,6 +10,8 @@ import 'package:get/get.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../login/loading.dart';
+
 class MonthlyBenefit extends StatefulWidget {
   MonthlyBenefit({Key? key}) : super(key: key);
 
@@ -19,6 +21,7 @@ class MonthlyBenefit extends StatefulWidget {
 
 class _MonthlyBenefitState extends State<MonthlyBenefit> {
   final String BASE_URL = Constants.baseUrl;
+  late Future<void> _montlyBenefitListFuture;
 
   String nickname = '';
   int benefitGoal = 0;
@@ -36,8 +39,25 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
     super.initState();
     dt = DateTime.now();
     _month = dt.month;
-    _getMontlyBenefit(context);
+    _montlyBenefitListFuture = _getMontlyBenefit(context);
     _getUserInfo(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: _montlyBenefitListFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Loading();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          // 데이터가 로드된 후에 표시할 화면
+          return buildContents(context);
+        }
+      },
+    );
   }
 
   void _updateState(Map<dynamic, dynamic> responseData) {
@@ -758,7 +778,7 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
     );
   }
 
-  Widget build(BuildContext context) {
+  Widget buildContents(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
