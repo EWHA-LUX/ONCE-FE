@@ -53,7 +53,9 @@ class _CardListWidgetState extends State<CardListWidget> {
       Map<dynamic, dynamic> responseData = response.data;
       print(responseData);
 
-      if (responseData['code'] == 1000) {}
+      if (responseData['code'] == 1000) {
+        handleButtonClick();
+      }
     } catch (e) {
       // ** 차후 수정 필요 **
       print(e.toString());
@@ -75,6 +77,46 @@ class _CardListWidgetState extends State<CardListWidget> {
         },
       );
     }
+  }
+
+  Widget _snackBarContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+      child: Row(
+        children: [
+          Image.asset(
+            'assets/images/icons/snackbar_icon.png',
+            width: 20,
+            height: 20,
+          ),
+          const SizedBox(
+            width: 20.0,
+          ),
+          const Text(
+            '카드가 삭제되었어요.',
+            style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: Colors.white),
+          )
+        ],
+      ),
+    );
+  }
+
+  void showSnackBar(BuildContext context) {
+    final snackBar = SnackBar(
+      backgroundColor: const Color(0xff3B3B3B),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      duration: const Duration(seconds: 3),
+      content: _snackBarContent(),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    setState(() {});
   }
 
   @override
@@ -184,33 +226,7 @@ class _CardListWidgetState extends State<CardListWidget> {
                   ),
                   onTap: () {
                     _deleteCard(context, widget.ownedCardId);
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text("삭제 완료", style: TextStyle(
-                              fontFamily: 'Pretendard',
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                            ),),
-                            content: const Text("등록된 카드가 삭제되었습니다.", style: TextStyle(
-                              fontFamily: 'Pretendard',
-                              color: Colors.black,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w300,
-                            ),),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  handleButtonClick();
-                                },
-                                child: const Text("확인"),
-                              ),
-                            ],
-                          );
-                        });
+                    showSnackBar(context);
                   },
                 ),
               )

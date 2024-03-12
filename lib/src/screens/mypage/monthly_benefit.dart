@@ -32,7 +32,6 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
   num? _receivedSum;
   int? _remainBenefit;
   late List<dynamic> _benefitList = [];
-  //late List<Map<String, dynamic>> _benefitList = [];
 
   @override
   void initState() {
@@ -155,7 +154,8 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
       print(responseData);
 
       if (responseData['code'] == 1000) {
-        Navigator.pop(context);
+        _getUserInfo(context);
+        _getMontlyBenefit(context);
       }
     } catch (e) {
       // ** 차후 수정 필요 **
@@ -387,8 +387,10 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                             const EdgeInsets.only(top: 7),
                                             decoration: BoxDecoration(
                                                 borderRadius:
-                                                BorderRadius.circular(10),
-                                                color: Color(0xffD5D7DF)),
+                                                    BorderRadius.circular(10),
+                                                color: const Color(0xffD5D7DF)),
+
+
                                             width: 48,
                                             height: 4,
                                           ),
@@ -565,6 +567,9 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                           onTap: () {
                                             _updateBenefitGoal(
                                                 context, newBenefitGoal);
+                                            Navigator.pop(context);
+                                            setState(() {});
+                                            showSnackBar(context);
                                           },
                                         )
                                       ],
@@ -577,14 +582,15 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                     ],
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Text(
                       _remainBenefit != null && _remainBenefit! > 0
                           ? '이번 달 목표까지 ${NumberFormat('#,###').format(_remainBenefit!)}원 부족해요.'
                           : _remainBenefit! < 0
-                          ? '목표를 달성했습니다.'
-                          : '목표를 입력해주세요.',
-                      style: TextStyle(
+                              ? '목표를 달성했습니다.'
+                              : '목표를 입력해주세요.',
+                      style: const TextStyle(
+
                         fontFamily: 'Pretendard',
                         fontSize: 13,
                         fontWeight: FontWeight.w300,
@@ -623,7 +629,7 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                             const SizedBox(height: 2),
                             Text(
                               '${NumberFormat('#,###').format(_receivedSum)}원 할인',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontFamily: 'Pretendard',
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
@@ -655,6 +661,50 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
       ),
     );
   }
+
+  // =============================================================================
+  // 목표 변경 후 보여주는 snackbar
+  Widget _snackBarContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+      child: Row(
+        children: [
+          Image.asset(
+            'assets/images/icons/snackbar_icon.png',
+            width: 20,
+            height: 20,
+          ),
+          const SizedBox(
+            width: 20.0,
+          ),
+          const Text(
+            '목표 수정을 완료했어요.',
+            style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: Colors.white),
+          )
+        ],
+      ),
+    );
+  }
+
+  void showSnackBar(BuildContext context) {
+    final snackBar = SnackBar(
+      backgroundColor: const Color(0xff3B3B3B),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      duration: const Duration(seconds: 3),
+      content: _snackBarContent(),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    setState(() {});
+  }
+
+  // =============================================================================
 
   Widget _benefitCategory(context, String iconPath, String category,
       String benefitAmout, String benefit, double percent) {
