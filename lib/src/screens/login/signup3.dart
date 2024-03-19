@@ -15,6 +15,16 @@ class _Signup3State extends State<Signup3> {
   List<bool> isCardSelectedList = List.generate(6, (index) => false);
   bool isAllSelected = false;
 
+  List<int> selectedCards() {
+    List<int> selectedCardNames = [];
+    for (int i = 0; i < isCardSelectedList.length; i++) {
+      if (isCardSelectedList[i]) {
+        selectedCardNames.add(i);
+      }
+    }
+    return selectedCardNames;
+  }
+
   Widget _cardContainer(int index, String cardName, String iconPath) {
     return InkWell(
       onTap: () {
@@ -80,20 +90,20 @@ class _Signup3State extends State<Signup3> {
       height: 21,
       decoration: isCurrentStep
           ? const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.topLeft,
-                colors: [
-                  Color(0xff4472fc),
-                  Color(0xff8877d5),
-                ],
-              ),
-            )
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.topLeft,
+          colors: [
+            Color(0xff4472fc),
+            Color(0xff8877d5),
+          ],
+        ),
+      )
           : const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xffd5d5d5),
-            ),
+        shape: BoxShape.circle,
+        color: Color(0xffd5d5d5),
+      ),
       child: Center(
         child: Text(
           num,
@@ -316,7 +326,10 @@ class _Signup3State extends State<Signup3> {
                 ),
               ),
               onTap: () {
-                Navigator.of(context).pushNamed("/signup/4");
+                Navigator.of(context).pushNamed(
+                  "/signup/4",
+                  arguments: selectedCards(),
+                );
               },
             ),
           ],
