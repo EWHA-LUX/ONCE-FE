@@ -1,8 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/style.dart';
+
+import '../../../constants.dart';
 
 class Signup4 extends StatefulWidget {
   const Signup4({Key? key}) : super(key: key);
@@ -12,6 +15,93 @@ class Signup4 extends StatefulWidget {
 }
 
 class _Signup4State extends State<Signup4> {
+  final String BASE_URL = Constants.baseUrl;
+  late List<int> selectedCardIndex;
+
+  // [Get] 카드사로 카드 검색
+  Future<void> _getCardDetails(BuildContext context, List<int> selectedCardIndex) async {
+    print(selectedCardIndex);
+    final List<String> cardCodes = selectedCardIndex.map((index) {
+      switch (index) {
+        case 0:
+          return '0306';
+        case 1:
+          return '0302';
+        case 2:
+          return '0301';
+        case 3:
+          return '0303';
+        case 4:
+          return '0311';
+        case 5:
+          return '0313';
+        default:
+          return '';
+      }
+    }).toList();
+
+    final String apiUrl = '$BASE_URL/user/card/search';
+
+    final baseOptions = BaseOptions(
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      String queryString = 'code=' + cardCodes.join(',');
+      String apiUrlWithQuery = apiUrl + '?' + queryString;
+
+      var response = await dio.get(apiUrlWithQuery);
+      Map<dynamic, dynamic> responseData = response.data;
+
+      if (responseData['code'] == 1000) {
+        final List<dynamic> cardDetails = responseData['result'];
+
+        for (var cardDetail in cardDetails) {
+          String companyName = cardDetail['companyName'];
+          List<dynamic> cardList = cardDetail['cardList'];
+
+          for (var card in cardList) {
+            String cardId = card['cardId'].toString();
+            String cardName = card['cardName'];
+            String cardImg = card['cardImg'];
+
+            print('Card ID: $cardId, Name: $cardName, Image URL: $cardImg');
+          }
+        }
+      }
+    } catch (e) {
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    selectedCardIndex = []; // 선택된 카드 인덱스 초기화
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      selectedCardIndex = ModalRoute.of(context)!.settings.arguments as List<int>;
+      _getCardDetails(context, selectedCardIndex);
+    });
+  }
+
   List<bool> isCardSelectedList = List.generate(6, (index) => false);
   List<bool> isCardCompanyList = List.generate(3, (index) => false);
   List<String> filteredCardNames = [];
@@ -112,82 +202,67 @@ class _Signup4State extends State<Signup4> {
   }
 
   // 하단 카드 컨테이너
-  Widget _cardContainer(
-      int index, String iconPath, String cardType, String cardName) {
-    return InkWell(
+  Widget _cardContainer(int index, String iconPath, String cardType, String cardName) {
+    return GestureDetector(
       onTap: () {
         setState(() {
           isCardSelectedList[index] = !isCardSelectedList[index];
         });
       },
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 5),
-            child: Container(
-              width: 337,
-              height: 77,
-              decoration: BoxDecoration(
-                color: isCardSelectedList[index]
-                    ? const Color(0xffdceefd)
-                    : Colors.white,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(isCardSelectedList[index] ? 20 : 20),
-                ),
-                border: Border.all(
-                  color: isCardSelectedList[index]
-                      ? Color(0xff3d6dc4)
-                      : Colors.transparent,
-                  width: 1,
-                ),
+      child: Container(
+        width: 337,
+        height: 77,
+        decoration: BoxDecoration(
+          color: isCardSelectedList[index] ? const Color(0xffdceefd) : Colors.white,
+          borderRadius: BorderRadius.circular(isCardSelectedList[index] ? 20 : 20),
+          border: Border.all(
+            color: isCardSelectedList[index] ? const Color(0xff3d6dc4) : Colors.transparent,
+            width: 1,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 20, top: 15),
+              child: SvgPicture.asset(
+                iconPath,
+                width: 80,
+                height: 48,
               ),
             ),
-          ),
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 20, top: 15),
-                child: SvgPicture.asset(
-                  iconPath,
-                  width: 80,
-                  height: 48,
-                ),
-              ),
-              Column(
+            Positioned(
+              left: 120, // 원하는 위치로 조정
+              top: 15, // 원하는 위치로 조정
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 40, top: 15),
-                    child: Text(
-                      cardType,
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xff1e5094),
-                      ),
+                  Text(
+                    cardType,
+                    style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xff1e5094),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 40, top: 5),
-                    child: Text(
-                      cardName,
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                      ),
+                  Text(
+                    cardName,
+                    style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
                     ),
                   ),
                 ],
               ),
-            ],
-          )
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
+
 
   Widget StepIcon(String num, bool isCurrentStep) {
     return Container(
