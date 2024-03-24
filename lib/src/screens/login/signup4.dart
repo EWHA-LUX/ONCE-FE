@@ -120,6 +120,99 @@ class _Signup4State extends State<Signup4> {
     }
   }
 
+  // [Get] 카드 이름 검색
+  void _getCardSearch(BuildContext context, List<int> selectedCardIndex, String searchName) async {
+    final List<String> cardCodes = selectedCardIndex.map((index) {
+      switch (index) {
+        case 0:
+          return '0306';
+        case 1:
+          return '0302';
+        case 2:
+          return '0301';
+        case 3:
+          return '0303';
+        case 4:
+          return '0311';
+        case 5:
+          return '0313';
+        default:
+          return '';
+      }
+    }).toList();
+
+    final String apiUrl = '$BASE_URL/user/card/searchname';
+
+    final baseOptions = BaseOptions(
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      String queryString = 'code=' + cardCodes.join(',') + '&name=$searchName';
+      String apiUrlWithQuery = apiUrl + '?' + queryString;
+
+      var response = await dio.get(apiUrlWithQuery);
+      Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        final List<dynamic> cardDetails = responseData['result'];
+        _cardList = cardDetails;
+
+        // 기존 카드사 탭 모두 선택 해제
+        setState(() {
+          _selectedCardCompanyIndex = -1;
+          isCardCompanyList = List.generate(_cardCompnayList.length, (index) => false);
+          _filteredCompanyCards = cardDetails;
+        });
+
+        // 기존의 카드 리스트 제거
+        _selectedCompanyCards.clear();
+
+        if (cardDetails.isEmpty) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("검색 결과가 없음"),
+                content: Text("검색 결과가 없습니다."),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("확인"),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      }
+    } catch (e) {
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+
   String _getIconPathForCompany(String companyName) {
     switch (companyName) {
       case "신한카드":
@@ -418,7 +511,7 @@ class _Signup4State extends State<Signup4> {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: _selectedCompanyCards.length,
+      itemCount: _filteredCompanyCards.length,
       itemBuilder: (context, index) {
         final card = _filteredCompanyCards[index];
         return Padding(
@@ -462,9 +555,14 @@ class _Signup4State extends State<Signup4> {
                     fontWeight: FontWeight.w300,
                     color: Colors.grey,
                   ),
-                  suffixIcon: const Icon(
-                    Icons.search,
-                    color: Colors.blue,
+                  suffixIcon: GestureDetector(
+                    onTap: () {
+                      _getCardSearch(context, selectedCardIndex, _searchController.text);
+                    },
+                    child: Icon(
+                      Icons.search,
+                      color: Colors.blue,
+                    ),
                   ),
                   filled: true,
                   fillColor: Colors.white,
