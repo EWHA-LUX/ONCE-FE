@@ -18,9 +18,35 @@ class _Signup4State extends State<Signup4> {
   final String BASE_URL = Constants.baseUrl;
   late List<int> selectedCardIndex;
 
+  late List<dynamic> _cardCompnayList = [];
+  late List<dynamic> _cardList = [];
+  late List<dynamic> _selectedCompanyCards = [];
+  int _selectedCardCompanyIndex = 0;
+
+  _Signup4State() {
+    isCardCompanyList[0] = true;
+    _filteredCompanyCards = _selectedCompanyCards;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    selectedCardIndex = []; // 선택된 카드 인덱스 초기화
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      selectedCardIndex = ModalRoute.of(context)!.settings.arguments as List<int>;
+      _getCardDetails(context, selectedCardIndex);
+    });
+  }
+
+  List<bool> isCardSelectedList = List.generate(6, (index) => false);
+  List<bool> isCardCompanyList = List.generate(3, (index) => false);
+  List<String> filteredCardNames = [];
+
+  TextEditingController _searchController = TextEditingController();
+  String _selectedCardCompany = "";
+
   // [Get] 카드사로 카드 검색
-  Future<void> _getCardDetails(BuildContext context, List<int> selectedCardIndex) async {
-    print(selectedCardIndex);
+  void _getCardDetails(BuildContext context, List<int> selectedCardIndex) async {
     final List<String> cardCodes = selectedCardIndex.map((index) {
       switch (index) {
         case 0:
@@ -53,22 +79,24 @@ class _Signup4State extends State<Signup4> {
 
       var response = await dio.get(apiUrlWithQuery);
       Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
 
       if (responseData['code'] == 1000) {
         final List<dynamic> cardDetails = responseData['result'];
 
+        _selectedCompanyCards.clear();
+
         for (var cardDetail in cardDetails) {
-          String companyName = cardDetail['companyName'];
-          List<dynamic> cardList = cardDetail['cardList'];
-
-          for (var card in cardList) {
-            String cardId = card['cardId'].toString();
-            String cardName = card['cardName'];
-            String cardImg = card['cardImg'];
-
-            print('Card ID: $cardId, Name: $cardName, Image URL: $cardImg');
-          }
+          _cardCompnayList.add(cardDetail['companyName']);
+          _cardList.add(cardDetail['cardList']);
+          _selectedCompanyCards.addAll(cardDetail['cardList']);
         }
+        _selectedCardCompany = _cardCompnayList[0];
+        print(_cardCompnayList);
+        print(_cardList);
+        print(_selectedCardCompany);
+
+        setState(() {});
       }
     } catch (e) {
       print(e.toString());
@@ -92,52 +120,23 @@ class _Signup4State extends State<Signup4> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    selectedCardIndex = []; // 선택된 카드 인덱스 초기화
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      selectedCardIndex = ModalRoute.of(context)!.settings.arguments as List<int>;
-      _getCardDetails(context, selectedCardIndex);
-    });
-  }
-
-  List<bool> isCardSelectedList = List.generate(6, (index) => false);
-  List<bool> isCardCompanyList = List.generate(3, (index) => false);
-  List<String> filteredCardNames = [];
-
-  TextEditingController _searchController = TextEditingController();
-  String _selectedCardCompany = "현대카드";
-
-  // 선택된 상단탭 카드사
-  // 처음에 1번 탭에 있는 카드사가 무조건 선택되도록 설정
-  int _selectedCardCompanyIndex = 0;
-
-  _Signup4State() {
-    isCardCompanyList[0] = true;
-  }
-
-  List<String> allCardNames = [
-    '현대카드 M Boost',
-    '현대카드 ZERO Edition2',
-    '현대카드M Edition3',
-    '우리동네 GS 삼성카드',
-    '국만행복 삼성체크카드 v2',
-    '삼성카드 원스원스 카드',
-    '삼성카드 루스루스 카드',
-    '삼성카드M Example 카드',
-    '삼성카드 S7 카드',
-    '삼성카드 원스체크카드 v2',
-  ];
-
-  // 카드 이름 검색창
-  void filterCardNames(String query) {
-    setState(() {
-      filteredCardNames = allCardNames
-          .where((cardName) =>
-              cardName.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-    });
+  String _getIconPathForCompany(String companyName) {
+    switch (companyName) {
+      case "신한카드":
+        return "assets/images/card_logo/shinhan_logo.svg";
+      case "현대카드":
+        return "assets/images/card_logo/hyundai_logo.svg";
+      case "국민카드":
+        return "assets/images/card_logo/kookmin_logo.svg";
+      case "삼성카드":
+        return "assets/images/card_logo/samsung_logo.svg";
+      case "롯데카드":
+        return "assets/images/card_logo/lotte_logo.svg";
+      case "하나카드":
+        return "assets/images/card_logo/hana_logo.svg";
+      default:
+        return "";
+    }
   }
 
   // 카드 회사명 상단 탭
@@ -157,7 +156,6 @@ class _Signup4State extends State<Signup4> {
             isCardCompanyList[index] = true;
           });
         },
-
         child: Container(
           width: 93,
           height: 31,
@@ -202,67 +200,63 @@ class _Signup4State extends State<Signup4> {
   }
 
   // 하단 카드 컨테이너
-  Widget _cardContainer(int index, String iconPath, String cardType, String cardName) {
+  Widget _cardContainer(String cardImg, String cardName, String type) {
     return GestureDetector(
       onTap: () {
         setState(() {
-          isCardSelectedList[index] = !isCardSelectedList[index];
+          // 선택한 카드 처리 추가 ^^------------------------
         });
       },
       child: Container(
         width: 337,
         height: 77,
         decoration: BoxDecoration(
-          color: isCardSelectedList[index] ? const Color(0xffdceefd) : Colors.white,
-          borderRadius: BorderRadius.circular(isCardSelectedList[index] ? 20 : 20),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isCardSelectedList[index] ? const Color(0xff3d6dc4) : Colors.transparent,
+            color: Colors.transparent,
             width: 1,
           ),
         ),
-        child: Stack(
+        child: Row(
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 20, top: 15),
-              child: SvgPicture.asset(
-                iconPath,
-                width: 80,
-                height: 48,
+              padding: const EdgeInsets.all(10.0),
+              child: Image.network(
+                cardImg,
+                width: 58,
+                fit: BoxFit.contain,
               ),
             ),
-            Positioned(
-              left: 120, // 원하는 위치로 조정
-              top: 15, // 원하는 위치로 조정
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    cardType,
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xff1e5094),
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  type,
+                  style: TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xff1e5094),
                   ),
-                  Text(
-                    cardName,
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
+                ),
+                Text(
+                  cardName,
+                  style: TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
-
 
   Widget StepIcon(String num, bool isCurrentStep) {
     return Container(
@@ -392,11 +386,60 @@ class _Signup4State extends State<Signup4> {
     );
   }
 
+  List<dynamic> _filteredCompanyCards = [];
+
+  void filterCardNames(String query) {
+    setState(() {
+      _filteredCompanyCards = _selectedCompanyCards.where((card) =>
+          card['cardName'].toLowerCase().contains(query.toLowerCase())
+      ).toList();
+    });
+  }
+
+  Widget _buildCardCompanyList() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal, // 가로 스크롤
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _cardCompnayList.map((companyName) {
+          return _cardCompany(
+            _cardCompnayList.indexOf(companyName),
+            _getIconPathForCompany(companyName),
+            companyName,
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildCardList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _selectedCompanyCards.length,
+      itemBuilder: (context, index) {
+        final card = _filteredCompanyCards[index];
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: _cardContainer(
+            card['cardImg'],
+            card['cardName'],
+            card['type'],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      // ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25.0),
         child: Column(
@@ -420,7 +463,6 @@ class _Signup4State extends State<Signup4> {
                   suffixIcon: const Icon(
                     Icons.search,
                     color: Colors.blue,
-                    // size: 20,
                   ),
                   filled: true,
                   fillColor: Colors.white,
@@ -440,76 +482,19 @@ class _Signup4State extends State<Signup4> {
             const SizedBox(
               height: 20,
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+            _buildCardCompanyList(),
+            const SizedBox(
+              height: 20,
+            ),
+            Container(
+              height: 420,
+              child: SingleChildScrollView(
+                child: Column(
                   children: [
-                    Row(
-                      children: [
-                        _cardCompany(0,
-                            "assets/images/card_logo/hyundai_logo.svg", "현대카드"),
-                        _cardCompany(1,
-                            "assets/images/card_logo/samsung_logo.svg", "삼성카드"),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    if (_selectedCardCompany == "현대카드")
-                      Container(
-                        height: 370,
-                        child: SingleChildScrollView(
-                          child: Flexible(
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: 5,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  child: _cardContainer(
-                                    index,
-                                    "assets/images/card_logo/card_example_img.svg",
-                                    "신용카드",
-                                    allCardNames[index],
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (_selectedCardCompany == "삼성카드")
-                      Container(
-                        height: 370,
-                        child: SingleChildScrollView(
-                          child: Flexible(
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: 5,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  child: _cardContainer(
-                                    index,
-                                    "assets/images/card_logo/card_example_img.svg",
-                                    "신용카드",
-                                    allCardNames[index + 5],
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
+                    _buildCardList(),
                   ],
                 ),
-              ],
+              ),
             ),
             const SizedBox(
               height: 50,
