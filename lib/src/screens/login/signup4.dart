@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/style.dart';
@@ -22,6 +23,8 @@ class _Signup4State extends State<Signup4> {
   late List<dynamic> _cardList = [];
   late List<dynamic> _selectedCompanyCards = [];
   int _selectedCardCompanyIndex = 0;
+
+  late List<int> selectedCardList = [];
 
   _Signup4State() {
     isCardCompanyList[0] = true;
@@ -212,6 +215,48 @@ class _Signup4State extends State<Signup4> {
     }
   }
 
+  // [Post] 카드 등록
+  void _postSelectedCards(BuildContext context, List<int> selectedCardList) async {
+    final String apiUrl = '$BASE_URL/user/card';
+    final Map<String, dynamic> requestData = {
+      "cardList": selectedCardList,
+    };
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      final response = await dio.post(apiUrl, data: requestData);
+      final responseData = response.data;
+      print(responseData);
+      // Handle the response accordingly
+    } catch (e) {
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   String _getIconPathForCompany(String companyName) {
     switch (companyName) {
@@ -295,11 +340,11 @@ class _Signup4State extends State<Signup4> {
   }
 
   // 하단 카드 컨테이너
-  Widget _cardContainer(String cardImg, String cardName, String type) {
+  Widget _cardContainer(int cardId, String cardImg, String cardName, String type) {
     return GestureDetector(
       onTap: () {
         setState(() {
-          // 선택한 카드 처리 추가 ^^------------------------
+          selectedCardList.add(cardId);
         });
       },
       child: Container(
@@ -517,6 +562,7 @@ class _Signup4State extends State<Signup4> {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: _cardContainer(
+            card['cardId'],
             card['cardImg'],
             card['cardName'],
             card['type'],
@@ -628,6 +674,7 @@ class _Signup4State extends State<Signup4> {
                 ),
               ),
               onTap: () {
+                _postSelectedCards(context, selectedCardList);
                 Navigator.of(context).pushNamed("/");
               },
             ),
