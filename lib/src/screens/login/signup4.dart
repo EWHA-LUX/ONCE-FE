@@ -154,6 +154,8 @@ class _Signup4State extends State<Signup4> {
             _selectedCardCompany = cardCompany;
             _selectedCardCompanyIndex = index;
             isCardCompanyList[index] = true;
+
+            _filteredCompanyCards = _cardList[index];
           });
         },
         child: Container(
