@@ -341,20 +341,25 @@ class _Signup4State extends State<Signup4> {
 
   // 하단 카드 컨테이너
   Widget _cardContainer(int cardId, String cardImg, String cardName, String type) {
+    bool isSelected = selectedCardList.contains(cardId);
     return GestureDetector(
       onTap: () {
         setState(() {
-          selectedCardList.add(cardId);
+          if (isSelected) {
+            selectedCardList.remove(cardId);
+          } else {
+            selectedCardList.add(cardId);
+          }
         });
       },
       child: Container(
         width: 337,
         height: 77,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isSelected ? const Color(0xffdceefd): Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Colors.transparent,
+            color: isSelected ? Color(0xff3d6dc4) : Colors.transparent,
             width: 1,
           ),
         ),
@@ -404,20 +409,20 @@ class _Signup4State extends State<Signup4> {
       height: 21,
       decoration: isCurrentStep
           ? const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.topLeft,
-                colors: [
-                  Color(0xff4472fc),
-                  Color(0xff8877d5),
-                ],
-              ),
-            )
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.topLeft,
+          colors: [
+            Color(0xff4472fc),
+            Color(0xff8877d5),
+          ],
+        ),
+      )
           : const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xffd5d5d5),
-            ),
+        shape: BoxShape.circle,
+        color: Color(0xffd5d5d5),
+      ),
       child: Center(
         child: Text(
           num,
