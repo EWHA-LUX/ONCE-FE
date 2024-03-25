@@ -1,22 +1,38 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 
-class UserEditPage extends StatelessWidget {
-  const UserEditPage({super.key});
+import '../../../constants.dart';
 
-  final String userNickname = "루스";
-  final String userId = "luxlux0101";
-  final String userName = "김수진";
-  final String userBirth = "";
-  final String userPhoneNum = "010-1234-5678";
-  final String userPassword = "";
-  final String userSignupDate = "2024.01.01";
-  final String userProfileImg = "https://i.pinimg.com/originals/f1/5d/1a/f15d1a3ba005d7f28b72d3b9dee53cdd.jpg";
+class UserEditPage extends StatefulWidget {
+  const UserEditPage({Key? key}) : super(key: key);
 
+  @override
+  _UserEditPageState createState() => _UserEditPageState();
+}
+
+
+class _UserEditPageState extends State<UserEditPage> {
+  late String userNickname= '';
+  late String userId = '';
+  late String userName = '';
+  late String userBirth = '';
+  late String userPhoneNum = '';
+  late String userSignupDate = '';
+  late String userProfileImg = '';
+
+  final String BASE_URL = Constants.baseUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _getMyProfileEdit(context);
+  }
 
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -25,6 +41,55 @@ class UserEditPage extends StatelessWidget {
     }
     String imagePath = pickedFile.path;
   }
+
+  // [Get] 내 정보 수정하기 조회
+  Future<void> _getMyProfileEdit(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/user/edit';
+
+    final storage = FlutterSecureStorage();
+    final storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      final response = await dio.get(apiUrl);
+      final responseData = response.data['result'];
+      setState(() {
+        userNickname = responseData['nickname'];
+        userId = responseData['loginId'];
+        //userName = responseData['userName'];
+        userBirth = responseData['birthday'];
+        userPhoneNum = responseData['userPhoneNum'];
+        userSignupDate = responseData['createdAt'];
+        userProfileImg = responseData['userProfileImg'];
+        print("확인" + userProfileImg!);
+      });
+    } catch (e) {
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
 
   Widget _gradationBody(context) {
     return Stack(
@@ -91,7 +156,7 @@ class UserEditPage extends StatelessWidget {
                     width: 174,
                     height: 174,
                     child: CachedNetworkImage(
-                      imageUrl: userProfileImg,
+                      imageUrl: userProfileImg ?? '',
                       fit: BoxFit.cover,
                     ),
                   ),
