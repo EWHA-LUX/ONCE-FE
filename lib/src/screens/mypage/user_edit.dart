@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Response, FormData, MultipartFile;
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -15,7 +15,6 @@ class UserEditPage extends StatefulWidget {
   @override
   _UserEditPageState createState() => _UserEditPageState();
 }
-
 
 class _UserEditPageState extends State<UserEditPage> {
   late String userNickname= '';
@@ -32,18 +31,6 @@ class _UserEditPageState extends State<UserEditPage> {
   void initState() {
     super.initState();
     _getMyProfileEdit(context);
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile == null) {
-      return;
-    }
-    String imagePath = pickedFile.path;
-
-    setState(() {
-      userProfileImg = imagePath;
-    });
   }
 
   // [Get] 내 정보 수정하기 조회
@@ -74,6 +61,110 @@ class _UserEditPageState extends State<UserEditPage> {
       });
     } catch (e) {
       print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // [Patch] 유저 프로필 수정
+  Future<void> _updateUserProfile(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/user/edit';
+
+    final storage = FlutterSecureStorage();
+    final storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      final response = await dio.patch(
+        apiUrl,
+        data: {
+          'username': userName,
+          'nickname': userNickname,
+          'birthday': userBirth,
+          'userPhoneNum': userPhoneNum,
+        },
+      );
+    } catch (e) {
+      print('오류 발생: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // [Patch] 유저 프로필 이미지 수정
+  Future<void> _updateUserProfileImg(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/user/edit/profile';
+
+    final storage = FlutterSecureStorage();
+    final storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {
+        'Authorization': 'Bearer $storedAccessToken',
+        'Content-Type': 'multipart/form-data'
+      },
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (pickedFile == null) {
+        return;
+      }
+      String imagePath = pickedFile.path;
+
+      var formData = FormData.fromMap({
+        'userProfileImg' : await MultipartFile.fromFile(imagePath)
+      });
+
+      final response = await dio.patch(
+        apiUrl,
+        data: formData,
+      );
+      print(response);
+
+      final newImageUrl = '${response.data['result']}?${DateTime.now().millisecondsSinceEpoch}';
+      setState(() {
+        userProfileImg = newImageUrl;
+      });
+    } catch (e) {
+      print('오류 발생: $e');
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -169,7 +260,7 @@ class _UserEditPageState extends State<UserEditPage> {
           ],
         ),
         GestureDetector(
-          onTap: _pickImage,
+          onTap: () => _updateUserProfileImg(context),
           child: Padding(
             padding: EdgeInsets.only(top: 257, left: MediaQuery.of(context).size.width / 2 + 45),
             child: Container(
