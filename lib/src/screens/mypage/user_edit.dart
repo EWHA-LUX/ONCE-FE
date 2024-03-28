@@ -40,6 +40,10 @@ class _UserEditPageState extends State<UserEditPage> {
       return;
     }
     String imagePath = pickedFile.path;
+
+    setState(() {
+      userProfileImg = imagePath;
+    });
   }
 
   // [Get] 내 정보 수정하기 조회
@@ -57,16 +61,16 @@ class _UserEditPageState extends State<UserEditPage> {
 
     try {
       final response = await dio.get(apiUrl);
+      print(response);
       final responseData = response.data['result'];
       setState(() {
         userNickname = responseData['nickname'];
         userId = responseData['loginId'];
-        //userName = responseData['userName'];
+        userName = responseData['username'];
         userBirth = responseData['birthday'];
         userPhoneNum = responseData['userPhoneNum'];
         userSignupDate = responseData['createdAt'];
         userProfileImg = responseData['userProfileImg'];
-        print("확인" + userProfileImg!);
       });
     } catch (e) {
       print(e.toString());
@@ -89,7 +93,6 @@ class _UserEditPageState extends State<UserEditPage> {
       );
     }
   }
-
 
   Widget _gradationBody(context) {
     return Stack(
@@ -296,15 +299,26 @@ class _UserEditPageState extends State<UserEditPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 50, top: 17),
-                  child: GestureDetector(
+                  child: userBirth != ""
+                      ? Text(
+                    userBirth,
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  )
+                      : GestureDetector(
+                    onTap: () {
+                      // 생년월일 입력으로 넘어가기
+                    },
                     child: Container(
                       width: 115,
                       height: 23,
                       decoration: BoxDecoration(
                         color: Color(0xffececec),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(7),
-                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(7)),
                       ),
                       child: Center(
                         child: Text(
