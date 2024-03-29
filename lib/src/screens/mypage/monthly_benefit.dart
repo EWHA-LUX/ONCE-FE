@@ -29,8 +29,9 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
 
   DateTime dt = DateTime.now();
   int? _month;
-  num? _receivedSum;
+  int? _receivedSum;
   int? _remainBenefit;
+  int? _benefitGoalGraph;
   late List<dynamic> _benefitList = [];
 
   @override
@@ -86,6 +87,7 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
 
       _month = result['month'] as int?;
       _receivedSum = result['receivedSum'] ?? 0;
+      _benefitGoalGraph = result['benefitGoal'] ?? 0;
       _remainBenefit = result['remainBenefit'] ?? 0;
     });
   }
@@ -387,7 +389,7 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                                             const EdgeInsets.only(top: 7),
                                             decoration: BoxDecoration(
                                                 borderRadius:
-                                                    BorderRadius.circular(10),
+                                                BorderRadius.circular(10),
                                                 color: const Color(0xffD5D7DF)),
 
 
@@ -587,8 +589,8 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                       _remainBenefit != null && _remainBenefit! > 0
                           ? '이번 달 목표까지 ${NumberFormat('#,###').format(_remainBenefit!)}원 부족해요.'
                           : _remainBenefit! < 0
-                              ? '목표를 달성했습니다.'
-                              : '목표를 입력해주세요.',
+                          ? '목표를 달성했습니다.'
+                          : '목표를 입력해주세요.',
                       style: const TextStyle(
 
                         fontFamily: 'Pretendard',
@@ -610,6 +612,8 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
                         child: Container(
                           child: Circular_arc(
                             key: UniqueKey(),
+                            receivedSum: _receivedSum ?? 0,
+                            benefitGoalGraph: _benefitGoalGraph ?? 0,
                           ),
                         ),
                       ),
@@ -900,8 +904,13 @@ class _MonthlyBenefitState extends State<MonthlyBenefit> {
 }
 
 class Circular_arc extends StatefulWidget {
+  final int receivedSum;
+  final int benefitGoalGraph;
+
   const Circular_arc({
     required Key key,
+    required this.receivedSum,
+    required this.benefitGoalGraph,
   }) : super(key: key);
 
   @override
@@ -924,7 +933,13 @@ class _Circular_arcState extends State<Circular_arc>
     final curvedAnimation = CurvedAnimation(
         parent: animationController, curve: Curves.easeInOutCubic);
 
-    animation = Tween<double>(begin: 0.0, end: 2.3).animate(curvedAnimation)
+    final double maxProgress = widget.receivedSum / widget.benefitGoalGraph;
+    print(maxProgress);
+
+    animation = Tween<double>(
+      begin: 0.0,
+      end: maxProgress.clamp(0.0, 1.0),
+    ).animate(curvedAnimation)
       ..addListener(() {
         setState(() {});
       });
@@ -978,7 +993,10 @@ class ProgressArc extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     const rect = Rect.fromLTRB(0, 0, 210, 210);
     const startAngle = -pi;
-    final sweepAngle = arc ?? pi;
+
+    final limitedProgress = arc.clamp(0.0, 1.0);
+    final sweepAngle = (pi * limitedProgress);
+
     const userCenter = false;
     final paint = Paint()
       ..strokeCap = StrokeCap.round
