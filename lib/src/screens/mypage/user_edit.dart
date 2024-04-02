@@ -1,29 +1,198 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Response, FormData, MultipartFile;
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 
-class UserEditPage extends StatelessWidget {
-  const UserEditPage({super.key});
+import '../../../constants.dart';
 
-  final String userNickname = "루스";
-  final String userId = "luxlux0101";
-  final String userName = "김수진";
-  final String userBirth = "";
-  final String userPhoneNum = "010-1234-5678";
-  final String userPassword = "";
-  final String userSignupDate = "2024.01.01";
-  final String userProfileImg = "https://i.pinimg.com/originals/f1/5d/1a/f15d1a3ba005d7f28b72d3b9dee53cdd.jpg";
+class UserEditPage extends StatefulWidget {
+  const UserEditPage({Key? key}) : super(key: key);
 
+  @override
+  _UserEditPageState createState() => _UserEditPageState();
+}
 
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile == null) {
-      return;
+class _UserEditPageState extends State<UserEditPage> {
+  late String userNickname= '';
+  late String userId = '';
+  late String userName = '';
+  late String userBirth = '';
+  late String userPhoneNum = '';
+  late String userSignupDate = '';
+  late String userProfileImg = '';
+
+  final String BASE_URL = Constants.baseUrl;
+
+  bool isNameEdit = false;
+  bool isNicknameEdit = false;
+  bool isBirthEdit = false;
+  bool isPhoneNumEdit = false;
+
+  TextEditingController nameController = TextEditingController();
+  TextEditingController nicknameController = TextEditingController();
+  TextEditingController birthController = TextEditingController();
+  TextEditingController phonenumController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _getMyProfileEdit(context);
+  }
+
+  // [Get] 내 정보 수정하기 조회
+  Future<void> _getMyProfileEdit(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/user/edit';
+
+    final storage = FlutterSecureStorage();
+    final storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      final response = await dio.get(apiUrl);
+      print(response);
+      final responseData = response.data['result'];
+      setState(() {
+        userNickname = responseData['nickname'];
+        userId = responseData['loginId'];
+        userName = responseData['username'];
+        userBirth = responseData['birthday'];
+        userPhoneNum = responseData['userPhoneNum'];
+        userSignupDate = responseData['createdAt'];
+        userProfileImg = responseData['userProfileImg'];
+      });
+    } catch (e) {
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
     }
-    String imagePath = pickedFile.path;
+  }
+
+  // [Patch] 유저 프로필 수정
+  Future<void> _updateUserProfile(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/user/edit';
+
+    final storage = FlutterSecureStorage();
+    final storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      final response = await dio.patch(
+        apiUrl,
+        data: {
+          'username': userName,
+          'nickname': userNickname,
+          'birthday': userBirth,
+          'userPhoneNum': userPhoneNum,
+        },
+      );
+    } catch (e) {
+      print('오류 발생: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // [Patch] 유저 프로필 이미지 수정
+  Future<void> _updateUserProfileImg(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/user/edit/profile';
+
+    final storage = FlutterSecureStorage();
+    final storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {
+        'Authorization': 'Bearer $storedAccessToken',
+        'Content-Type': 'multipart/form-data'
+      },
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (pickedFile == null) {
+        return;
+      }
+      String imagePath = pickedFile.path;
+
+      var formData = FormData.fromMap({
+        'userProfileImg' : await MultipartFile.fromFile(imagePath)
+      });
+
+      final response = await dio.patch(
+        apiUrl,
+        data: formData,
+      );
+      print(response);
+
+      final newImageUrl = '${response.data['result']}?${DateTime.now().millisecondsSinceEpoch}';
+      setState(() {
+        userProfileImg = newImageUrl;
+      });
+    } catch (e) {
+      print('오류 발생: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   Widget _gradationBody(context) {
@@ -91,7 +260,7 @@ class UserEditPage extends StatelessWidget {
                     width: 174,
                     height: 174,
                     child: CachedNetworkImage(
-                      imageUrl: userProfileImg,
+                      imageUrl: userProfileImg ?? '',
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -101,7 +270,7 @@ class UserEditPage extends StatelessWidget {
           ],
         ),
         GestureDetector(
-          onTap: _pickImage,
+          onTap: () => _updateUserProfileImg(context),
           child: Padding(
             padding: EdgeInsets.only(top: 257, left: MediaQuery.of(context).size.width / 2 + 45),
             child: Container(
@@ -126,7 +295,29 @@ class UserEditPage extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 310),
-              child: Text(
+              child: isNicknameEdit
+                ? SizedBox(
+                width: 40,
+                height: 19,
+                child: TextField(
+                  controller: nicknameController,
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: userNickname,
+                    hintStyle: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                  ),
+                ),
+              )
+                  : Text(
                 '$userNickname 님',
                 style: TextStyle(
                   fontFamily: 'Pretendard',
@@ -135,6 +326,32 @@ class UserEditPage extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
+            ),
+            Padding(
+                padding: const EdgeInsets.only(left: 7, top: 310),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (isNicknameEdit) {
+                        _updateUserProfile(context);
+                        userNickname = nicknameController.text;
+                      }
+                      isNicknameEdit = !isNicknameEdit;
+                    });
+                  },
+                  child: ColorFiltered(
+                    colorFilter: ColorFilter.mode(
+                      Colors.white,
+                      BlendMode.srcIn,
+                    ),
+                    child: SvgPicture.asset(
+                      isNicknameEdit
+                          ? 'assets/images/icons/edit_check_icon.svg'
+                          : 'assets/images/icons/edit_icon.svg',
+                      width: isNicknameEdit ? 21 : 19,
+                    ),
+                  ),
+                )
             ),
           ],
         ),
@@ -203,7 +420,19 @@ class UserEditPage extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 80, top: 100),
-                  child: Text(
+                  child: isNameEdit
+                    ? SizedBox(
+                    width: 120,
+                    height: 19,
+                    child: TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        hintText: userName,
+                        hintStyle: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  )
+                      : Text(
                     userName,
                     style: TextStyle(
                       fontFamily: 'Pretendard',
@@ -212,6 +441,29 @@ class UserEditPage extends StatelessWidget {
                       color: Colors.black,
                     ),
                   ),
+                ),
+                Padding(
+                    padding: EdgeInsets.only(
+                      left: isNameEdit ? 43 : 121,
+                      top: 100,
+                    ),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isNameEdit) {
+                          _updateUserProfile(context);
+                          userName = nameController.text;
+                        }
+                        isNameEdit = !isNameEdit;
+                      });
+                    },
+                    child: SvgPicture.asset(
+                      isNameEdit
+                      ? 'assets/images/icons/edit_check_icon.svg'
+                      : 'assets/images/icons/edit_icon.svg',
+                      width: isNameEdit ? 22 : 20,
+                    ),
+                  )
                 ),
               ],
             ),
@@ -231,15 +483,40 @@ class UserEditPage extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 50, top: 17),
-                  child: GestureDetector(
+                  child: isBirthEdit
+                      ? SizedBox(
+                    width: 120,
+                    height: 19,
+                    child: TextField(
+                      controller: birthController,
+                      decoration: InputDecoration(
+                        hintText: userBirth,
+                        hintStyle: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  )
+                      : userBirth != ""
+                      ? Text(
+                    userBirth,
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  )
+                      : GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isBirthEdit = true;
+                      });
+                    },
                     child: Container(
                       width: 115,
                       height: 23,
                       decoration: BoxDecoration(
                         color: Color(0xffececec),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(7),
-                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(7)),
                       ),
                       child: Center(
                         child: Text(
@@ -255,12 +532,35 @@ class UserEditPage extends StatelessWidget {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: isBirthEdit ? 43 : 80,
+                    top: 17,
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isBirthEdit) {
+                          _updateUserProfile(context);
+                          userBirth = birthController.text;
+                        }
+                        isBirthEdit = !isBirthEdit;
+                      });
+                    },
+                    child: SvgPicture.asset(
+                      isBirthEdit
+                          ? 'assets/images/icons/edit_check_icon.svg'
+                          : 'assets/images/icons/edit_icon.svg',
+                      width: isBirthEdit ? 22 : 20,
+                    ),
+                  ),
+                ),
               ],
             ),
             Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 35, top: 17),
+                  padding: const EdgeInsets.only(left: 36, top: 17),
                   child: Text(
                     '휴대폰번호',
                     style: TextStyle(
@@ -273,7 +573,19 @@ class UserEditPage extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 37, top: 17),
-                  child: Text(
+                  child: isPhoneNumEdit
+                    ? SizedBox(
+                    width: 120,
+                    height: 19,
+                    child: TextField(
+                      controller: phonenumController,
+                      decoration: InputDecoration(
+                        hintText: userPhoneNum,
+                        hintStyle: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  )
+                      : Text(
                     userPhoneNum,
                     style: TextStyle(
                       fontFamily: 'Pretendard',
@@ -284,11 +596,27 @@ class UserEditPage extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 45, top: 17),
-                  child: SvgPicture.asset(
-                    'assets/images/icons/edit_icon.svg',
-                    width: 20,
-                  ),
+                    padding: EdgeInsets.only(
+                      left: isPhoneNumEdit ? 43 : 45,
+                      top: 17,
+                    ),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (isPhoneNumEdit) {
+                            _updateUserProfile(context);
+                            userPhoneNum = phonenumController.text;
+                          }
+                          isPhoneNumEdit = !isPhoneNumEdit;
+                        });
+                      },
+                      child: SvgPicture.asset(
+                        isPhoneNumEdit
+                            ? 'assets/images/icons/edit_check_icon.svg'
+                            : 'assets/images/icons/edit_icon.svg',
+                        width: isPhoneNumEdit ? 22 : 20,
+                      ),
+                    )
                 ),
               ],
             ),
