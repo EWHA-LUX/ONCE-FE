@@ -27,6 +27,16 @@ class _UserEditPageState extends State<UserEditPage> {
 
   final String BASE_URL = Constants.baseUrl;
 
+  bool isNameEdit = false;
+  bool isNicknameEdit = false;
+  bool isBirthEdit = false;
+  bool isPhoneNumEdit = false;
+
+  TextEditingController nameController = TextEditingController();
+  TextEditingController nicknameController = TextEditingController();
+  TextEditingController birthController = TextEditingController();
+  TextEditingController phonenumController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -285,7 +295,29 @@ class _UserEditPageState extends State<UserEditPage> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 310),
-              child: Text(
+              child: isNicknameEdit
+                ? SizedBox(
+                width: 40,
+                height: 19,
+                child: TextField(
+                  controller: nicknameController,
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: userNickname,
+                    hintStyle: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                  ),
+                ),
+              )
+                  : Text(
                 '$userNickname 님',
                 style: TextStyle(
                   fontFamily: 'Pretendard',
@@ -294,6 +326,32 @@ class _UserEditPageState extends State<UserEditPage> {
                   color: Colors.white,
                 ),
               ),
+            ),
+            Padding(
+                padding: const EdgeInsets.only(left: 7, top: 310),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (isNicknameEdit) {
+                        _updateUserProfile(context);
+                        userNickname = nicknameController.text;
+                      }
+                      isNicknameEdit = !isNicknameEdit;
+                    });
+                  },
+                  child: ColorFiltered(
+                    colorFilter: ColorFilter.mode(
+                      Colors.white,
+                      BlendMode.srcIn,
+                    ),
+                    child: SvgPicture.asset(
+                      isNicknameEdit
+                          ? 'assets/images/icons/edit_check_icon.svg'
+                          : 'assets/images/icons/edit_icon.svg',
+                      width: isNicknameEdit ? 21 : 19,
+                    ),
+                  ),
+                )
             ),
           ],
         ),
@@ -362,7 +420,19 @@ class _UserEditPageState extends State<UserEditPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 80, top: 100),
-                  child: Text(
+                  child: isNameEdit
+                    ? SizedBox(
+                    width: 120,
+                    height: 19,
+                    child: TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        hintText: userName,
+                        hintStyle: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  )
+                      : Text(
                     userName,
                     style: TextStyle(
                       fontFamily: 'Pretendard',
@@ -371,6 +441,29 @@ class _UserEditPageState extends State<UserEditPage> {
                       color: Colors.black,
                     ),
                   ),
+                ),
+                Padding(
+                    padding: EdgeInsets.only(
+                      left: isNameEdit ? 43 : 121,
+                      top: 100,
+                    ),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isNameEdit) {
+                          _updateUserProfile(context);
+                          userName = nameController.text;
+                        }
+                        isNameEdit = !isNameEdit;
+                      });
+                    },
+                    child: SvgPicture.asset(
+                      isNameEdit
+                      ? 'assets/images/icons/edit_check_icon.svg'
+                      : 'assets/images/icons/edit_icon.svg',
+                      width: isNameEdit ? 22 : 20,
+                    ),
+                  )
                 ),
               ],
             ),
@@ -390,7 +483,19 @@ class _UserEditPageState extends State<UserEditPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 50, top: 17),
-                  child: userBirth != ""
+                  child: isBirthEdit
+                      ? SizedBox(
+                    width: 120,
+                    height: 19,
+                    child: TextField(
+                      controller: birthController,
+                      decoration: InputDecoration(
+                        hintText: userBirth,
+                        hintStyle: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  )
+                      : userBirth != ""
                       ? Text(
                     userBirth,
                     style: TextStyle(
@@ -402,7 +507,9 @@ class _UserEditPageState extends State<UserEditPage> {
                   )
                       : GestureDetector(
                     onTap: () {
-                      // 생년월일 입력으로 넘어가기
+                      setState(() {
+                        isBirthEdit = true;
+                      });
                     },
                     child: Container(
                       width: 115,
@@ -425,12 +532,35 @@ class _UserEditPageState extends State<UserEditPage> {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: isBirthEdit ? 43 : 80,
+                    top: 17,
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isBirthEdit) {
+                          _updateUserProfile(context);
+                          userBirth = birthController.text;
+                        }
+                        isBirthEdit = !isBirthEdit;
+                      });
+                    },
+                    child: SvgPicture.asset(
+                      isBirthEdit
+                          ? 'assets/images/icons/edit_check_icon.svg'
+                          : 'assets/images/icons/edit_icon.svg',
+                      width: isBirthEdit ? 22 : 20,
+                    ),
+                  ),
+                ),
               ],
             ),
             Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 35, top: 17),
+                  padding: const EdgeInsets.only(left: 36, top: 17),
                   child: Text(
                     '휴대폰번호',
                     style: TextStyle(
@@ -443,7 +573,19 @@ class _UserEditPageState extends State<UserEditPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 37, top: 17),
-                  child: Text(
+                  child: isPhoneNumEdit
+                    ? SizedBox(
+                    width: 120,
+                    height: 19,
+                    child: TextField(
+                      controller: phonenumController,
+                      decoration: InputDecoration(
+                        hintText: userPhoneNum,
+                        hintStyle: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  )
+                      : Text(
                     userPhoneNum,
                     style: TextStyle(
                       fontFamily: 'Pretendard',
@@ -454,11 +596,27 @@ class _UserEditPageState extends State<UserEditPage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 45, top: 17),
-                  child: SvgPicture.asset(
-                    'assets/images/icons/edit_icon.svg',
-                    width: 20,
-                  ),
+                    padding: EdgeInsets.only(
+                      left: isPhoneNumEdit ? 43 : 45,
+                      top: 17,
+                    ),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (isPhoneNumEdit) {
+                            _updateUserProfile(context);
+                            userPhoneNum = phonenumController.text;
+                          }
+                          isPhoneNumEdit = !isPhoneNumEdit;
+                        });
+                      },
+                      child: SvgPicture.asset(
+                        isPhoneNumEdit
+                            ? 'assets/images/icons/edit_check_icon.svg'
+                            : 'assets/images/icons/edit_icon.svg',
+                        width: isPhoneNumEdit ? 22 : 20,
+                      ),
+                    )
                 ),
               ],
             ),
