@@ -27,11 +27,10 @@ class _MyWalletState extends State<MyWallet>
   late Future<void> _mywalletListFuture;
 
   var _selectedIndex = 0; // 현재 선택된 카드
-  late List<Map<String, dynamic>> _cardList;
+  List<Map<String, dynamic>> _cardList = [];
 
   // 카드 뒤집기
   double angle = 0;
-
   void _flip(int index) {
     setState(() {
       _isFlippedList[index] = !_isFlippedList[index];
@@ -39,7 +38,7 @@ class _MyWalletState extends State<MyWallet>
   }
 
   // 카드 뒤집기 여부 확인 리스트
-  late List<bool> _isFlippedList;
+  List<bool> _isFlippedList = [];
 
   void _updateState(Map<dynamic, dynamic> responseData) {
     setState(() {
@@ -61,7 +60,7 @@ class _MyWalletState extends State<MyWallet>
       }).toList();
       _isFlippedList = List.generate(
         _cardList.length,
-            (index) => false,
+        (index) => false,
       );
     });
   }
@@ -114,8 +113,6 @@ class _MyWalletState extends State<MyWallet>
   void initState() {
     super.initState();
     _mywalletListFuture = _getMyWallet(context);
-    _isFlippedList = [];
-    _getMyWallet(context);
   }
 
   @override
@@ -137,7 +134,6 @@ class _MyWalletState extends State<MyWallet>
 
   @override
   Widget _buildContent(BuildContext context) {
-    _isFlippedList = List.generate(_cardList.length, (index) => false);
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
@@ -221,7 +217,9 @@ class _MyWalletState extends State<MyWallet>
 
                 // 카드 스와이프 애니메이션 구현
                 return GestureDetector(
-                  onTap: () => _flip(index),
+                  onTap: () {
+                    _flip(index);
+                  },
                   child: TweenAnimationBuilder(
                     tween: Tween<double>(
                         begin: 0, end: _isFlippedList[index] ? pi : 0),
@@ -237,6 +235,8 @@ class _MyWalletState extends State<MyWallet>
                           child: CardItem(
                             cardImg: _cardList[index]['cardImg'],
                             isFlipped: _isFlippedList[index],
+                            cardName: _cardList[index]['cardName'],
+                            cardBenefitList: _cardList[index]['cardBenefitList'],
                           ),
                         ),
                       );
@@ -294,7 +294,7 @@ class _MyWalletState extends State<MyWallet>
                         style: const TextStyle(
                           color: Colors.black,
                           fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w900,
                           fontSize: 17,
                         ),
                       ),
