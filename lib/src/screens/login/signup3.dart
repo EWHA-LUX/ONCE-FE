@@ -30,10 +30,12 @@ class _Signup3State extends State<Signup3> {
       onTap: () {
         setState(() {
           if (isAllSelected) {
-            isCardSelectedList = List.generate(6, (index) => !isAllSelected);
+            isAllSelected = !isAllSelected;
+            isCardSelectedList[index] = !isCardSelectedList[index];
           } else {
             isCardSelectedList[index] = !isCardSelectedList[index];
           }
+
         });
       },
       child: Stack(
@@ -90,20 +92,20 @@ class _Signup3State extends State<Signup3> {
       height: 21,
       decoration: isCurrentStep
           ? const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.topLeft,
-          colors: [
-            Color(0xff4472fc),
-            Color(0xff8877d5),
-          ],
-        ),
-      )
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.topLeft,
+                colors: [
+                  Color(0xff4472fc),
+                  Color(0xff8877d5),
+                ],
+              ),
+            )
           : const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color(0xffd5d5d5),
-      ),
+              shape: BoxShape.circle,
+              color: Color(0xffd5d5d5),
+            ),
       child: Center(
         child: Text(
           num,
@@ -155,7 +157,7 @@ class _Signup3State extends State<Signup3> {
         Container(
           height: 2,
           width: 12,
-          color: Color(0xffd5d5d5),
+          color: const Color(0xffd5d5d5),
         ),
         StepIcon('4', false),
       ],
@@ -221,12 +223,14 @@ class _Signup3State extends State<Signup3> {
                 GestureDetector(
                   onTap: () {
                     setState(() {
-                      // Toggle the state of "전체 카드사 선택"
                       isAllSelected = !isAllSelected;
-                      // If "전체 카드사 선택" is toggled, update individual card states accordingly
                       if (isAllSelected) {
                         isCardSelectedList =
                             List.generate(6, (index) => isAllSelected);
+                      } else {
+                        for (int i = 0; i < isCardSelectedList.length; i++) {
+                          isCardSelectedList[i] = !isCardSelectedList[i];
+                        }
                       }
                     });
                   },
