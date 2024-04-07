@@ -586,104 +586,106 @@ class _Signup4State extends State<Signup4> {
       //   backgroundColor: Colors.transparent,
       //   elevation: 0,
       // ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _stepArea(context),
-            _infoArea(),
-            SizedBox(
-              height: 40,
-              child: TextField(
-                controller: _searchController,
-                onChanged: filterCardNames,
-                decoration: InputDecoration(
-                  hintText: '연결하고 싶은 카드를 검색해보세요.',
-                  hintStyle: const TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.grey,
-                  ),
-                  suffixIcon: GestureDetector(
-                    onTap: () {
-                      _getCardSearch(context, selectedCardIndex, _searchController.text);
-                    },
-                    child: Icon(
-                      Icons.search,
-                      color: Colors.blue,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _stepArea(context),
+              _infoArea(),
+              SizedBox(
+                height: 40,
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: filterCardNames,
+                  decoration: InputDecoration(
+                    hintText: '연결하고 싶은 카드를 검색해보세요.',
+                    hintStyle: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w300,
+                      color: Colors.grey,
+                    ),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        _getCardSearch(context, selectedCardIndex, _searchController.text);
+                      },
+                      child: const Icon(
+                        Icons.search,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                    isCollapsed: true,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
                     ),
                   ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-                  isCollapsed: true,
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            _buildCardCompanyList(),
-            const SizedBox(
-              height: 20,
-            ),
-            Container(
-              height: 420,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildCardList(),
-                  ],
-                ),
+              const SizedBox(
+                height: 20,
               ),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            GestureDetector(
-              child: Container(
-                height: 45,
-                width: 355,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topRight,
-                    end: Alignment.topLeft,
-                    colors: [
-                      Color(0xff5B87FD),
-                      Color(0xff978EFD),
+              _buildCardCompanyList(),
+              const SizedBox(
+                height: 20,
+              ),
+              SizedBox(
+                height: 370,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildCardList(),
                     ],
                   ),
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
                 ),
-                child: const Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    '카드 연결하기',
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+              ),
+              const SizedBox(
+                height: 50,
+              ),
+              GestureDetector(
+                child: Container(
+                  height: 45,
+                  width: 355,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topRight,
+                      end: Alignment.topLeft,
+                      colors: [
+                        Color(0xff5B87FD),
+                        Color(0xff978EFD),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  child: const Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      '카드 연결하기',
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
+                onTap: () {
+                  _postSelectedCards(context, selectedCardList);
+                  Navigator.of(context).pushNamed("/");
+                },
               ),
-              onTap: () {
-                _postSelectedCards(context, selectedCardList);
-                Navigator.of(context).pushNamed("/");
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
