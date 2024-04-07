@@ -97,7 +97,7 @@ class _Signup1 extends State<Signup1> {
             color: Colors.black,
           ),
           onTap: () {
-            Get.back();
+            Navigator.of(context).pushNamed("/login");
           },
         ),
         StepWidget()
@@ -149,10 +149,10 @@ class _Signup1 extends State<Signup1> {
             height: 40,
             child: TextFormField(
               controller: nameController,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
               ),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: '김원스',
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide.none,
