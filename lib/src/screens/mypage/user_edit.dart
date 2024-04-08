@@ -320,7 +320,7 @@ class _UserEditPageState extends State<UserEditPage> {
                     )
                   : Text(
                       '$userNickname 님',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: 'Pretendard',
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -341,7 +341,7 @@ class _UserEditPageState extends State<UserEditPage> {
                     });
                   },
                   child: ColorFiltered(
-                    colorFilter: ColorFilter.mode(
+                    colorFilter: const ColorFilter.mode(
                       Colors.white,
                       BlendMode.srcIn,
                     ),
@@ -362,7 +362,7 @@ class _UserEditPageState extends State<UserEditPage> {
               padding: EdgeInsets.only(top: 335),
               child: Text(
                 userId,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: 'Pretendard',
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
@@ -390,8 +390,8 @@ class _UserEditPageState extends State<UserEditPage> {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 35, top: 35),
+        const Padding(
+          padding: EdgeInsets.only(left: 35, top: 35),
           child: Text(
             '기본 정보',
             style: TextStyle(
@@ -406,8 +406,8 @@ class _UserEditPageState extends State<UserEditPage> {
           children: [
             Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 35, top: 100),
+                const Padding(
+                  padding: EdgeInsets.only(left: 35, top: 100),
                   child: Text(
                     '이름',
                     style: TextStyle(
@@ -434,7 +434,7 @@ class _UserEditPageState extends State<UserEditPage> {
                         )
                       : Text(
                           userName,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: 'Pretendard',
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -468,8 +468,8 @@ class _UserEditPageState extends State<UserEditPage> {
             ),
             Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 35, top: 17),
+                const Padding(
+                  padding: EdgeInsets.only(left: 35, top: 17),
                   child: Text(
                     '생년월일',
                     style: TextStyle(
@@ -490,14 +490,14 @@ class _UserEditPageState extends State<UserEditPage> {
                             controller: birthController,
                             decoration: InputDecoration(
                               hintText: userBirth,
-                              hintStyle: TextStyle(fontSize: 15),
+                              hintStyle: const TextStyle(fontSize: 15),
                             ),
                           ),
                         )
                       : userBirth != ""
                           ? Text(
                               userBirth,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontFamily: 'Pretendard',
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -513,12 +513,12 @@ class _UserEditPageState extends State<UserEditPage> {
                               child: Container(
                                 width: 115,
                                 height: 23,
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: Color(0xffececec),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(7)),
                                 ),
-                                child: Center(
+                                child: const Center(
                                   child: Text(
                                     '생년월일 입력하기',
                                     style: TextStyle(
@@ -534,7 +534,7 @@ class _UserEditPageState extends State<UserEditPage> {
                 ),
                 Padding(
                   padding: EdgeInsets.only(
-                    left: isBirthEdit ? 43 : 80,
+                    left: userBirth != "" ? 80 : 49,
                     top: 17,
                   ),
                   child: GestureDetector(
@@ -559,8 +559,8 @@ class _UserEditPageState extends State<UserEditPage> {
             ),
             Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 36, top: 17),
+                const Padding(
+                  padding: EdgeInsets.only(left: 36, top: 17),
                   child: Text(
                     '휴대폰번호',
                     style: TextStyle(
@@ -587,7 +587,7 @@ class _UserEditPageState extends State<UserEditPage> {
                         )
                       : Text(
                           userPhoneNum,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: 'Pretendard',
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -621,8 +621,8 @@ class _UserEditPageState extends State<UserEditPage> {
             ),
             Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 35, top: 17),
+                const Padding(
+                  padding: EdgeInsets.only(left: 35, top: 17),
                   child: Text(
                     '비밀번호',
                     style: TextStyle(
@@ -639,13 +639,13 @@ class _UserEditPageState extends State<UserEditPage> {
                     child: Container(
                       width: 115,
                       height: 23,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Color(0xffececec),
-                        borderRadius: const BorderRadius.all(
+                        borderRadius: BorderRadius.all(
                           Radius.circular(7),
                         ),
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           '비밀번호 변경하기',
                           style: TextStyle(
@@ -663,8 +663,8 @@ class _UserEditPageState extends State<UserEditPage> {
             ),
             Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 35, top: 17),
+                const Padding(
+                  padding: EdgeInsets.only(left: 35, top: 17),
                   child: Text(
                     '가입일',
                     style: TextStyle(
@@ -679,7 +679,7 @@ class _UserEditPageState extends State<UserEditPage> {
                   padding: const EdgeInsets.only(left: 67, top: 17),
                   child: Text(
                     userSignupDate,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
