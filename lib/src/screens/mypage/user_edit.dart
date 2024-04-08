@@ -17,7 +17,7 @@ class UserEditPage extends StatefulWidget {
 }
 
 class _UserEditPageState extends State<UserEditPage> {
-  late String userNickname= '';
+  late String userNickname = '';
   late String userId = '';
   late String userName = '';
   late String userBirth = '';
@@ -153,15 +153,15 @@ class _UserEditPageState extends State<UserEditPage> {
     final dio = Dio(baseOptions);
 
     try {
-      final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+      final pickedFile =
+          await ImagePicker().pickImage(source: ImageSource.gallery);
       if (pickedFile == null) {
         return;
       }
       String imagePath = pickedFile.path;
 
-      var formData = FormData.fromMap({
-        'userProfileImg' : await MultipartFile.fromFile(imagePath)
-      });
+      var formData = FormData.fromMap(
+          {'userProfileImg': await MultipartFile.fromFile(imagePath)});
 
       final response = await dio.patch(
         apiUrl,
@@ -169,7 +169,8 @@ class _UserEditPageState extends State<UserEditPage> {
       );
       print(response);
 
-      final newImageUrl = '${response.data['result']}?${DateTime.now().millisecondsSinceEpoch}';
+      final newImageUrl =
+          '${response.data['result']}?${DateTime.now().millisecondsSinceEpoch}';
       setState(() {
         userProfileImg = newImageUrl;
       });
@@ -252,8 +253,7 @@ class _UserEditPageState extends State<UserEditPage> {
               padding: EdgeInsets.only(top: 123),
               child: Container(
                 decoration: const BoxDecoration(
-                    shape: BoxShape.circle, color: Colors.white
-                ),
+                    shape: BoxShape.circle, color: Colors.white),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100),
                   child: SizedBox(
@@ -272,7 +272,8 @@ class _UserEditPageState extends State<UserEditPage> {
         GestureDetector(
           onTap: () => _updateUserProfileImg(context),
           child: Padding(
-            padding: EdgeInsets.only(top: 257, left: MediaQuery.of(context).size.width / 2 + 45),
+            padding: EdgeInsets.only(
+                top: 257, left: MediaQuery.of(context).size.width / 2 + 45),
             child: Container(
               width: 35,
               height: 35,
@@ -296,36 +297,36 @@ class _UserEditPageState extends State<UserEditPage> {
             Padding(
               padding: EdgeInsets.only(top: 310),
               child: isNicknameEdit
-                ? SizedBox(
-                width: 40,
-                height: 19,
-                child: TextField(
-                  controller: nicknameController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: userNickname,
-                    hintStyle: TextStyle(
-                      fontSize: 15,
-                      color: Colors.white,
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
-                ),
-              )
+                  ? SizedBox(
+                      width: 40,
+                      height: 19,
+                      child: TextField(
+                        controller: nicknameController,
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: userNickname,
+                          hintStyle: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    )
                   : Text(
-                '$userNickname 님',
-                style: TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
+                      '$userNickname 님',
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
             ),
             Padding(
                 padding: const EdgeInsets.only(left: 7, top: 310),
@@ -351,8 +352,7 @@ class _UserEditPageState extends State<UserEditPage> {
                       width: isNicknameEdit ? 21 : 19,
                     ),
                   ),
-                )
-            ),
+                )),
           ],
         ),
         Row(
@@ -421,50 +421,49 @@ class _UserEditPageState extends State<UserEditPage> {
                 Padding(
                   padding: const EdgeInsets.only(left: 80, top: 100),
                   child: isNameEdit
-                    ? SizedBox(
-                    width: 120,
-                    height: 19,
-                    child: TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        hintText: userName,
-                        hintStyle: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  )
+                      ? SizedBox(
+                          width: 120,
+                          height: 19,
+                          child: TextField(
+                            controller: nameController,
+                            decoration: InputDecoration(
+                              hintText: userName,
+                              hintStyle: TextStyle(fontSize: 15),
+                            ),
+                          ),
+                        )
                       : Text(
-                    userName,
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  ),
+                          userName,
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
                 ),
                 Padding(
                     padding: EdgeInsets.only(
                       left: isNameEdit ? 43 : 121,
                       top: 100,
                     ),
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (isNameEdit) {
-                          _updateUserProfile(context);
-                          userName = nameController.text;
-                        }
-                        isNameEdit = !isNameEdit;
-                      });
-                    },
-                    child: SvgPicture.asset(
-                      isNameEdit
-                      ? 'assets/images/icons/edit_check_icon.svg'
-                      : 'assets/images/icons/edit_icon.svg',
-                      width: isNameEdit ? 22 : 20,
-                    ),
-                  )
-                ),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (isNameEdit) {
+                            _updateUserProfile(context);
+                            userName = nameController.text;
+                          }
+                          isNameEdit = !isNameEdit;
+                        });
+                      },
+                      child: SvgPicture.asset(
+                        isNameEdit
+                            ? 'assets/images/icons/edit_check_icon.svg'
+                            : 'assets/images/icons/edit_icon.svg',
+                        width: isNameEdit ? 22 : 20,
+                      ),
+                    )),
               ],
             ),
             Row(
@@ -485,52 +484,53 @@ class _UserEditPageState extends State<UserEditPage> {
                   padding: const EdgeInsets.only(left: 50, top: 17),
                   child: isBirthEdit
                       ? SizedBox(
-                    width: 120,
-                    height: 19,
-                    child: TextField(
-                      controller: birthController,
-                      decoration: InputDecoration(
-                        hintText: userBirth,
-                        hintStyle: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  )
-                      : userBirth != ""
-                      ? Text(
-                    userBirth,
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  )
-                      : GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isBirthEdit = true;
-                      });
-                    },
-                    child: Container(
-                      width: 115,
-                      height: 23,
-                      decoration: BoxDecoration(
-                        color: Color(0xffececec),
-                        borderRadius: BorderRadius.all(Radius.circular(7)),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '생년월일 입력하기',
-                          style: TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xff727272),
+                          width: 120,
+                          height: 19,
+                          child: TextField(
+                            controller: birthController,
+                            decoration: InputDecoration(
+                              hintText: userBirth,
+                              hintStyle: TextStyle(fontSize: 15),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                  ),
+                        )
+                      : userBirth != ""
+                          ? Text(
+                              userBirth,
+                              style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            )
+                          : GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isBirthEdit = true;
+                                });
+                              },
+                              child: Container(
+                                width: 115,
+                                height: 23,
+                                decoration: BoxDecoration(
+                                  color: Color(0xffececec),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(7)),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '생년월일 입력하기',
+                                    style: TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xff727272),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(
@@ -574,26 +574,26 @@ class _UserEditPageState extends State<UserEditPage> {
                 Padding(
                   padding: const EdgeInsets.only(left: 37, top: 17),
                   child: isPhoneNumEdit
-                    ? SizedBox(
-                    width: 120,
-                    height: 19,
-                    child: TextField(
-                      controller: phonenumController,
-                      decoration: InputDecoration(
-                        hintText: userPhoneNum,
-                        hintStyle: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  )
+                      ? SizedBox(
+                          width: 120,
+                          height: 19,
+                          child: TextField(
+                            controller: phonenumController,
+                            decoration: InputDecoration(
+                              hintText: userPhoneNum,
+                              hintStyle: TextStyle(fontSize: 15),
+                            ),
+                          ),
+                        )
                       : Text(
-                    userPhoneNum,
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  ),
+                          userPhoneNum,
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
                 ),
                 Padding(
                     padding: EdgeInsets.only(
@@ -616,8 +616,7 @@ class _UserEditPageState extends State<UserEditPage> {
                             : 'assets/images/icons/edit_icon.svg',
                         width: isPhoneNumEdit ? 22 : 20,
                       ),
-                    )
-                ),
+                    )),
               ],
             ),
             Row(
@@ -693,23 +692,26 @@ class _UserEditPageState extends State<UserEditPage> {
           ],
         ),
       ],
-    ) ;
+    );
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
-      body: Stack(
-        children: [
-          _gradationBody(context),
-          Padding(
-            padding: EdgeInsets.only(left: MediaQuery.of(context).size.width / 2 - 175.0, top: 370),
-            child: _profileContainer(context),
-          ),
-        ],
+      body: SingleChildScrollView(
+        child: Stack(
+          children: [
+            _gradationBody(context),
+            Padding(
+              padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width / 2 - 175.0,
+                  top: 370),
+              child: _profileContainer(context),
+            ),
+          ],
+        ),
       ),
     );
   }
