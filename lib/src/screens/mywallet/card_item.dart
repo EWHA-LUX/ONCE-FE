@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -6,6 +7,8 @@ class CardItem extends StatelessWidget {
   final bool isFlipped;
   final String cardImg;
   final String cardName;
+  final String cardCompany;
+
   final List<Map<String, dynamic>> cardBenefitList;
 
   const CardItem({
@@ -13,6 +16,7 @@ class CardItem extends StatelessWidget {
     required this.isFlipped,
     required this.cardImg,
     required this.cardName,
+    required this.cardCompany,
     required this.cardBenefitList,
   }) : super(key: key);
 
@@ -21,22 +25,37 @@ class CardItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Transform(
-        alignment: Alignment.center,
-        transform: isFlipped ? Matrix4.rotationY(math.pi) : Matrix4.rotationY(0),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(25.0),
-            color: isFlipped ? Color(0xF2E5E5E5) : null,
-              image: !isFlipped
-                ? DecorationImage(
-              image: NetworkImage(cardImg),
-              fit: BoxFit.cover,
-            )
-                : null,
-          ),
-          child: isFlipped ? CardBack(cardName: cardName, cardBenefitList: cardBenefitList, isFlipped: isFlipped) : null,
-        ),
-      ),
+          alignment: Alignment.center,
+          transform:
+              isFlipped ? Matrix4.rotationY(math.pi) : Matrix4.rotationY(0),
+          child: isFlipped
+              ? Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25.0),
+                    color: const Color(0xF2E5E5E5),
+                  ),
+                  child: isFlipped
+                      ? CardBack(
+                          cardName: cardName,
+                          cardBenefitList: cardBenefitList,
+                          isFlipped: isFlipped)
+                      : null,
+                )
+              : cardCompany == '국민카드' ||
+                      cardCompany == '신한카드' ||
+                      cardCompany == '하나카드' ||
+                      cardCompany == '롯데카드'
+                  ? Transform.rotate(
+                      angle: 3.1415926535897932 / 2,
+                      child: CachedNetworkImage(
+                        imageUrl: cardImg,
+                        fit: BoxFit.contain,
+                      ),
+                    )
+                  : CachedNetworkImage(
+                      imageUrl: cardImg,
+                      fit: BoxFit.scaleDown,
+                    )),
     );
   }
 }
@@ -76,19 +95,19 @@ class CardBack extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Color(0xFFECECEC),
+        color: const Color(0xFFECECEC),
         borderRadius: isFlipped ? BorderRadius.circular(25.0) : null,
       ),
       child: Column(
         children: [
-          SizedBox(height: 30),
+          const SizedBox(height: 30),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 cardName,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Color(0xFF588CFF),
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w700,
@@ -97,8 +116,8 @@ class CardBack extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -112,7 +131,7 @@ class CardBack extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Expanded(
             child: ListView.builder(
               itemCount: cardBenefitList.length,
@@ -123,14 +142,15 @@ class CardBack extends StatelessWidget {
                     width: 34,
                     height: 34,
                     child: SvgPicture.asset(
-                      _getIconPathForCategory(cardBenefitList[index]['category']),
+                      _getIconPathForCategory(
+                          cardBenefitList[index]['category']),
                       width: 34,
                       height: 34,
                     ),
                   ),
                   title: Text(
                     cardBenefitList[index]['category'],
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.black,
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w600,
@@ -139,7 +159,7 @@ class CardBack extends StatelessWidget {
                   ),
                   subtitle: Text(
                     cardBenefitList[index]['benefit'],
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Color(0xFF767676),
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w400,
