@@ -23,6 +23,10 @@ class _Signup1 extends State<Signup1> {
     String year = birthYearController.text;
     String month = birthMonthController.text;
     String day = birthDayController.text;
+
+    if (birthDayController.text == "" && birthYearController.text == "" && birthMonthController.text == "") {
+      return '';
+    }
     return '$year.$month.$day';
   }
 
@@ -272,7 +276,6 @@ class _Signup1 extends State<Signup1> {
             height: 15,
           ),
           Row(
-            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(
                 width: 82,
