@@ -22,15 +22,16 @@ class MyWallet extends StatefulWidget {
 
 class _MyWalletState extends State<MyWallet>
     with SingleTickerProviderStateMixin {
-
   final String BASE_URL = Constants.baseUrl;
   late Future<void> _mywalletListFuture;
 
   var _selectedIndex = 0; // 현재 선택된 카드
+  String nickname = '';
   List<Map<String, dynamic>> _cardList = [];
 
   // 카드 뒤집기
   double angle = 0;
+
   void _flip(int index) {
     setState(() {
       _isFlippedList[index] = !_isFlippedList[index];
@@ -42,20 +43,23 @@ class _MyWalletState extends State<MyWallet>
 
   void _updateState(Map<dynamic, dynamic> responseData) {
     setState(() {
+      nickname = responseData['result']['nickname'];
       List<dynamic> ownedCardList = responseData['result']['ownedCardList'];
       _cardList = ownedCardList.map((card) {
         return {
           'cardName': card['cardName'],
           'cardType': card['cardType'],
           'cardImg': card['cardImg'],
+          'cardCompany': card['cardCompany'],
           'isMaincard': card['isMaincard'],
           'performanceCondition': card['performanceCondition'],
           'currentPerformance': card['currentPerformance'],
           'remainPerformance': card['remainPerformance'],
-          'cardBenefitList': List<Map<String, dynamic>>.from(card['cardBenefitList'].map((benefit) => {
-            'category': benefit['category'],
-            'benefit': benefit['benefit'],
-          })),
+          'cardBenefitList': List<Map<String, dynamic>>.from(
+              card['cardBenefitList'].map((benefit) => {
+                    'category': benefit['category'],
+                    'benefit': benefit['benefit'],
+                  })),
         };
       }).toList();
       _isFlippedList = List.generate(
@@ -121,7 +125,7 @@ class _MyWalletState extends State<MyWallet>
       future: _mywalletListFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Loading();
+          return const Loading();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
@@ -186,10 +190,10 @@ class _MyWalletState extends State<MyWallet>
           ),
           const SizedBox(height: 5),
           // 상단 세미 타이틀
-          const Padding(
-            padding: EdgeInsets.only(left: 28.0, top: 1),
+          Padding(
+            padding: const EdgeInsets.only(left: 28.0, top: 1),
             child: Text(
-              '루스님을 위해 맞춤화된 카드 혜택 정보를 알아보세요.',
+              '$nickname님을 위해 맞춤화된 카드 혜택 정보를 알아보세요.',
               style: TextStyles.SemiTitle,
             ),
           ),
@@ -223,7 +227,7 @@ class _MyWalletState extends State<MyWallet>
                   child: TweenAnimationBuilder(
                     tween: Tween<double>(
                         begin: 0, end: _isFlippedList[index] ? pi : 0),
-                    duration: Duration(seconds: 1),
+                    duration: const Duration(seconds: 1),
                     builder: (BuildContext context, double val, __) {
                       return Transform.scale(
                         scale: _scale,
@@ -236,7 +240,9 @@ class _MyWalletState extends State<MyWallet>
                             cardImg: _cardList[index]['cardImg'],
                             isFlipped: _isFlippedList[index],
                             cardName: _cardList[index]['cardName'],
-                            cardBenefitList: _cardList[index]['cardBenefitList'],
+                            cardCompany: _cardList[index]['cardCompany'],
+                            cardBenefitList: _cardList[index]
+                                ['cardBenefitList'],
                           ),
                         ),
                       );
@@ -322,8 +328,15 @@ class _MyWalletState extends State<MyWallet>
                         animation: true,
                         lineHeight: 8.0,
                         animationDuration: 900,
-                        percent: _cardList[_selectedIndex]['currentPerformance'] != null && _cardList[_selectedIndex]['performanceCondition'] != null
-                            ? _cardList[_selectedIndex]['currentPerformance'] / _cardList[_selectedIndex]['performanceCondition']
+                        percent: _cardList[_selectedIndex]
+                                        ['currentPerformance'] !=
+                                    null &&
+                                _cardList[_selectedIndex]
+                                        ['performanceCondition'] !=
+                                    null
+                            ? _cardList[_selectedIndex]['currentPerformance'] /
+                                _cardList[_selectedIndex]
+                                    ['performanceCondition']
                             : 0.0,
                         barRadius: const Radius.circular(20),
                         linearGradient: const LinearGradient(

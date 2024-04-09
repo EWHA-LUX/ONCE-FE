@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:get/get.dart';
-import 'package:once_front/style.dart';
+import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/src/screens/login/signup2.dart';
+import 'package:once_front/style.dart';
 
 class Signup1 extends StatefulWidget {
   @override
@@ -23,6 +23,10 @@ class _Signup1 extends State<Signup1> {
     String year = birthYearController.text;
     String month = birthMonthController.text;
     String day = birthDayController.text;
+
+    if (birthDayController.text == "" && birthYearController.text == "" && birthMonthController.text == "") {
+      return '';
+    }
     return '$year.$month.$day';
   }
 
@@ -97,7 +101,7 @@ class _Signup1 extends State<Signup1> {
             color: Colors.black,
           ),
           onTap: () {
-            Get.back();
+            Navigator.of(context).pushNamed("/login");
           },
         ),
         StepWidget()
@@ -149,10 +153,10 @@ class _Signup1 extends State<Signup1> {
             height: 40,
             child: TextFormField(
               controller: nameController,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
               ),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: '김원스',
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide.none,
@@ -189,10 +193,10 @@ class _Signup1 extends State<Signup1> {
             height: 40,
             child: TextFormField(
               controller: nicknameController,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
               ),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: '루스',
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide.none,
@@ -272,7 +276,6 @@ class _Signup1 extends State<Signup1> {
             height: 15,
           ),
           Row(
-            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(
                 width: 82,
@@ -417,18 +420,20 @@ class _Signup1 extends State<Signup1> {
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [_stepArea(context), _infoArea(), _inputArea()],
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [_stepArea(context), _infoArea(), _inputArea()],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

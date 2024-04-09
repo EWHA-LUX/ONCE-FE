@@ -36,20 +36,22 @@ class _Signup4State extends State<Signup4> {
     super.initState();
     selectedCardIndex = []; // 선택된 카드 인덱스 초기화
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      selectedCardIndex = ModalRoute.of(context)!.settings.arguments as List<int>;
+      selectedCardIndex =
+          ModalRoute.of(context)!.settings.arguments as List<int>;
       _getCardDetails(context, selectedCardIndex);
     });
   }
 
   List<bool> isCardSelectedList = List.generate(6, (index) => false);
-  List<bool> isCardCompanyList = List.generate(3, (index) => false);
+  List<bool> isCardCompanyList = List.generate(6, (index) => false);
   List<String> filteredCardNames = [];
 
   TextEditingController _searchController = TextEditingController();
   String _selectedCardCompany = "";
 
   // [Get] 카드사로 카드 검색
-  void _getCardDetails(BuildContext context, List<int> selectedCardIndex) async {
+  void _getCardDetails(
+      BuildContext context, List<int> selectedCardIndex) async {
     final List<String> cardCodes = selectedCardIndex.map((index) {
       switch (index) {
         case 0:
@@ -71,8 +73,7 @@ class _Signup4State extends State<Signup4> {
 
     final String apiUrl = '$BASE_URL/user/card/search';
 
-    final baseOptions = BaseOptions(
-    );
+    final baseOptions = BaseOptions();
 
     final dio = Dio(baseOptions);
 
@@ -124,7 +125,8 @@ class _Signup4State extends State<Signup4> {
   }
 
   // [Get] 카드 이름 검색
-  void _getCardSearch(BuildContext context, List<int> selectedCardIndex, String searchName) async {
+  void _getCardSearch(BuildContext context, List<int> selectedCardIndex,
+      String searchName) async {
     final List<String> cardCodes = selectedCardIndex.map((index) {
       switch (index) {
         case 0:
@@ -146,8 +148,7 @@ class _Signup4State extends State<Signup4> {
 
     final String apiUrl = '$BASE_URL/user/card/searchname';
 
-    final baseOptions = BaseOptions(
-    );
+    final baseOptions = BaseOptions();
 
     final dio = Dio(baseOptions);
 
@@ -166,7 +167,8 @@ class _Signup4State extends State<Signup4> {
         // 기존 카드사 탭 모두 선택 해제
         setState(() {
           _selectedCardCompanyIndex = -1;
-          isCardCompanyList = List.generate(_cardCompnayList.length, (index) => false);
+          isCardCompanyList =
+              List.generate(_cardCompnayList.length, (index) => false);
           _filteredCompanyCards = cardDetails;
         });
 
@@ -216,7 +218,8 @@ class _Signup4State extends State<Signup4> {
   }
 
   // [Post] 카드 등록
-  void _postSelectedCards(BuildContext context, List<int> selectedCardList) async {
+  void _postSelectedCards(
+      BuildContext context, List<int> selectedCardList) async {
     final String apiUrl = '$BASE_URL/user/card';
     final Map<String, dynamic> requestData = {
       "cardList": selectedCardList,
@@ -235,7 +238,6 @@ class _Signup4State extends State<Signup4> {
       final response = await dio.post(apiUrl, data: requestData);
       final responseData = response.data;
       print(responseData);
-      // Handle the response accordingly
     } catch (e) {
       print(e.toString());
       showDialog(
@@ -340,7 +342,8 @@ class _Signup4State extends State<Signup4> {
   }
 
   // 하단 카드 컨테이너
-  Widget _cardContainer(int cardId, String cardImg, String cardName, String type) {
+  Widget _cardContainer(
+      int cardId, String cardImg, String cardName, String type) {
     bool isSelected = selectedCardList.contains(cardId);
     return GestureDetector(
       onTap: () {
@@ -356,7 +359,7 @@ class _Signup4State extends State<Signup4> {
         width: 337,
         height: 77,
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xffdceefd): Colors.white,
+          color: isSelected ? const Color(0xffdceefd) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? Color(0xff3d6dc4) : Colors.transparent,
@@ -367,11 +370,21 @@ class _Signup4State extends State<Signup4> {
           children: [
             Padding(
               padding: const EdgeInsets.all(10.0),
-              child: Image.network(
-                cardImg,
-                width: 58,
-                fit: BoxFit.contain,
-              ),
+              child: _selectedCardCompany == '현대카드' ||
+                      _selectedCardCompany == '삼성카드'
+                  ? Transform.rotate(
+                      angle: 3.1415926535897932 / 2,
+                      child: Image.network(
+                        cardImg,
+                        width: 58,
+                        fit: BoxFit.contain,
+                      ),
+                    )
+                  : Image.network(
+                      cardImg,
+                      width: 58,
+                      fit: BoxFit.contain,
+                    ),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,16 +392,19 @@ class _Signup4State extends State<Signup4> {
               children: [
                 Text(
                   type,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Pretendard',
                     fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: const Color(0xff1e5094),
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xff0083EE),
                   ),
+                ),
+                const SizedBox(
+                  height: 3,
                 ),
                 Text(
                   cardName,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Pretendard',
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -409,20 +425,20 @@ class _Signup4State extends State<Signup4> {
       height: 21,
       decoration: isCurrentStep
           ? const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.topLeft,
-          colors: [
-            Color(0xff4472fc),
-            Color(0xff8877d5),
-          ],
-        ),
-      )
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.topLeft,
+                colors: [
+                  Color(0xff4472fc),
+                  Color(0xff8877d5),
+                ],
+              ),
+            )
           : const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color(0xffd5d5d5),
-      ),
+              shape: BoxShape.circle,
+              color: Color(0xffd5d5d5),
+            ),
       child: Center(
         child: Text(
           num,
@@ -535,9 +551,10 @@ class _Signup4State extends State<Signup4> {
 
   void filterCardNames(String query) {
     setState(() {
-      _filteredCompanyCards = _selectedCompanyCards.where((card) =>
-          card['cardName'].toLowerCase().contains(query.toLowerCase())
-      ).toList();
+      _filteredCompanyCards = _selectedCompanyCards
+          .where((card) =>
+              card['cardName'].toLowerCase().contains(query.toLowerCase()))
+          .toList();
     });
   }
 
@@ -567,11 +584,7 @@ class _Signup4State extends State<Signup4> {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: _cardContainer(
-            card['cardId'],
-            card['cardImg'],
-            card['cardName'],
-            card['type'],
-          ),
+              card['cardId'], card['cardImg'], card['cardName'], card['type']),
         );
       },
     );
@@ -582,108 +595,107 @@ class _Signup4State extends State<Signup4> {
     return Scaffold(
       backgroundColor: Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
-      // appBar: AppBar(
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      // ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _stepArea(context),
-            _infoArea(),
-            SizedBox(
-              height: 40,
-              child: TextField(
-                controller: _searchController,
-                onChanged: filterCardNames,
-                decoration: InputDecoration(
-                  hintText: '연결하고 싶은 카드를 검색해보세요.',
-                  hintStyle: const TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.grey,
-                  ),
-                  suffixIcon: GestureDetector(
-                    onTap: () {
-                      _getCardSearch(context, selectedCardIndex, _searchController.text);
-                    },
-                    child: Icon(
-                      Icons.search,
-                      color: Colors.blue,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _stepArea(context),
+              _infoArea(),
+              SizedBox(
+                height: 40,
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: filterCardNames,
+                  decoration: InputDecoration(
+                    hintText: '연결하고 싶은 카드를 검색해보세요.',
+                    hintStyle: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w300,
+                      color: Colors.grey,
+                    ),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        _getCardSearch(
+                            context, selectedCardIndex, _searchController.text);
+                      },
+                      child: const Icon(
+                        Icons.search,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                    isCollapsed: true,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
                     ),
                   ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-                  isCollapsed: true,
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            _buildCardCompanyList(),
-            const SizedBox(
-              height: 20,
-            ),
-            Container(
-              height: 420,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildCardList(),
-                  ],
-                ),
+              const SizedBox(
+                height: 20,
               ),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            GestureDetector(
-              child: Container(
-                height: 45,
-                width: 355,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topRight,
-                    end: Alignment.topLeft,
-                    colors: [
-                      Color(0xff5B87FD),
-                      Color(0xff978EFD),
+              _buildCardCompanyList(),
+              const SizedBox(
+                height: 20,
+              ),
+              SizedBox(
+                height: 370,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildCardList(),
                     ],
                   ),
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
                 ),
-                child: const Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    '카드 연결하기',
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+              ),
+              const SizedBox(
+                height: 50,
+              ),
+              GestureDetector(
+                child: Container(
+                  height: 45,
+                  width: 355,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topRight,
+                      end: Alignment.topLeft,
+                      colors: [
+                        Color(0xff5B87FD),
+                        Color(0xff978EFD),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  child: const Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      '카드 연결하기',
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
+                onTap: () {
+                  _postSelectedCards(context, selectedCardList);
+                  Navigator.of(context).pushNamed("/");
+                },
               ),
-              onTap: () {
-                _postSelectedCards(context, selectedCardList);
-                Navigator.of(context).pushNamed("/");
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
