@@ -226,48 +226,54 @@ class _PushNotificationState extends State<PushNotification> {
             ),
           ),
           Column(
-            children: List.generate(announceTodayList.length * 2 - 1, (index) {
-              if (index % 2 == 0) {
-                final noticeIndex = index ~/ 2;
-                final announcement = announceTodayList[noticeIndex];
-                return GestureDetector(
-                  child: NoticeWidget(
-                    type: _mapNoticeType(announcement['type']),
-                    content: announcement['content'],
-                    announceDate: announcement['announceDate'],
-                    hasCheck: announcement['hasCheck'],
-                  ),
-                  onTap: () async {
-                    try {
-                      Map<dynamic, dynamic>? responseData =
-                          await _noticePopup(announcement['announceId']);
+            children: announceTodayList.isEmpty
+                ? [const SizedBox(width: 380, child: Text('오늘 알림이 존재하지 않습니다.', style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: Color(0xff464646)),))]
+                : List.generate(announceTodayList.length * 2 - 1, (index) {
+                    if (index % 2 == 0) {
+                      final noticeIndex = index ~/ 2;
+                      final announcement = announceTodayList[noticeIndex];
+                      return GestureDetector(
+                        child: NoticeWidget(
+                          type: _mapNoticeType(announcement['type']),
+                          content: announcement['content'],
+                          announceDate: announcement['announceDate'],
+                          hasCheck: announcement['hasCheck'],
+                        ),
+                        onTap: () async {
+                          try {
+                            Map<dynamic, dynamic>? responseData =
+                                await _noticePopup(announcement['announceId']);
 
-                      _noticeListFuture = _noticeList();
+                            _noticeListFuture = _noticeList();
 
-                      if (responseData != null) {
-                        showPopup(
-                            context,
-                            _mapPopupType(responseData['result']['type']),
-                            responseData['result']['content']
-                                .toString()
-                                .replaceAll('. ', '.\n'),
-                            responseData['result']['moreInfo'].toString(),
-                            responseData['result']['announceDate']);
-                      }
-                    } catch (e) {
-                      print(e.toString());
+                            if (responseData != null) {
+                              showPopup(
+                                  context,
+                                  _mapPopupType(responseData['result']['type']),
+                                  responseData['result']['content']
+                                      .toString()
+                                      .replaceAll('. ', '.\n'),
+                                  responseData['result']['moreInfo'].toString(),
+                                  responseData['result']['announceDate']);
+                            }
+                          } catch (e) {
+                            print(e.toString());
+                          }
+                        },
+                      );
+                    } else {
+                      return const Padding(
+                        padding: EdgeInsets.only(right: 25.0),
+                        child: Divider(
+                          color: Color(0xff767676),
+                        ),
+                      );
                     }
-                  },
-                );
-              } else {
-                return const Padding(
-                  padding: EdgeInsets.only(right: 25.0),
-                  child: Divider(
-                    color: Color(0xff767676),
-                  ),
-                );
-              }
-            }),
+                  }),
           )
         ],
       ),
@@ -292,48 +298,56 @@ class _PushNotificationState extends State<PushNotification> {
             ),
           ),
           Column(
-            children: List.generate(announcePastList.length * 2 - 1, (index) {
-              if (index % 2 == 0) {
-                final noticeIndex = index ~/ 2;
-                final announcement = announcePastList[noticeIndex];
-                return GestureDetector(
-                  child: NoticeWidget(
-                    type: _mapNoticeType(announcement['type']),
-                    content: announcement['content'],
-                    announceDate: announcement['announceDate'],
-                    hasCheck: announcement['hasCheck'],
-                  ),
-                  onTap: () async {
-                    try {
-                      Map<dynamic, dynamic>? responseData =
-                          await _noticePopup(announcement['announceId']);
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: announcePastList.isEmpty
+                ? [const SizedBox(width: 380, child: Text('지난 주 알림이 존재하지 않습니다.', style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: Color(0xff464646)),))]
+                : List.generate(announcePastList.length * 2 - 1, (index) {
+                    if (index % 2 == 0) {
+                      final noticeIndex = index ~/ 2;
+                      final announcement = announcePastList[noticeIndex];
+                      return GestureDetector(
+                        child: NoticeWidget(
+                          type: _mapNoticeType(announcement['type']),
+                          content: announcement['content'],
+                          announceDate: announcement['announceDate'],
+                          hasCheck: announcement['hasCheck'],
+                        ),
+                        onTap: () async {
+                          try {
+                            Map<dynamic, dynamic>? responseData =
+                                await _noticePopup(announcement['announceId']);
 
-                      _noticeListFuture = _noticeList();
+                            _noticeListFuture = _noticeList();
 
-                      if (responseData != null) {
-                        showPopup(
-                            context,
-                            _mapPopupType(responseData['result']['type']),
-                            responseData['result']['content']
-                                .toString()
-                                .replaceAll('. ', '.\n'),
-                            responseData['result']['moreInfo'].toString(),
-                            responseData['result']['announceDate']);
-                      }
-                    } catch (e) {
-                      print(e.toString());
+                            if (responseData != null) {
+                              showPopup(
+                                  context,
+                                  _mapPopupType(responseData['result']['type']),
+                                  responseData['result']['content']
+                                      .toString()
+                                      .replaceAll('. ', '.\n'),
+                                  responseData['result']['moreInfo'].toString(),
+                                  responseData['result']['announceDate']);
+                            }
+                          } catch (e) {
+                            print(e.toString());
+                          }
+                        },
+                      );
+                    } else {
+                      return const Padding(
+                        padding: EdgeInsets.only(right: 25.0),
+                        child: Divider(
+                          color: Color(0xff767676),
+                        ),
+                      );
                     }
-                  },
-                );
-              } else {
-                return const Padding(
-                  padding: EdgeInsets.only(right: 25.0),
-                  child: Divider(
-                    color: Color(0xff767676),
-                  ),
-                );
-              }
-            }),
+                  }),
           )
         ],
       ),
