@@ -868,7 +868,10 @@ class _HomeState extends State<Home> {
                                         child: _navbarCircle(
                                             'assets/images/3d_icons/logout_3d_icon.svg',
                                             '로그아웃'),
-                                        onTap: () {},
+                                        onTap: () {
+                                          Navigator.of(context)
+                                              .pushNamed("/login");
+                                        },
                                       ),
                                     ],
                                   ),
