@@ -1,13 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/chat_bubble.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/src/screens/login/loading.dart';
 import 'package:once_front/style.dart';
-import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -21,6 +23,8 @@ class _HomeState extends State<Home> {
   final String BASE_URL = Constants.baseUrl;
 
   bool isRecommend = false;
+  bool showRecommendBox = false;
+  bool showPayPopup = false;
 
   String nickname = '';
   int ownedCardCount = 0;
@@ -28,12 +32,12 @@ class _HomeState extends State<Home> {
 
   int chatId = 0;
   String cardName = '';
+  String cardCompany = '';
   String cardImg = '';
   String benefit = '';
   int discount = 0;
 
   late Future<void> _homeInfoFuture; // 홈 기본 정보
-  late Future<void> _cardRecommendFuture; // 카드 추천
 
   @override
   void initState() {
@@ -54,6 +58,7 @@ class _HomeState extends State<Home> {
     setState(() {
       isRecommend = true;
       cardName = responseData['result']['cardName'];
+      cardCompany = responseData['result']['cardCompany'];
       cardImg = responseData['result']['cardImg'];
       benefit = responseData['result']['benefit'];
       discount = responseData['result']['discount'];
@@ -83,8 +88,8 @@ class _HomeState extends State<Home> {
   }
 
   // [Get] 챗봇 카드 추천
-  Future<void> _cardRecommend(BuildContext context, String keyword,
-      int paymentAmount) async {
+  Future<void> _cardRecommend(
+      BuildContext context, String keyword, int paymentAmount) async {
     final String apiUrl = '${BASE_URL}/home';
 
     const storage = FlutterSecureStorage();
@@ -107,6 +112,11 @@ class _HomeState extends State<Home> {
       if (responseData['code'] == 1000) {
         _updateCardRecommendState(responseData);
       }
+
+      await Future.delayed(Duration(seconds: 3));
+      setState(() {
+        showPayPopup = true;
+      });
     } catch (e) {
       // ** 차후 수정 필요 **
       print(e.toString());
@@ -141,6 +151,9 @@ class _HomeState extends State<Home> {
   void resetState() {
     setState(() {
       isRecommend = false;
+      showRecommendBox = false;
+      showPayPopup = false;
+
       keyword = '';
       initFormattedTime = '';
       userInputFormattedTime = '';
@@ -359,6 +372,8 @@ class _HomeState extends State<Home> {
               borderRadius: BorderRadius.circular(10.0))),
       onPressed: () {
         // 카드 추천 API - keyword, price
+        showRecommendBox = true;
+        setState(() {});
         _cardRecommend(context, keyword, paymentAmount);
       },
       child: Text(finishText,
@@ -493,13 +508,14 @@ class _HomeState extends State<Home> {
               borderRadius: BorderRadius.circular(13)),
           child: Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text(keywordText),
-              )),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(keywordText),
+          )),
         ),
         onTap: () {
           setState(() {
             keyword = keywordText;
+            userInputFormattedTime = DateFormat('HH:mm').format(DateTime.now());
           });
         },
       ),
@@ -528,47 +544,148 @@ class _HomeState extends State<Home> {
               ),
             ),
             child: Center(
-              child: Text.rich(
-                  TextSpan(children: <TextSpan>[
-                    TextSpan(
-                      text: '$ownedCardCount개의 카드 중',
-                      style: const TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white),
-                    ),
-                    const TextSpan(
-                      text: ' 가장 좋은 카드 하나',
-                      style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white),
-                    ),
-                    const TextSpan(
-                      text: '를 알려드려요.',
-                      style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white),
-                    ),
-                  ])
-
-              ),
+              child: Text.rich(TextSpan(children: <TextSpan>[
+                TextSpan(
+                  text: '$ownedCardCount개의 카드 중',
+                  style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white),
+                ),
+                const TextSpan(
+                  text: ' 가장 좋은 카드 하나',
+                  style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white),
+                ),
+                const TextSpan(
+                  text: '를 알려드려요.',
+                  style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white),
+                ),
+              ])),
             ),
           ),
           Container(
-            height: 150,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(13),
-                bottomRight: Radius.circular(13),
+              height: 150,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(13),
+                  bottomRight: Radius.circular(13),
+                ),
               ),
-            ),
-          ),
+              child: isRecommend
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        cardCompany == '국민카드' ||
+                                cardCompany == '신한카드' ||
+                                cardCompany == '하나카드' ||
+                                cardCompany == '롯데카드'
+                            ? Center(
+                                child: Transform.rotate(
+                                  angle: 3.1415926535897932 / 2,
+                                  child: CachedNetworkImage(
+                                    imageUrl: cardImg,
+                                    width: 120,
+                                  ),
+                                ),
+                              )
+                            : CachedNetworkImage(
+                                imageUrl: cardImg,
+                                width: 70,
+                              ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 18.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 170,
+                                child: Text(
+                                  cardName,
+                                  style: const TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black),
+                                  softWrap: true,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text.rich(TextSpan(children: <TextSpan>[
+                                const TextSpan(
+                                  text: '예상 최대 할인 금액 ',
+                                  style: TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xff0083EE)),
+                                ),
+                                TextSpan(
+                                  text: '$discount원',
+                                  style: const TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xff0083EE)),
+                                ),
+                              ])),
+                              const SizedBox(
+                                height: 3,
+                              ),
+                              SizedBox(
+                                width: 170,
+                                child: Text(
+                                  benefit,
+                                  style: const TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w300,
+                                      color: Color(0xff9F9F9F)),
+                                  softWrap: true,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    )
+                  : Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          SpinKitThreeBounce(
+                            color: Color(0xff0083EE),
+                            size: 20.0,
+                            duration: Duration(seconds: 1),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            '최대 할인 카드를 찾고 있어요.',
+                            style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w300,
+                                color: Color(0xff939393)),
+                          ),
+                        ],
+                      ),
+                    ))
+          // ** 결제 여부 컨테이너 추가 예정 **
         ],
       ),
     );
@@ -590,18 +707,18 @@ class _HomeState extends State<Home> {
           ),
         ),
         const SizedBox(
-          height: 20,
+          height: 10,
         ),
         keyword.isNotEmpty
             ? _userSay(keyword, userInputFormattedTime)
             : const SizedBox(),
         const SizedBox(
-          height: 20,
+          height: 10,
         ),
         keyword.isNotEmpty
             ? _chatbotSecondSay('$keyword에서 결제하시는 군요!', userInputFormattedTime)
             : const SizedBox(),
-        isRecommend ? _cardRecommendBox() : const SizedBox()
+        showRecommendBox ? _cardRecommendBox() : const SizedBox()
       ],
     );
   }
@@ -770,39 +887,38 @@ class _HomeState extends State<Home> {
               ),
               Expanded(
                   child: TextField(
-                    controller: userInputController,
-                    decoration: InputDecoration(
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: GestureDetector(
-                            child: SvgPicture.asset(
-                              "assets/images/icons/send_icon.svg",
-                              width: 10,
-                            ),
-                            onTap: () {
-                              userInputTime();
-                              setState(() {
-                                keyword = userInputController.text;
-                                userInputController.clear();
-                              });
-                            },
-                          ),
+                controller: userInputController,
+                decoration: InputDecoration(
+                    suffixIcon: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: GestureDetector(
+                        child: SvgPicture.asset(
+                          "assets/images/icons/send_icon.svg",
+                          width: 10,
                         ),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(
-                                color: Color(0xffADADAD))),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 30,
-                          vertical: 10,
-                        ),
-                        hintText: '궁금한 것을 질문해 보세요.',
-                        hintStyle: const TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                            color: Color(0xffADADAD))),
-                  )),
+                        onTap: () {
+                          userInputTime();
+                          setState(() {
+                            keyword = userInputController.text;
+                            userInputController.clear();
+                          });
+                        },
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: const BorderSide(color: Color(0xffADADAD))),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 10,
+                    ),
+                    hintText: '궁금한 것을 질문해 보세요.',
+                    hintStyle: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        color: Color(0xffADADAD))),
+              )),
             ],
           ),
         ),
