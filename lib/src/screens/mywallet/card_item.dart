@@ -24,38 +24,37 @@ class CardItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: Transform(
-          alignment: Alignment.center,
-          transform:
-              isFlipped ? Matrix4.rotationY(math.pi) : Matrix4.rotationY(0),
-          child: isFlipped
-              ? Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25.0),
-                    color: const Color(0xF2E5E5E5),
-                  ),
-                  child: isFlipped
-                      ? CardBack(
-                          cardName: cardName,
-                          cardBenefitList: cardBenefitList,
-                          isFlipped: isFlipped)
-                      : null,
-                )
-              : cardCompany == '국민카드' ||
-                      cardCompany == '신한카드' ||
-                      cardCompany == '하나카드' ||
-                      cardCompany == '롯데카드'
-                  ? Transform.rotate(
-                      angle: 3.1415926535897932 / 2,
-                      child: CachedNetworkImage(
-                        imageUrl: cardImg,
-                        fit: BoxFit.contain,
-                      ),
-                    )
-                  : CachedNetworkImage(
-                      imageUrl: cardImg,
-                      fit: BoxFit.scaleDown,
-                    )),
+      child: isFlipped
+          ? Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25.0),
+          color: const Color(0xF2E5E5E5),
+        ),
+        child: isFlipped
+            ? CardBack(
+            cardName: cardName,
+            cardBenefitList: cardBenefitList,
+            isFlipped: isFlipped)
+            : null,
+      )
+          : cardCompany == '국민카드' ||
+          cardCompany == '신한카드' ||
+          cardCompany == '하나카드' ||
+          cardCompany == '롯데카드'
+          ? RotatedBox(
+        quarterTurns: 1,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20.0),
+          child: CachedNetworkImage(
+            imageUrl: cardImg,
+            fit: BoxFit.cover,
+          ),
+        ),
+      )
+          : CachedNetworkImage(
+        imageUrl: cardImg,
+        fit: BoxFit.cover,
+      ),
     );
   }
 }
