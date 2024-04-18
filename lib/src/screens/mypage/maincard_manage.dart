@@ -211,7 +211,8 @@ class _MaincardManageState extends State<MaincardManage> {
           left: MediaQuery.of(context).size.width / 2 - 180,
           child: GestureDetector(
             onTap: () {
-              Navigator.of(context).pushNamed("/codef");
+              // Navigator.of(context).pushNamed("/codef");
+              Navigator.of(context).pushNamed("/signup/3"); // 임시
             },
             child: Container(
               width: 360,

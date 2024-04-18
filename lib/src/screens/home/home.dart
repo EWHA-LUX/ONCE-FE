@@ -1,9 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
+import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/chat_bubble.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
+import 'package:once_front/src/screens/login/loading.dart';
 import 'package:once_front/style.dart';
-import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -13,6 +19,128 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  // ==================== API 통신 ====================
+  final String BASE_URL = Constants.baseUrl;
+
+  bool isRecommend = false;
+  bool showRecommendBox = false;
+  bool showPayPopup = false;
+
+  String nickname = '';
+  int ownedCardCount = 0;
+  List<dynamic> keywordList = [];
+
+  int chatId = 0;
+  String cardName = '';
+  String cardCompany = '';
+  String cardImg = '';
+  String benefit = '';
+  int discount = 0;
+
+  late Future<void> _homeInfoFuture; // 홈 기본 정보
+
+  @override
+  void initState() {
+    super.initState();
+    initializeTime();
+    _homeInfoFuture = _homeInfo(context);
+  }
+
+  void _updateHomeInfoState(Map<dynamic, dynamic> responseData) {
+    setState(() {
+      nickname = responseData['result']['nickname'];
+      ownedCardCount = responseData['result']['ownedCardCount'];
+      keywordList = responseData['result']['keywordList'];
+    });
+  }
+
+  void _updateCardRecommendState(Map<dynamic, dynamic> responseData) {
+    setState(() {
+      isRecommend = true;
+      cardName = responseData['result']['cardName'];
+      cardCompany = responseData['result']['cardCompany'];
+      cardImg = responseData['result']['cardImg'];
+      benefit = responseData['result']['benefit'];
+      discount = responseData['result']['discount'];
+    });
+  }
+
+  // [Get] 홈화면 기본 정보
+  Future<void> _homeInfo(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/home/basic';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    var response = await dio.get(apiUrl);
+    Map<dynamic, dynamic> responseData = response.data;
+    print(responseData);
+
+    if (responseData['code'] == 1000) {
+      _updateHomeInfoState(responseData);
+    }
+  }
+
+  // [Get] 챗봇 카드 추천
+  Future<void> _cardRecommend(
+      BuildContext context, String keyword, int paymentAmount) async {
+    final String apiUrl = '${BASE_URL}/home';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      var response = await dio.get(apiUrl, queryParameters: {
+        'keyword': keyword,
+        'paymentAmount': paymentAmount
+      });
+      Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        _updateCardRecommendState(responseData);
+      }
+
+      await Future.delayed(Duration(seconds: 3));
+      setState(() {
+        showPayPopup = true;
+      });
+    } catch (e) {
+      // ** 차후 수정 필요 **
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // ==================== 챗봇 대화 입력 ====================
   TextEditingController userInputController = TextEditingController();
   String keyword = '';
   String initFormattedTime = '';
@@ -22,17 +150,15 @@ class _HomeState extends State<Home> {
 
   void resetState() {
     setState(() {
+      isRecommend = false;
+      showRecommendBox = false;
+      showPayPopup = false;
+
       keyword = '';
       initFormattedTime = '';
       userInputFormattedTime = '';
       paymentAmount = 0;
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    initializeTime();
   }
 
   @override
@@ -216,7 +342,7 @@ class _HomeState extends State<Home> {
         style: ElevatedButton.styleFrom(
             elevation: 0,
             padding: const EdgeInsets.all(8),
-            minimumSize: const Size(10, 20),
+            minimumSize: Size(10, 20),
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0))),
@@ -246,6 +372,9 @@ class _HomeState extends State<Home> {
               borderRadius: BorderRadius.circular(10.0))),
       onPressed: () {
         // 카드 추천 API - keyword, price
+        showRecommendBox = true;
+        setState(() {});
+        _cardRecommend(context, keyword, paymentAmount);
       },
       child: Text(finishText,
           style: const TextStyle(
@@ -365,24 +494,231 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Widget _keywordBox(String keywordText) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0, right: 5.0),
+      child: GestureDetector(
+        child: Container(
+          height: 30,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                color: const Color(0xff0083EE),
+              ),
+              borderRadius: BorderRadius.circular(13)),
+          child: Center(
+              child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(keywordText),
+          )),
+        ),
+        onTap: () {
+          setState(() {
+            keyword = keywordText;
+            userInputFormattedTime = DateFormat('HH:mm').format(DateTime.now());
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _cardRecommendBox() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0, left: 35.0, right: 35.0),
+      child: Column(
+        children: [
+          Container(
+            height: 40,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.topLeft,
+                colors: [
+                  Color(0xff4472fc),
+                  Color(0xff8877d5),
+                ],
+              ),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(13),
+                topRight: Radius.circular(13),
+              ),
+            ),
+            child: Center(
+              child: Text.rich(TextSpan(children: <TextSpan>[
+                TextSpan(
+                  text: '$ownedCardCount개의 카드 중',
+                  style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white),
+                ),
+                const TextSpan(
+                  text: ' 가장 좋은 카드 하나',
+                  style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white),
+                ),
+                const TextSpan(
+                  text: '를 알려드려요.',
+                  style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white),
+                ),
+              ])),
+            ),
+          ),
+          Container(
+              height: 150,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(13),
+                  bottomRight: Radius.circular(13),
+                ),
+              ),
+              child: isRecommend
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        cardCompany == '국민카드' ||
+                                cardCompany == '신한카드' ||
+                                cardCompany == '하나카드' ||
+                                cardCompany == '롯데카드'
+                            ? Center(
+                                child: Transform.rotate(
+                                  angle: 3.1415926535897932 / 2,
+                                  child: CachedNetworkImage(
+                                    imageUrl: cardImg,
+                                    width: 120,
+                                  ),
+                                ),
+                              )
+                            : CachedNetworkImage(
+                                imageUrl: cardImg,
+                                width: 70,
+                              ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 18.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 170,
+                                child: Text(
+                                  cardName,
+                                  style: const TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black),
+                                  softWrap: true,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text.rich(TextSpan(children: <TextSpan>[
+                                const TextSpan(
+                                  text: '예상 최대 할인 금액 ',
+                                  style: TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xff0083EE)),
+                                ),
+                                TextSpan(
+                                  text: '$discount원',
+                                  style: const TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xff0083EE)),
+                                ),
+                              ])),
+                              const SizedBox(
+                                height: 3,
+                              ),
+                              SizedBox(
+                                width: 170,
+                                child: Text(
+                                  benefit,
+                                  style: const TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w300,
+                                      color: Color(0xff9F9F9F)),
+                                  softWrap: true,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    )
+                  : Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          SpinKitThreeBounce(
+                            color: Color(0xff0083EE),
+                            size: 20.0,
+                            duration: Duration(seconds: 1),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            '최대 할인 카드를 찾고 있어요.',
+                            style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w300,
+                                color: Color(0xff939393)),
+                          ),
+                        ],
+                      ),
+                    ))
+          // ** 결제 여부 컨테이너 추가 예정 **
+        ],
+      ),
+    );
+  }
+
   Widget _chatArea() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _chatbotFirstSay("루스님, 어디서 결제하시나요?", initFormattedTime),
+        _chatbotFirstSay("$nickname님, 어디서 결제하시나요?", initFormattedTime),
+        Padding(
+          padding: const EdgeInsets.only(left: 75.0),
+          child: Row(
+            children: [
+              _keywordBox(keywordList[0]),
+              _keywordBox(keywordList[1]),
+              _keywordBox(keywordList[2]),
+            ],
+          ),
+        ),
         const SizedBox(
-          height: 20,
+          height: 10,
         ),
         keyword.isNotEmpty
             ? _userSay(keyword, userInputFormattedTime)
             : const SizedBox(),
         const SizedBox(
-          height: 20,
+          height: 10,
         ),
         keyword.isNotEmpty
-            ? _chatbotSecondSay(
-                '${keyword}에서 결제하시는 군요!', userInputFormattedTime)
-            : const SizedBox()
+            ? _chatbotSecondSay('$keyword에서 결제하시는 군요!', userInputFormattedTime)
+            : const SizedBox(),
+        showRecommendBox ? _cardRecommendBox() : const SizedBox()
       ],
     );
   }
@@ -421,8 +757,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget homeUI(context) {
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
@@ -533,7 +868,10 @@ class _HomeState extends State<Home> {
                                         child: _navbarCircle(
                                             'assets/images/3d_icons/logout_3d_icon.svg',
                                             '로그아웃'),
-                                        onTap: () {},
+                                        onTap: () {
+                                          Navigator.of(context)
+                                              .pushNamed("/login");
+                                        },
                                       ),
                                     ],
                                   ),
@@ -588,6 +926,23 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: _homeInfoFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Loading();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          // 데이터가 로드된 후에 표시할 화면
+          return homeUI(context);
+        }
+      },
     );
   }
 }
