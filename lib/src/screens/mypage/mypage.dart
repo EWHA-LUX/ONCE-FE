@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
+import 'package:once_front/src/screens/login/loading.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class MyPage extends StatefulWidget {
@@ -17,6 +18,7 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> {
   final String BASE_URL = Constants.baseUrl;
+  late Future<void> _mypageFuture;
 
   String nickname = '';
   String userProfileImg = '';
@@ -28,7 +30,7 @@ class _MyPageState extends State<MyPage> {
   @override
   void initState() {
     super.initState();
-    _mypage(context);
+    _mypageFuture = _mypage(context);
   }
 
   void _updateState(Map<dynamic, dynamic> responseData) {
@@ -56,7 +58,7 @@ class _MyPageState extends State<MyPage> {
 
     try {
       var response = await dio.get(
-        apiUrl
+          apiUrl
       );
       Map<dynamic, dynamic> responseData = response.data;
       print(responseData);
@@ -206,7 +208,7 @@ class _MyPageState extends State<MyPage> {
                       width: 174,
                       height: 174,
                       child: CachedNetworkImage(
-                        imageUrl: userProfileImg,
+                        imageUrl: '$userProfileImg?timestamp=${DateTime.now().millisecondsSinceEpoch}',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -375,8 +377,7 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget mypageUI(context) {
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
@@ -427,4 +428,22 @@ class _MyPageState extends State<MyPage> {
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: _mypageFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Loading();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          // 데이터가 로드된 후에 표시할 화면
+          return mypageUI(context);
+        }
+      },
+    );
+  }
 }
+
