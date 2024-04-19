@@ -761,14 +761,16 @@ class _HomeState extends State<Home> {
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
-      body: Column(
-        children: [
-          _information(context),
-          const SizedBox(
-            height: 20,
-          ),
-          _chatArea()
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _information(context),
+            const SizedBox(
+              height: 20,
+            ),
+            _chatArea()
+          ],
+        ),
       ),
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
