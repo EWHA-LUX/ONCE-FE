@@ -97,80 +97,85 @@ class CardBack extends StatelessWidget {
         color: const Color(0xFFECECEC),
         borderRadius: isFlipped ? BorderRadius.circular(25.0) : null,
       ),
-      child: Column(
-        children: [
-          const SizedBox(height: 30),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                cardName,
-                style: const TextStyle(
-                  color: Color(0xFF588CFF),
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
+      child: Transform(
+        alignment: Alignment.center,
+        transform: Matrix4.rotationY(math.pi), // Y축을 중심으로 180도 회전
+        child: Column(
+          children: [
+            const SizedBox(height: 30),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  cardName,
+                  style: const TextStyle(
+                    color: Color(0xFF588CFF),
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
                 ),
               ),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '카드 혜택',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '카드 혜택',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: ListView.builder(
-              itemCount: cardBenefitList.length,
-              itemExtent: 55,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: SizedBox(
-                    width: 34,
-                    height: 34,
-                    child: SvgPicture.asset(
-                      _getIconPathForCategory(
-                          cardBenefitList[index]['category']),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView.builder(
+                itemCount: cardBenefitList.length,
+                itemExtent: 55,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    leading: SizedBox(
                       width: 34,
                       height: 34,
+                      child: SvgPicture.asset(
+                        _getIconPathForCategory(
+                            cardBenefitList[index]['category']),
+                        width: 34,
+                        height: 34,
+                      ),
                     ),
-                  ),
-                  title: Text(
-                    cardBenefitList[index]['category'],
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
+                    title: Text(
+                      cardBenefitList[index]['category'],
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                  subtitle: Text(
-                    cardBenefitList[index]['benefit'],
-                    style: const TextStyle(
-                      color: Color(0xFF767676),
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w400,
-                      fontSize: 10,
+                    subtitle: Text(
+                      cardBenefitList[index]['benefit'],
+                      style: const TextStyle(
+                        color: Color(0xFF767676),
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w400,
+                        fontSize: 10,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
 }
