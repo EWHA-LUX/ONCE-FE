@@ -57,14 +57,15 @@ class _MyWalletState extends State<MyWallet>
           'remainPerformance': card['remainPerformance'],
           'cardBenefitList': List<Map<String, dynamic>>.from(
               card['cardBenefitList'].map((benefit) => {
-                    'category': benefit['category'],
-                    'benefit': benefit['benefit'],
-                  })),
+                'category': benefit['category'],
+                'name': benefit['name'],
+                'benefit': benefit['benefit'],
+              })),
         };
       }).toList();
       _isFlippedList = List.generate(
         _cardList.length,
-        (index) => false,
+            (index) => false,
       );
     });
   }
@@ -242,7 +243,7 @@ class _MyWalletState extends State<MyWallet>
                             cardName: _cardList[index]['cardName'],
                             cardCompany: _cardList[index]['cardCompany'],
                             cardBenefitList: _cardList[index]
-                                ['cardBenefitList'],
+                            ['cardBenefitList'],
                           ),
                         ),
                       );
@@ -261,7 +262,7 @@ class _MyWalletState extends State<MyWallet>
             children: [
               ...List.generate(
                 _cardList.length,
-                (index) =>
+                    (index) =>
                     Indicator(isActive: _selectedIndex == index ? true : false),
               )
             ],
@@ -329,14 +330,14 @@ class _MyWalletState extends State<MyWallet>
                         lineHeight: 8.0,
                         animationDuration: 900,
                         percent: _cardList[_selectedIndex]
-                                        ['currentPerformance'] !=
-                                    null &&
-                                _cardList[_selectedIndex]
-                                        ['performanceCondition'] !=
-                                    null
+                        ['currentPerformance'] !=
+                            null &&
+                            _cardList[_selectedIndex]
+                            ['performanceCondition'] !=
+                                null
                             ? _cardList[_selectedIndex]['currentPerformance'] /
-                                _cardList[_selectedIndex]
-                                    ['performanceCondition']
+                            _cardList[_selectedIndex]
+                            ['performanceCondition']
                             : 0.0,
                         barRadius: const Radius.circular(20),
                         linearGradient: const LinearGradient(

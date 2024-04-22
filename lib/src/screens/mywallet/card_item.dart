@@ -160,7 +160,7 @@ class CardBack extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  benefit['category'],
+                                  benefit['name'],
                                   style: const TextStyle(
                                     color: Colors.black,
                                     fontFamily: 'Pretendard',
