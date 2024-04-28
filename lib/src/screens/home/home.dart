@@ -57,6 +57,7 @@ class _HomeState extends State<Home> {
   void _updateCardRecommendState(Map<dynamic, dynamic> responseData) {
     setState(() {
       isRecommend = true;
+      chatId = responseData['result']['chatId'];
       cardName = responseData['result']['cardName'];
       cardCompany = responseData['result']['cardCompany'];
       cardImg = responseData['result']['cardImg'];
@@ -117,6 +118,50 @@ class _HomeState extends State<Home> {
       setState(() {
         showPayPopup = true;
       });
+    } catch (e) {
+      // ** 차후 수정 필요 **
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // [Patch] 결제 여부 변경
+  Future<void> _patchPayment(int chatId) async {
+    final String apiUrl = '${BASE_URL}/home';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      var response = await dio.patch('$apiUrl/$chatId');
+      Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        setState(() {});
+      }
     } catch (e) {
       // ** 차후 수정 필요 **
       print(e.toString());
@@ -684,9 +729,7 @@ class _HomeState extends State<Home> {
                           ),
                         ],
                       ),
-                    ))
-          // ** 결제 여부 컨테이너 추가 예정 **
-          ,
+                    )),
           const SizedBox(
             height: 10,
           ),
@@ -810,7 +853,7 @@ class _HomeState extends State<Home> {
                                 ),
                               ),
                               onTap: () {
-
+                                _patchPayment(chatId);
                               },
                             ),
                           ],
