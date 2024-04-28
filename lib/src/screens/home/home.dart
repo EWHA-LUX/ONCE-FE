@@ -686,6 +686,140 @@ class _HomeState extends State<Home> {
                       ),
                     ))
           // ** 결제 여부 컨테이너 추가 예정 **
+          ,
+          const SizedBox(
+            height: 10,
+          ),
+          showPayPopup
+              ? Container(
+                  height: 93,
+                  width: 350,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(13),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  '결제 여부 확인',
+                                  style: TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w300,
+                                      color: Color(0xff939393)),
+                                ),
+                                GestureDetector(
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 18,
+                                    color: Color(0xff727272),
+                                  ),
+                                  onTap: () {
+                                    showPayPopup = false;
+                                    setState(() {});
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20.0),
+                            child: SizedBox(
+                              width: 330,
+                              child: Text.rich(
+                                TextSpan(
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: keyword,
+                                      style: const TextStyle(
+                                          fontFamily: 'Pretendard',
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black),
+                                    ),
+                                    const TextSpan(
+                                      text: '에서 ',
+                                      style: TextStyle(
+                                          fontFamily: 'Pretendard',
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w300,
+                                          color: Colors.black),
+                                    ),
+                                    TextSpan(
+                                      text: cardName,
+                                      style: const TextStyle(
+                                          fontFamily: 'Pretendard',
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black),
+                                    ),
+                                    const TextSpan(
+                                      text: '로 결제하셨나요?',
+                                      style: TextStyle(
+                                          fontFamily: 'Pretendard',
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w300,
+                                          color: Colors.black),
+                                    ),
+                                  ],
+                                ),
+                                softWrap: true,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0, right: 30.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            GestureDetector(
+                              child: Container(
+                                width: 80,
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xfff2f2f2),
+                                  borderRadius: BorderRadius.circular(7),
+                                ),
+                                child: const Center(
+                                  child: Text(
+                                    '결제 완료',
+                                    style: TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      color: Color(0xff0083EE),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onTap: () {
+
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : const SizedBox()
         ],
       ),
     );
