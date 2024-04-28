@@ -142,7 +142,7 @@ class _HomeState extends State<Home> {
   }
 
   // [Patch] 결제 여부 변경
-  Future<void> _patchPayment(int chatId) async {
+  Future<void> _patchPayment(BuildContext context, int chatId) async {
     final String apiUrl = '${BASE_URL}/home';
 
     const storage = FlutterSecureStorage();
@@ -853,7 +853,9 @@ class _HomeState extends State<Home> {
                                 ),
                               ),
                               onTap: () {
-                                _patchPayment(chatId);
+                                _patchPayment(context, chatId);
+                                showPayPopup = false;
+                                showSnackBar(context);
                               },
                             ),
                           ],
@@ -863,6 +865,46 @@ class _HomeState extends State<Home> {
                   ),
                 )
               : const SizedBox()
+        ],
+      ),
+    );
+  }
+
+  void showSnackBar(BuildContext context) {
+    final snackBar = SnackBar(
+      backgroundColor: const Color(0xff3B3B3B),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      duration: const Duration(seconds: 3),
+      content: _snackBarContent(),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    setState(() {});
+  }
+
+  Widget _snackBarContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+      child: Row(
+        children: [
+          Image.asset(
+            'assets/images/icons/snackbar_icon.png',
+            width: 20,
+            height: 20,
+          ),
+          const SizedBox(
+            width: 20.0,
+          ),
+          const Text(
+            '실적을 반영했어요.',
+            style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: Colors.white),
+          )
         ],
       ),
     );
