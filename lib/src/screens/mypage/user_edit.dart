@@ -52,6 +52,55 @@ class _UserEditPageState extends State<UserEditPage> {
     });
   }
 
+  // [Patch] 비밀번호 변경
+  Future<void> _changePassword(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/user/edit/pw';
+
+    final storage = FlutterSecureStorage();
+    final storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      final response = await dio.patch(
+        apiUrl,
+        data: {
+          'password': newPassword,
+        },
+      );
+
+      final responseData = response.data;
+
+      if (responseData['code'] == 1000) {
+        Navigator.pop(context);
+        showSnackBar(context);
+      }
+    } catch (e) {
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   // [Post] 비밀번호 확인
   Future<void> _checkPassword(BuildContext context) async {
     final String apiUrl = '${BASE_URL}/user/edit/pw';
@@ -77,6 +126,29 @@ class _UserEditPageState extends State<UserEditPage> {
 
       if (responseData == true) {
         _updateState();
+      }
+
+      if (responseData == false) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("비밀번호 확인"),
+              content: Text("비밀번호가 일치하지 않습니다."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      oriPassword = '';
+                    });
+                  },
+                  child: Text("확인"),
+                ),
+              ],
+            );
+          },
+        );
       }
     } catch (e) {
       print(e.toString());
@@ -748,6 +820,7 @@ class _UserEditPageState extends State<UserEditPage> {
                                           onTap: () {
                                             Navigator.pop(context);
                                             setState(() {
+                                              isTruePassword = false;
                                               oriPassword = '';
                                               newPassword = '';
                                             });
@@ -945,7 +1018,7 @@ class _UserEditPageState extends State<UserEditPage> {
                                                           onTap: () {
                                                             print(newPassword);
                                                             // ************ 변경
-                                                            _checkPassword(
+                                                            _changePassword(
                                                                 context);
                                                           },
                                                         ),
@@ -1206,9 +1279,49 @@ class _UserEditPageState extends State<UserEditPage> {
     );
   }
 
-  // Widget _passwordCheck() {
-  //   return
-  // }
+  // =============================================================================
+  // 비밀번호 변경 후 보여주는 snackbar
+  Widget _snackBarContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+      child: Row(
+        children: [
+          Image.asset(
+            'assets/images/icons/snackbar_icon.png',
+            width: 20,
+            height: 20,
+          ),
+          const SizedBox(
+            width: 20.0,
+          ),
+          const Text(
+            '비밀번호를 변경했어요.',
+            style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: Colors.white),
+          )
+        ],
+      ),
+    );
+  }
+
+  void showSnackBar(BuildContext context) {
+    final snackBar = SnackBar(
+      backgroundColor: const Color(0xff3B3B3B),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      duration: const Duration(seconds: 3),
+      content: _snackBarContent(),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    setState(() {});
+  }
+
+  // =============================================================================
   Widget _passwordInput(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 45.0, vertical: 30.0),
