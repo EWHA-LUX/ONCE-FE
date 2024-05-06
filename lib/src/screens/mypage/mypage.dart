@@ -17,7 +17,48 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
+  // ==================== API 통신 ====================
   final String BASE_URL = Constants.baseUrl;
+
+  // [Delete] 회원 탈퇴
+  Future<void> _deleteUser(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/user/quit';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    var response = await dio.delete(apiUrl);
+    Map<dynamic, dynamic> responseData = response.data;
+    print(responseData);
+
+    if (responseData['code'] == 1000) {
+      Navigator.of(context).pushNamed("/login");
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("탈퇴 완료"),
+            content: Text("회원 탈퇴가 완료되었습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   late Future<void> _mypageFuture;
 
   String nickname = '';
@@ -44,6 +85,7 @@ class _MyPageState extends State<MyPage> {
     });
   }
 
+  // [Get] 마이페이지 정보 조회
   Future<void> _mypage(BuildContext context) async {
     final String apiUrl = '${BASE_URL}/mypage';
 
@@ -57,9 +99,7 @@ class _MyPageState extends State<MyPage> {
     final dio = Dio(baseOptions);
 
     try {
-      var response = await dio.get(
-          apiUrl
-      );
+      var response = await dio.get(apiUrl);
       Map<dynamic, dynamic> responseData = response.data;
       print(responseData);
 
@@ -208,7 +248,8 @@ class _MyPageState extends State<MyPage> {
                       width: 174,
                       height: 174,
                       child: CachedNetworkImage(
-                        imageUrl: '$userProfileImg?timestamp=${DateTime.now().millisecondsSinceEpoch}',
+                        imageUrl:
+                            '$userProfileImg?timestamp=${DateTime.now().millisecondsSinceEpoch}',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -416,7 +457,114 @@ class _MyPageState extends State<MyPage> {
                         color: Color(0xff767676),
                       ),
                       onTap: () {
-                        // 회원 탈퇴 api
+                        showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) {
+                              return Dialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  ),
+                                  child: Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.8,
+                                    height: 300,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: Colors.white),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Padding(
+                                          padding: EdgeInsets.only(top: 10.0),
+                                          child: Text(
+                                            '정말 탈퇴하시겠어요?',
+                                            style: TextStyle(
+                                              fontFamily: 'Pretendard',
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 23,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        const Center(
+                                          child: Text(
+                                            '탈퇴 버튼 선택 시, 계정은\n삭제되며 복구되지 않습니다.',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontFamily: 'Pretendard',
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 18,
+                                              color: Color(0xff767676),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 40,
+                                        ),
+                                        Container(
+                                          width: 230,
+                                          height: 45,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Colors.black87),
+                                          child: GestureDetector(
+                                            child: const Center(
+                                              child: Text(
+                                                '탈퇴',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontFamily: 'Pretendard',
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 18,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              _deleteUser(context);
+                                            },
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Container(
+                                          width: 230,
+                                          height: 45,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Colors.white),
+                                          child: GestureDetector(
+                                            child: const Center(
+                                              child: Text(
+                                                '취소',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontFamily: 'Pretendard',
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 18,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              Get.back();
+                                            },
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ));
+                            });
                       },
                     ),
                   ],
@@ -446,4 +594,3 @@ class _MyPageState extends State<MyPage> {
     );
   }
 }
-

@@ -2,12 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:get/get.dart' hide Response, FormData, MultipartFile;
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../../../constants.dart';
 
 class UserEditPage extends StatefulWidget {
   const UserEditPage({Key? key}) : super(key: key);
@@ -25,12 +24,16 @@ class _UserEditPageState extends State<UserEditPage> {
   late String userSignupDate = '';
   late String userProfileImg = '';
 
+  late String oriPassword = '';
+  late String newPassword = '';
+
   final String BASE_URL = Constants.baseUrl;
 
   bool isNameEdit = false;
   bool isNicknameEdit = false;
   bool isBirthEdit = false;
   bool isPhoneNumEdit = false;
+  late bool isTruePassword = false;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController nicknameController = TextEditingController();
@@ -41,6 +44,132 @@ class _UserEditPageState extends State<UserEditPage> {
   void initState() {
     super.initState();
     _getMyProfileEdit(context);
+  }
+
+  void _updateState() {
+    setState(() {
+      isTruePassword = true;
+    });
+  }
+
+  // [Patch] 비밀번호 변경
+  Future<void> _changePassword(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/user/edit/pw';
+
+    final storage = FlutterSecureStorage();
+    final storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      final response = await dio.patch(
+        apiUrl,
+        data: {
+          'password': newPassword,
+        },
+      );
+
+      final responseData = response.data;
+
+      if (responseData['code'] == 1000) {
+        Navigator.pop(context);
+        showSnackBar(context);
+      }
+    } catch (e) {
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // [Post] 비밀번호 확인
+  Future<void> _checkPassword(BuildContext context) async {
+    final String apiUrl = '${BASE_URL}/user/edit/pw';
+
+    final storage = FlutterSecureStorage();
+    final storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      final response = await dio.post(
+        apiUrl,
+        data: {
+          'password': oriPassword,
+        },
+      );
+
+      final responseData = response.data['result'];
+
+      if (responseData == true) {
+        _updateState();
+      }
+
+      if (responseData == false) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("비밀번호 확인"),
+              content: Text("비밀번호가 일치하지 않습니다."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      oriPassword = '';
+                    });
+                  },
+                  child: Text("확인"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   // [Get] 내 정보 수정하기 조회
@@ -154,7 +283,7 @@ class _UserEditPageState extends State<UserEditPage> {
 
     try {
       final pickedFile =
-      await ImagePicker().pickImage(source: ImageSource.gallery);
+          await ImagePicker().pickImage(source: ImageSource.gallery);
       if (pickedFile == null) {
         return;
       }
@@ -260,7 +389,9 @@ class _UserEditPageState extends State<UserEditPage> {
                     width: 174,
                     height: 174,
                     child: CachedNetworkImage(
-                      imageUrl: '$userProfileImg?timestamp=${DateTime.now().millisecondsSinceEpoch}' ?? '',
+                      imageUrl:
+                          '$userProfileImg?timestamp=${DateTime.now().millisecondsSinceEpoch}' ??
+                              '',
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -298,35 +429,35 @@ class _UserEditPageState extends State<UserEditPage> {
               padding: EdgeInsets.only(top: 310),
               child: isNicknameEdit
                   ? SizedBox(
-                width: 40,
-                height: 19,
-                child: TextField(
-                  controller: nicknameController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: userNickname,
-                    hintStyle: TextStyle(
-                      fontSize: 15,
-                      color: Colors.white,
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
-                ),
-              )
+                      width: 40,
+                      height: 19,
+                      child: TextField(
+                        controller: nicknameController,
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: userNickname,
+                          hintStyle: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    )
                   : Text(
-                '$userNickname 님',
-                style: const TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
+                      '$userNickname 님',
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
             ),
             Padding(
                 padding: const EdgeInsets.only(left: 7, top: 310),
@@ -422,25 +553,25 @@ class _UserEditPageState extends State<UserEditPage> {
                   padding: const EdgeInsets.only(left: 80, top: 100),
                   child: isNameEdit
                       ? SizedBox(
-                    width: 120,
-                    height: 19,
-                    child: TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        hintText: userName,
-                        hintStyle: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  )
+                          width: 120,
+                          height: 19,
+                          child: TextField(
+                            controller: nameController,
+                            decoration: InputDecoration(
+                              hintText: userName,
+                              hintStyle: TextStyle(fontSize: 15),
+                            ),
+                          ),
+                        )
                       : Text(
-                    userName,
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  ),
+                          userName,
+                          style: const TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
                 ),
                 Padding(
                     padding: EdgeInsets.only(
@@ -484,53 +615,53 @@ class _UserEditPageState extends State<UserEditPage> {
                   padding: const EdgeInsets.only(left: 50, top: 17),
                   child: isBirthEdit
                       ? SizedBox(
-                    width: 120,
-                    height: 19,
-                    child: TextField(
-                      controller: birthController,
-                      decoration: InputDecoration(
-                        hintText: userBirth,
-                        hintStyle: const TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  )
-                      : userBirth != ""
-                      ? Text(
-                    userBirth,
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  )
-                      : GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isBirthEdit = true;
-                      });
-                    },
-                    child: Container(
-                      width: 115,
-                      height: 23,
-                      decoration: const BoxDecoration(
-                        color: Color(0xffececec),
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(7)),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '생년월일 입력하기',
-                          style: TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xff727272),
+                          width: 120,
+                          height: 19,
+                          child: TextField(
+                            controller: birthController,
+                            decoration: InputDecoration(
+                              hintText: userBirth,
+                              hintStyle: const TextStyle(fontSize: 15),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                  ),
+                        )
+                      : userBirth != ""
+                          ? Text(
+                              userBirth,
+                              style: const TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            )
+                          : GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isBirthEdit = true;
+                                });
+                              },
+                              child: Container(
+                                width: 115,
+                                height: 23,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xffececec),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(7)),
+                                ),
+                                child: const Center(
+                                  child: Text(
+                                    '생년월일 입력하기',
+                                    style: TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xff727272),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(
@@ -575,25 +706,25 @@ class _UserEditPageState extends State<UserEditPage> {
                   padding: const EdgeInsets.only(left: 37, top: 17),
                   child: isPhoneNumEdit
                       ? SizedBox(
-                    width: 120,
-                    height: 19,
-                    child: TextField(
-                      controller: phonenumController,
-                      decoration: InputDecoration(
-                        hintText: userPhoneNum,
-                        hintStyle: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  )
+                          width: 120,
+                          height: 19,
+                          child: TextField(
+                            controller: phonenumController,
+                            decoration: InputDecoration(
+                              hintText: userPhoneNum,
+                              hintStyle: TextStyle(fontSize: 15),
+                            ),
+                          ),
+                        )
                       : Text(
-                    userPhoneNum,
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  ),
+                          userPhoneNum,
+                          style: const TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
                 ),
                 Padding(
                     padding: EdgeInsets.only(
@@ -657,6 +788,459 @@ class _UserEditPageState extends State<UserEditPage> {
                         ),
                       ),
                     ),
+                    onTap: () {
+                      showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          isDismissible: false,
+                          backgroundColor: Colors.white,
+                          shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(30),
+                                  topRight: Radius.circular(30))),
+                          builder: (BuildContext context) {
+                            return StatefulBuilder(builder:
+                                (BuildContext context, StateSetter setState) {
+                              return Container(
+                                height: 560,
+                                margin: const EdgeInsets.only(
+                                  top: 20,
+                                  left: 25,
+                                  right: 25,
+                                  bottom: 30,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        GestureDetector(
+                                          child: const Icon(Icons.close),
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                            setState(() {
+                                              isTruePassword = false;
+                                              oriPassword = '';
+                                              newPassword = '';
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    isTruePassword
+                                        ? Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 20.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    const Text('비밀번호 변경',
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                'Pretendard',
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                Colors.black)),
+                                                    const SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    const Text(
+                                                        '새로운 비밀번호를 입력해 주세요.',
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                'Pretendard',
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: Color(
+                                                                0xff767676))),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 40.0,
+                                                              bottom: 35.0),
+                                                      child: Row(
+                                                        children: List.generate(
+                                                            6, (index) {
+                                                          if (index <
+                                                              newPassword
+                                                                  .length) {
+                                                            return _passwordCircle(
+                                                                true);
+                                                          } else {
+                                                            return _passwordCircle(
+                                                                false);
+                                                          }
+                                                        }),
+                                                      ),
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '1'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              newPassword +=
+                                                                  '1';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '2'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              newPassword +=
+                                                                  '2';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '3'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              newPassword +=
+                                                                  '3';
+                                                            });
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '4'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              newPassword +=
+                                                                  '4';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '5'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              newPassword +=
+                                                                  '5';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '6'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              newPassword +=
+                                                                  '6';
+                                                            });
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '7'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              newPassword +=
+                                                                  '7';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '8'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              newPassword +=
+                                                                  '8';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '9'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              newPassword +=
+                                                                  '9';
+                                                            });
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '⌫'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              newPassword = newPassword
+                                                                  .substring(
+                                                                      0,
+                                                                      oriPassword
+                                                                              .length -
+                                                                          1);
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '0'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              newPassword +=
+                                                                  '0';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '✓'),
+                                                          onTap: () {
+                                                            print(newPassword);
+                                                            // ************ 변경
+                                                            _changePassword(
+                                                                context);
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        : Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 20.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    const Text('비밀번호 확인',
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                'Pretendard',
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                Colors.black)),
+                                                    const SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    const Text(
+                                                        '본인 확인을 위해 기존 비밀번호를 입력해 주세요.',
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                'Pretendard',
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: Color(
+                                                                0xff767676))),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 40.0,
+                                                              bottom: 35.0),
+                                                      child: Row(
+                                                        children: List.generate(
+                                                            6, (index) {
+                                                          if (index <
+                                                              oriPassword
+                                                                  .length) {
+                                                            return _passwordCircle(
+                                                                true);
+                                                          } else {
+                                                            return _passwordCircle(
+                                                                false);
+                                                          }
+                                                        }),
+                                                      ),
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '1'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              oriPassword +=
+                                                                  '1';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '2'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              oriPassword +=
+                                                                  '2';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '3'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              oriPassword +=
+                                                                  '3';
+                                                            });
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '4'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              oriPassword +=
+                                                                  '4';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '5'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              oriPassword +=
+                                                                  '5';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '6'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              oriPassword +=
+                                                                  '6';
+                                                            });
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '7'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              oriPassword +=
+                                                                  '7';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '8'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              oriPassword +=
+                                                                  '8';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '9'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              oriPassword +=
+                                                                  '9';
+                                                            });
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '⌫'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              oriPassword = oriPassword
+                                                                  .substring(
+                                                                      0,
+                                                                      oriPassword
+                                                                              .length -
+                                                                          1);
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '0'),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              oriPassword +=
+                                                                  '0';
+                                                            });
+                                                          },
+                                                        ),
+                                                        GestureDetector(
+                                                          child: _passwordInput(
+                                                              '✓'),
+                                                          onTap: () {
+                                                            print(oriPassword);
+                                                            _checkPassword(
+                                                                context);
+                                                            Future.delayed(
+                                                                const Duration(
+                                                                    milliseconds:
+                                                                        400),
+                                                                () {
+                                                              setState(() {});
+                                                            });
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                  ],
+                                ),
+                              );
+                            });
+                          });
+                    },
                   ),
                 ),
               ],
@@ -695,6 +1279,84 @@ class _UserEditPageState extends State<UserEditPage> {
     );
   }
 
+  // =============================================================================
+  // 비밀번호 변경 후 보여주는 snackbar
+  Widget _snackBarContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+      child: Row(
+        children: [
+          Image.asset(
+            'assets/images/icons/snackbar_icon.png',
+            width: 20,
+            height: 20,
+          ),
+          const SizedBox(
+            width: 20.0,
+          ),
+          const Text(
+            '비밀번호를 변경했어요.',
+            style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: Colors.white),
+          )
+        ],
+      ),
+    );
+  }
+
+  void showSnackBar(BuildContext context) {
+    final snackBar = SnackBar(
+      backgroundColor: const Color(0xff3B3B3B),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      duration: const Duration(seconds: 3),
+      content: _snackBarContent(),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    setState(() {});
+  }
+
+  // =============================================================================
+  Widget _passwordInput(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 45.0, vertical: 30.0),
+      child: Text(text,
+          style: const TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 27,
+              fontWeight: FontWeight.w200,
+              color: Colors.black)),
+    );
+  }
+
+  Widget _passwordCircle(bool isTrue) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+      child: Container(
+        width: 15,
+        height: 15,
+        decoration: isTrue
+            ? const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.topLeft,
+                  colors: [
+                    Color(0xff4472fc),
+                    Color(0xff8877d5),
+                  ],
+                ))
+            : const BoxDecoration(
+                shape: BoxShape.circle, color: Color(0xffE2E2E2)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -716,4 +1378,3 @@ class _UserEditPageState extends State<UserEditPage> {
     );
   }
 }
-
