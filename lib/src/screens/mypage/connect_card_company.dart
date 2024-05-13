@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/style.dart';
 
-import '../../../constants.dart';
 
 class ConnectCardCompany extends StatefulWidget {
   const ConnectCardCompany({Key? key}) : super(key: key);
@@ -29,9 +29,9 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
     setState(() {
       cardList = List<Map<String, dynamic>>.from(responseData['result'])
           .map((item) => {
-        'cardName': item['cardName'],
-        'cardImg': item['cardImg'],
-      })
+                'cardName': item['cardName'],
+                'cardImg': item['cardImg'],
+              })
           .toList();
     });
   }
@@ -60,9 +60,8 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30))),
             builder: (BuildContext context) {
-              return StatefulBuilder(builder:
-                  (BuildContext context,
-                  StateSetter setState) {
+              return StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setState) {
                 return Container(
                   height: 430,
                   margin: const EdgeInsets.only(
@@ -72,19 +71,14 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                     bottom: 30,
                   ),
                   child: Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Center(
                         child: Container(
-                          margin:
-                          const EdgeInsets.only(top: 7),
+                          margin: const EdgeInsets.only(top: 7),
                           decoration: BoxDecoration(
-                              borderRadius:
-                              BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10),
                               color: const Color(0xffD5D7DF)),
-
-
                           width: 48,
                           height: 4,
                         ),
@@ -93,27 +87,20 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 28.0, vertical: 40.0),
                         child: Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Column(
-                              mainAxisAlignment:
-                              MainAxisAlignment.start,
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text.rich(TextSpan(children: <
-                                    TextSpan>[
+                                Text.rich(TextSpan(children: <TextSpan>[
                                   TextSpan(
                                     text: _getCardCompanyName(index),
                                     style: const TextStyle(
-                                        fontFamily:
-                                        'Pretendard',
+                                        fontFamily: 'Pretendard',
                                         fontSize: 18,
-                                        fontWeight:
-                                        FontWeight.w700,
-                                        color: Color(
-                                            0xff366FFF)),
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xff366FFF)),
                                   ),
                                 ])),
                                 const SizedBox(
@@ -121,11 +108,9 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                                 ),
                                 const Text('카드사 연결하시겠어요?',
                                     style: TextStyle(
-                                        fontFamily:
-                                        'Pretendard',
+                                        fontFamily: 'Pretendard',
                                         fontSize: 18,
-                                        fontWeight:
-                                        FontWeight.w600,
+                                        fontWeight: FontWeight.w600,
                                         color: Colors.black)),
                               ],
                             ),
@@ -133,7 +118,8 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                               _getIconPathForCompany(index),
                               width: 70,
                               height: 70,
-                            ),                                            ],
+                            ),
+                          ],
                         ),
                       ),
                       SizedBox(
@@ -162,8 +148,7 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                             ),
                             filled: true,
                             fillColor: Colors.white,
-                            contentPadding:
-                            EdgeInsets.fromLTRB(12, 12, 12, 12),
+                            contentPadding: EdgeInsets.fromLTRB(12, 12, 12, 12),
                             isCollapsed: true,
                           ),
                         ),
@@ -202,12 +187,12 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                             ),
                             filled: true,
                             fillColor: Colors.white,
-                            contentPadding:
-                            EdgeInsets.fromLTRB(12, 12, 12, 12),
+                            contentPadding: EdgeInsets.fromLTRB(12, 12, 12, 12),
                             isCollapsed: true,
                           ),
                         ),
-                      ),const SizedBox(
+                      ),
+                      const SizedBox(
                         height: 40.0,
                       ),
                       GestureDetector(
@@ -216,8 +201,7 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                           height: 37,
                           decoration: BoxDecoration(
                             color: const Color(0xff0083EE),
-                            borderRadius:
-                            BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Center(
                             child: Text('변경하기',
@@ -400,7 +384,7 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
 
   Widget _infoArea() {
     return Padding(
-      padding: const EdgeInsets.only(top: 50.0, left: 10.0, bottom: 50.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -429,7 +413,7 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
             height: 109,
           ),
         ],
-      )
+      ),
     );
   }
 
@@ -437,7 +421,7 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
     return Stack(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 150.0),
+          padding: const EdgeInsets.symmetric(vertical: 0.0),
           child: Container(
             height: 250,
             width: MediaQuery.of(context).size.width,
@@ -451,46 +435,47 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                 ],
               ),
             ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 160.0, horizontal: 25.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Positioned(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Positioned(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        _cardContainer(0, "신한카드",
-                            "assets/images/card_logo/shinhan_logo.svg"),
-                        _cardContainer(1, "현대카드",
-                            "assets/images/card_logo/hyundai_logo.svg"),
-                        _cardContainer(2, "국민카드",
-                            "assets/images/card_logo/kookmin_logo.svg"),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _cardContainer(0, "신한카드",
+                                "assets/images/card_logo/shinhan_logo.svg"),
+                            _cardContainer(1, "현대카드",
+                                "assets/images/card_logo/hyundai_logo.svg"),
+                            _cardContainer(2, "국민카드",
+                                "assets/images/card_logo/kookmin_logo.svg"),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _cardContainer(3, "삼성카드",
+                                "assets/images/card_logo/samsung_logo.svg"),
+                            _cardContainer(4, "롯데카드",
+                                "assets/images/card_logo/lotte_logo.svg"),
+                            _cardContainer(5, "하나카드",
+                                "assets/images/card_logo/hana_logo.svg"),
+                          ],
+                        ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _cardContainer(3, "삼성카드",
-                            "assets/images/card_logo/samsung_logo.svg"),
-                        _cardContainer(4, "롯데카드",
-                            "assets/images/card_logo/lotte_logo.svg"),
-                        _cardContainer(5, "하나카드",
-                            "assets/images/card_logo/hana_logo.svg"),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ],
@@ -515,7 +500,7 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
     return Scaffold(
       backgroundColor: Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
-      body: Stack(
+      body: Column(
         //crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _stepArea(context),
