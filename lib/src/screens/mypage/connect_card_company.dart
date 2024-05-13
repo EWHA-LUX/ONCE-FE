@@ -29,8 +29,8 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
     setState(() {
       cardList = List<Map<String, dynamic>>.from(responseData['result'])
           .map((item) => {
-                'cardName': item['cardName'],
-                'cardImg': item['cardImg'],
+                'cardCompanyName': item['cardCompanyName'],
+                'connectedAt': item['connectedAt'],
               })
           .toList();
     });
@@ -99,18 +99,18 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                                     style: const TextStyle(
                                         fontFamily: 'Pretendard',
                                         fontSize: 18,
-                                        fontWeight: FontWeight.w700,
+                                        fontWeight: FontWeight.w800,
                                         color: Color(0xff366FFF)),
                                   ),
                                 ])),
                                 const SizedBox(
-                                  height: 5,
+                                  height: 4,
                                 ),
                                 const Text('카드사 연결하시겠어요?',
                                     style: TextStyle(
                                         fontFamily: 'Pretendard',
                                         fontSize: 18,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w700,
                                         color: Colors.black)),
                               ],
                             ),
@@ -135,8 +135,8 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                               padding: const EdgeInsets.all(8.0),
                               child: SvgPicture.asset(
                                 'assets/images/icons/id_icon.svg',
-                                width: 16,
-                                height: 16,
+                                width: 15,
+                                height: 15,
                               ),
                             ),
                             hintText: 'ID',
@@ -174,8 +174,8 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                               padding: const EdgeInsets.all(8.0),
                               child: SvgPicture.asset(
                                 'assets/images/icons/password_icon.svg',
-                                width: 16,
-                                height: 16,
+                                width: 15,
+                                height: 15,
                               ),
                             ),
                             hintText: 'Password',
@@ -269,6 +269,24 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
           );
         },
       );
+    }
+  }
+  String _getIconPathFromCompanyName(String name) {
+    switch (name) {
+      case "신한카드":
+        return "assets/images/card_logo/shinhan_logo.svg";
+      case "현대카드":
+        return "assets/images/card_logo/hyundai_logo.svg";
+      case "국민카드":
+        return "assets/images/card_logo/kookmin_logo.svg";
+      case "삼성카드":
+        return "assets/images/card_logo/samsung_logo.svg";
+      case "롯데카드":
+        return "assets/images/card_logo/lotte_logo.svg";
+      case "하나카드":
+        return "assets/images/card_logo/hana_logo.svg";
+      default:
+        return "";
     }
   }
 
@@ -482,17 +500,94 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
     );
   }
 
-  // 내 카드 목록 위젯
   Widget _cardList(BuildContext context) {
-    return ListView.builder(
-      itemCount: cardList.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(cardList[index]['cardName']),
-          leading: Image.network(cardList[index]['cardImg']),
-        );
-      },
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 25.0),
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: cardList.length,
+        itemBuilder: (context, index) {
+          return Container(
+            height: 80,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20.0),
+              color: Colors.white,
+            ),
+            child: Row(
+              children: [
+                SizedBox(width: 15),
+                SvgPicture.asset(
+                  _getIconPathFromCompanyName(cardList[index]['cardCompanyName']),
+                  width: 55,
+                  height: 55,
+                ),
+                SizedBox(width: 15),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        cardList[index]['cardCompanyName'],
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 17.0,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: 2.0),
+                      Text(
+                        cardList[index]['connectedAt'] + ' 연결',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w400,
+                          fontSize: 10.0,
+                          color: const Color(0xff0083EE),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    _navigateToCardCompanyWebsite(cardList[index]['cardCompanyName']);
+                  },
+                  child: SvgPicture.asset(
+                    'assets/images/icons/card_company_link_arrow_icon.svg',
+                    width: 22,
+                    height: 22,
+                  ),
+                ),
+                SizedBox(width: 15),
+              ],
+            ),
+          );
+        },
+      ),
     );
+  }
+
+  // 카드사별 URL 반환 함수
+  String _navigateToCardCompanyWebsite(String name) {
+    switch (name) {
+      case "신한카드":
+        return "https://www.shinhancard.com/pconts/html/main.html?utm_source=google&utm_medium=sa&utm_campaign=homepage_pc_B_main&utm_content=finance&utm_term=%EC%8B%A0%ED%95%9C%EC%B9%B4%EB%93%9C&gad_source=1&gclid=CjwKCAjw9IayBhBJEiwAVuc3flged3Rbo52HWdN5G8_tLIud24084eUbyeL55yge9UXB66koTMoDLRoCyIUQAvD_BwE";
+      case "현대카드":
+        return "https://www.hyundaicard.com/index.jsp";
+      case "국민카드":
+        return "https://card.kbcard.com/CMN/DVIEW/HOAMCXPRIZZC0002";
+      case "삼성카드":
+        return "https://www.samsungcard.com/personal/main/UHPPCO0101M0.jsp";
+      case "롯데카드":
+        return "https://www.lottecard.co.kr/app/LPMAIAA_V100.lc?referrer=https%3A%2F%2Fwww.google.com%2F";
+      case "하나카드":
+        return "https://www.hanacard.co.kr/OPI21000000D.web?schID=pcd&mID=OPI21000000P&keyword=%ED%95%98%EB%82%98%EC%B9%B4%EB%93%9C&gad_source=1&gclid=CjwKCAjw9IayBhBJEiwAVuc3fvC6RzbyBDXOV0erhmeXRvytTvxqg956iXtnsZWxaQuwKltQfutsyxoCI08QAvD_BwE";
+      default:
+        return "";
+    }
   }
 
   @override
@@ -501,11 +596,30 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
       backgroundColor: Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
       body: Column(
-        //crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _stepArea(context),
           _infoArea(),
           _cardCompanyList(),
+          Padding(
+            padding:
+            const EdgeInsets.only(top: 40.0, left: 25.0, bottom: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+              Text(
+              '연결된 카드사 목록',
+              style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+                color: Colors.black,
+              ),
+              ),
+              ],
+            ),
+          ),
+          _cardList(context),
         ],
       ),
     );
