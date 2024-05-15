@@ -15,7 +15,7 @@ import 'package:once_front/src/screens/mypage/connect_card_company.dart';
 import 'package:once_front/src/screens/mypage/maincard_manage.dart';
 import 'package:once_front/src/screens/mypage/monthly_benefit.dart';
 import 'package:once_front/src/screens/mypage/mypage.dart';
-import 'package:once_front/src/screens/mypage/register_maincard.dart';
+import 'package:once_front/src/screens/mypage/codef_terms_conditions.dart';
 import 'package:once_front/src/screens/mypage/search_card1.dart';
 import 'package:once_front/src/screens/mypage/search_card2.dart';
 import 'package:once_front/src/screens/mypage/user_edit.dart';
