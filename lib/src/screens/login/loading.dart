@@ -11,35 +11,26 @@ class Loading extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xffE5F0FF),
       appBar: EmptyAppBar(),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 100),
-          SvgPicture.asset(
-            'assets/images/once_logo/once_logo_white.svg',
-            width: 140,
+      body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SpinKitFadingFour(
+                color: Color(0xff0083EE),
+                size: 60.0,
+                duration: Duration(seconds: 1),
+              ),
+              SizedBox(height: 20,),
+              Text(
+                'LOADING',
+                style: TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xffffffff)),
+              ),
+            ],
           ),
-          const SizedBox(
-            height: 20,
-          ),
-          const Text(
-            '모든 카드 혜택을 한눈에',
-            style: TextStyle(
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(
-            height: 200,
-          ),
-          const SpinKitFadingFour(
-            color: Color(0xff0083EE),
-            size: 50.0,
-            duration: Duration(seconds: 1),
-          ),
-        ],
       ),
     );
   }

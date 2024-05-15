@@ -29,7 +29,8 @@ class _ChatHistoryState extends State<ChatHistory> {
   void initState() {
     super.initState();
     currentDate = DateTime.now();
-    _chatHistoryFuture = _chatHistory('2024-01');
+    _chatHistoryFuture =
+        _chatHistory(DateFormat('yyyy-MM').format(currentDate));
   }
 
   void _updateState(Map<dynamic, dynamic> responseData) {
