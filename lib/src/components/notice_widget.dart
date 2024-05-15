@@ -171,6 +171,7 @@ class NoticeWidget extends StatelessWidget {
   }
 
   Widget type3Widget() {
+    String noticeContent = content.replaceAll(r'\n', " ");
     return Row(
       children: [
         SvgPicture.asset(
@@ -187,7 +188,7 @@ class NoticeWidget extends StatelessWidget {
                   SizedBox(
                     width: 260,
                     child: Text(
-                      content,
+                      noticeContent,
                       style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 15,
