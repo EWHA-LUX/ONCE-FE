@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/style.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 
 class ConnectCardCompany extends StatefulWidget {
@@ -13,6 +14,24 @@ class ConnectCardCompany extends StatefulWidget {
 
   @override
   _ConnectCardCompanyState createState() => _ConnectCardCompanyState();
+}
+
+class MyWebView extends StatelessWidget {
+  final String url;
+
+  MyWebView({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("WebView"),
+      ),
+      body: InAppWebView(
+        initialUrlRequest: URLRequest(url: Uri.parse(url)),
+      ),
+    );
+  }
 }
 
 class _ConnectCardCompanyState extends State<ConnectCardCompany> {
@@ -517,13 +536,13 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
             ),
             child: Row(
               children: [
-                SizedBox(width: 15),
+                SizedBox(width: 20),
                 SvgPicture.asset(
                   _getIconPathFromCompanyName(cardList[index]['cardCompanyName']),
-                  width: 55,
-                  height: 55,
+                  width: 53,
+                  height: 53,
                 ),
-                SizedBox(width: 15),
+                SizedBox(width: 17),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -533,7 +552,7 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                         cardList[index]['cardCompanyName'],
                         style: TextStyle(
                           fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           fontSize: 17.0,
                           color: Colors.black,
                         ),
@@ -553,7 +572,12 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    _navigateToCardCompanyWebsite(cardList[index]['cardCompanyName']);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MyWebView(url: _navigateToCardCompanyWebsite(cardList[index]['cardCompanyName'])),
+                      ),
+                    );
                   },
                   child: SvgPicture.asset(
                     'assets/images/icons/card_company_link_arrow_icon.svg',
@@ -561,7 +585,7 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                     height: 22,
                   ),
                 ),
-                SizedBox(width: 15),
+                SizedBox(width: 20),
               ],
             ),
           );
@@ -570,11 +594,26 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
     );
   }
 
+  void _launchCardCompanyWebsite(String companyName) async {
+    String? url = _navigateToCardCompanyWebsite(companyName);
+    if (url != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MyWebView(url: url),
+        ),
+      );
+    } else {
+      throw 'Invalid URL';
+    }
+  }
+
+
   // 카드사별 URL 반환 함수
   String _navigateToCardCompanyWebsite(String name) {
     switch (name) {
       case "신한카드":
-        return "https://www.shinhancard.com/pconts/html/main.html?utm_source=google&utm_medium=sa&utm_campaign=homepage_pc_B_main&utm_content=finance&utm_term=%EC%8B%A0%ED%95%9C%EC%B9%B4%EB%93%9C&gad_source=1&gclid=CjwKCAjw9IayBhBJEiwAVuc3flged3Rbo52HWdN5G8_tLIud24084eUbyeL55yge9UXB66koTMoDLRoCyIUQAvD_BwE";
+        return "https://www.shinhancard.com/pconts/html/main.html?_refer=https://www.google.com/";
       case "현대카드":
         return "https://www.hyundaicard.com/index.jsp";
       case "국민카드":
@@ -603,7 +642,7 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
           _cardCompanyList(),
           Padding(
             padding:
-            const EdgeInsets.only(top: 40.0, left: 25.0, bottom: 20.0),
+            const EdgeInsets.only(top: 40.0, left: 25.0, bottom: 18.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
