@@ -264,6 +264,7 @@ class _NoticePopupWidgetState extends State<NoticePopupWidget> {
 
   // type 3 - 원스 공지 알림
   Widget popup3Widget() {
+    String noticeContent = widget.content.replaceAll(r'\n', "\n");
     return Padding(
       padding: const EdgeInsets.only(top: 30.0),
       child: Column(
@@ -334,7 +335,7 @@ class _NoticePopupWidgetState extends State<NoticePopupWidget> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    widget.content,
+                    noticeContent,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                         fontFamily: 'Pretendard',
