@@ -220,9 +220,9 @@ class _NoticePopupWidgetState extends State<NoticePopupWidget> {
                                 animation: true,
                                 animationDuration: 2000,
                                 lineWidth: 8.0,
-                                percent: 0.7,
+                                percent: (double.parse(widget.moreInfo)) / 100,
                                 center: Text(
-                                  '${(double.parse(widget.moreInfo) * 100).toInt()}%',
+                                  '${widget.moreInfo}%',
                                   style: const TextStyle(
                                       fontFamily: 'Pretendard',
                                       fontSize: 20,
