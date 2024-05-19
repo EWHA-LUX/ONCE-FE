@@ -134,6 +134,14 @@ class _ConnectCardCompanyListState extends State<ConnectCardCompanyList> {
               ),
             ],
           ),
+          SizedBox(
+            width: 10,
+          ),
+          SvgPicture.asset(
+            'assets/images/3d_icons/bulb_3d_icon.svg',
+            width: 80,
+            height: 80,
+          ),
         ],
       ),
     );
@@ -142,7 +150,7 @@ class _ConnectCardCompanyListState extends State<ConnectCardCompanyList> {
   // 주카드 목록 위젯
   Widget _cardList(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 25.0),
+      padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 30.0),
       child: ListView.builder(
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
@@ -151,54 +159,83 @@ class _ConnectCardCompanyListState extends State<ConnectCardCompanyList> {
           final cardName = _maincardList[index]['cardName'] ?? 'Unknown Card';
           final cardImg = _maincardList[index]['cardImg'] ?? 'default_image_url';
 
-          return Container(
-            height: 80,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20.0),
-              color: Colors.white,
-            ),
-            child: Row(
-              children: [
-                SizedBox(width: 3),
-                widget.code == '0301' ||
-                    widget.code == '0306' ||
-                    widget.code == '0313' ||
-                    widget.code == '0311'
-                    ? Transform.rotate(
-                  angle: 3.1415926535897932 / 2, // 90 degrees in radians
-                  child: CachedNetworkImage(
-                    imageUrl: cardImg,
-                    width: 63,
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 15.0),
+            child: Container(
+              height: 96,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.0),
+                color: Colors.white,
+              ),
+              child: Row(
+                children: [
+                  SizedBox(width: 17),
+                  widget.code == '0301' ||
+                      widget.code == '0306' ||
+                      widget.code == '0313' ||
+                      widget.code == '0311'
+                      ? Transform.rotate(
+                    angle: 3.1415926535897932 / 2, // 90 degrees in radians
+                    child: CachedNetworkImage(
+                      imageUrl: cardImg,
+                      width: 63,
+                    ),
+                  )
+                      : Padding(
+                    padding: const EdgeInsets.only(left: 23.0, right: 10),
+                    child: CachedNetworkImage(
+                      imageUrl: cardImg,
+                      width: 41,
+                    ),
                   ),
-                )
-                    : Padding(
-                  padding: const EdgeInsets.only(left: 12.0, right: 10),
-                  child: CachedNetworkImage(
-                    imageUrl: cardImg,
-                    width: 41,
+                  SizedBox(width: 17),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          cardName,
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15.0,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(width: 17),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        cardName,
-                        style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w500,
-                          fontSize: 17.0,
-                          color: Colors.black,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 17.0, left: 20.0),
+                    child: GestureDetector(
+                      child: Container(
+                        width: 40,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          color: const Color(0xfff2f2f2),
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '연결',
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              color: Color(0xff0083EE),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ),
-                    ],
+                      onTap: () {
+                        //_deleteCard(context, widget.ownedCardId);
+                      },
+                    ),
                   ),
-                ),
-                SizedBox(width: 20),
-              ],
+                ],
+              ),
             ),
           );
         },
@@ -212,10 +249,11 @@ class _ConnectCardCompanyListState extends State<ConnectCardCompanyList> {
       backgroundColor: Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _stepArea(context),
           _infoArea(),
+          SizedBox(height: 10),
           _cardList(context),
         ],
       ),
