@@ -12,6 +12,7 @@ import 'package:once_front/src/screens/login/signup4.dart';
 import 'package:once_front/src/screens/mypage/card_add_method.dart';
 import 'package:once_front/src/screens/mypage/chat_history.dart';
 import 'package:once_front/src/screens/mypage/connect_card_company.dart';
+import 'package:once_front/src/screens/mypage/register_maincard_list.dart';
 import 'package:once_front/src/screens/mypage/maincard_manage.dart';
 import 'package:once_front/src/screens/mypage/monthly_benefit.dart';
 import 'package:once_front/src/screens/mypage/mypage.dart';
@@ -57,6 +58,11 @@ class MyApp extends StatelessWidget {
             page: () => const SearchCard2()),
         GetPage(name: "/codef", page: () => const RegisterMainCard()),
         GetPage(name: "/codef/2", page: () => const ConnectCardCompany()),
+        GetPage(
+          name: "/codef/3",
+          page: () => ConnectCardCompanyList(
+              code: '', id: '', password: ''),
+        ),
         GetPage(name: "/loading", page: () => const Loading()),
         GetPage(name: "/login", page: () => Login()),
         GetPage(name: "/signup/1", page: () => Signup1()),
