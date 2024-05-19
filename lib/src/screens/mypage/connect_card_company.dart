@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
 import 'package:once_front/style.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:once_front/src/screens/mypage/register_maincard_list.dart';
 
 
 class ConnectCardCompany extends StatefulWidget {
@@ -25,7 +28,7 @@ class MyWebView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("WebView"),
+        title: Text("카드사 홈페이지"),
       ),
       body: InAppWebView(
         initialUrlRequest: URLRequest(url: Uri.parse(url)),
@@ -37,6 +40,9 @@ class MyWebView extends StatelessWidget {
 class _ConnectCardCompanyState extends State<ConnectCardCompany> {
   final String BASE_URL = Constants.baseUrl;
   List<dynamic> cardList = [];
+
+  TextEditingController idController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -57,12 +63,12 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
 
   List<bool> isCardSelectedList = List.generate(6, (index) => false);
   bool isAllSelected = false;
-  int? selectedCardIndex;
+  int selectedCardIndex= -1;
 
   void _updateSelectedCard(int index) {
     setState(() {
       if (selectedCardIndex == index) {
-        selectedCardIndex = null;
+        selectedCardIndex = -1;
       } else {
         selectedCardIndex = index;
         for (int i = 0; i < isCardSelectedList.length; i++) {
@@ -145,7 +151,7 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                         height: 40,
                         width: 270,
                         child: TextFormField(
-                          //controller: loginIdController,
+                          controller: idController,
                           style: const TextStyle(
                             fontSize: 13,
                           ),
@@ -179,15 +185,11 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                         height: 40,
                         width: 270,
                         child: TextField(
-                          //controller: passwordController,
+                          controller: passwordController,
                           obscureText: true,
                           style: const TextStyle(
                             fontSize: 13,
                           ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(6),
-                          ],
                           decoration: InputDecoration(
                             prefixIcon: Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -223,7 +225,7 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Center(
-                            child: Text('변경하기',
+                            child: Text('연결하기',
                                 style: TextStyle(
                                   fontFamily: 'Pretendard',
                                   fontSize: 17,
@@ -233,9 +235,11 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
                           ),
                         ),
                         onTap: () {
-                          //_updateBenefitGoal(context, newBenefitGoal);
-                          //Navigator.pop(context);
-                          setState(() {});
+                          Get.to(() => ConnectCardCompanyList(
+                            code: _getCardCompanyCode(selectedCardIndex),
+                            id: idController.text,
+                            password: passwordController.text,
+                          ));
                         },
                       )
                     ],
@@ -342,6 +346,25 @@ class _ConnectCardCompanyState extends State<ConnectCardCompany> {
         return "롯데카드";
       case 5:
         return "하나카드";
+      default:
+        return "";
+    }
+  }
+
+  String _getCardCompanyCode(int index) {
+    switch (index) {
+      case 0:
+        return "0306";
+      case 1:
+        return "0302";
+      case 2:
+        return "0301";
+      case 3:
+        return "0303";
+      case 4:
+        return "0311";
+      case 5:
+        return "0313";
       default:
         return "";
     }
