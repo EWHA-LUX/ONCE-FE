@@ -77,7 +77,7 @@ class _UserEditPageState extends State<UserEditPage> {
 
       if (responseData['code'] == 1000) {
         Navigator.pop(context);
-        showSnackBar(context);
+        showSnackBar(context, '비밀번호를 변경했어요.');
       }
     } catch (e) {
       print(e.toString());
@@ -243,6 +243,11 @@ class _UserEditPageState extends State<UserEditPage> {
           'userPhoneNum': userPhoneNum,
         },
       );
+
+      final responseData = response.data;
+      if (responseData['code'] == 1000) {
+        showSnackBar(context, '$userNickname님의 정보를 변경했어요.');
+      }
     } catch (e) {
       print('오류 발생: $e');
       showDialog(
@@ -303,6 +308,11 @@ class _UserEditPageState extends State<UserEditPage> {
       setState(() {
         userProfileImg = newImageUrl;
       });
+
+      final responseData = response.data;
+      if (responseData['code'] == 1000) {
+        showSnackBar(context, '프로필 이미지를 변경했어요.');
+      }
     } catch (e) {
       print('오류 발생: $e');
       showDialog(
@@ -1280,8 +1290,11 @@ class _UserEditPageState extends State<UserEditPage> {
   }
 
   // =============================================================================
-  // 비밀번호 변경 후 보여주는 snackbar
-  Widget _snackBarContent() {
+  /*
+    snackbar에 보여줄 텍스트 입력 가능
+    (ex) showSnackBar(context, '비밀번호를 변경했어요.');
+   */
+  Widget _snackBarContent(String content) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
       child: Row(
@@ -1294,9 +1307,9 @@ class _UserEditPageState extends State<UserEditPage> {
           const SizedBox(
             width: 20.0,
           ),
-          const Text(
-            '비밀번호를 변경했어요.',
-            style: TextStyle(
+          Text(
+            content,
+            style: const TextStyle(
                 fontFamily: 'Pretendard',
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
@@ -1307,7 +1320,7 @@ class _UserEditPageState extends State<UserEditPage> {
     );
   }
 
-  void showSnackBar(BuildContext context) {
+  void showSnackBar(BuildContext context, String content) {
     final snackBar = SnackBar(
       backgroundColor: const Color(0xff3B3B3B),
       behavior: SnackBarBehavior.floating,
@@ -1315,7 +1328,7 @@ class _UserEditPageState extends State<UserEditPage> {
         borderRadius: BorderRadius.circular(12.0),
       ),
       duration: const Duration(seconds: 3),
-      content: _snackBarContent(),
+      content: _snackBarContent(content),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
     setState(() {});
