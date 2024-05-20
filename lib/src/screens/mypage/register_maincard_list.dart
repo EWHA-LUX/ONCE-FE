@@ -90,6 +90,50 @@ class _ConnectCardCompanyListState extends State<ConnectCardCompanyList> {
     }
   }
 
+  // [Post] 주카드 연결
+  Future<void> _registerMaincardCodef(String code, String cardName) async {
+    final String apiUrl = '${BASE_URL}/card/main';
+
+    final storage = FlutterSecureStorage();
+    final storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      var response = await dio.post(apiUrl, data: {
+        "code": code,
+        "cardName": cardName,
+      });
+
+      Map<String, dynamic> responseData = response.data;
+      if (responseData['code'] == 1000) {
+        print(responseData);
+      }
+    } catch (e) {
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   // 상단 뒤로가기 버튼
   Widget _stepArea(context) {
@@ -230,7 +274,8 @@ class _ConnectCardCompanyListState extends State<ConnectCardCompanyList> {
                         ),
                       ),
                       onTap: () {
-                        //_deleteCard(context, widget.ownedCardId);
+                        _registerMaincardCodef(widget.code, cardName);
+                        Navigator.of(context).pushNamed("/mypage");
                       },
                     ),
                   ),
