@@ -6,7 +6,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:once_front/constants.dart';
 import 'package:once_front/src/components/empty_app_bar.dart';
+import 'package:once_front/src/screens/mypage/maincard_loading.dart';
 import 'package:once_front/style.dart';
+
 
 class ConnectCardCompanyList extends StatefulWidget {
   final String code;
@@ -26,6 +28,24 @@ class ConnectCardCompanyList extends StatefulWidget {
 
 class _ConnectCardCompanyListState extends State<ConnectCardCompanyList> {
   final String BASE_URL = Constants.baseUrl;
+  late Future<void> _registerMaincardFuture;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: _registerMaincardFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return MainCardLoading(code: widget.code);
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          // 데이터가 로드된 후에 표시할 화면
+          return buildContents(context);
+        }
+      },
+    );
+  }
 
   // 주카드 목록 리스트
   List<Map<String, String>> _maincardList = [];
@@ -33,7 +53,7 @@ class _ConnectCardCompanyListState extends State<ConnectCardCompanyList> {
   @override
   void initState() {
     super.initState();
-    _getCardList(widget.code, widget.id, widget.password);
+    _registerMaincardFuture = _getCardList(widget.code, widget.id, widget.password);
   }
 
   // [Get] 카드 목록 조회
@@ -289,7 +309,7 @@ class _ConnectCardCompanyListState extends State<ConnectCardCompanyList> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildContents(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xfff5f5f5),
       appBar: EmptyAppBar(),
