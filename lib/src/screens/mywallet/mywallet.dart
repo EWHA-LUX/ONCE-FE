@@ -491,16 +491,48 @@ class _MyWalletState extends State<MyWallet>
                                                               color: Colors.black)),
                                                     ],
                                                   ),
-                                                  SvgPicture.asset(
-                                                    'assets/images/3d_icons/card_3d_icon.svg',
+                                                  Image.asset(
+                                                    'assets/images/3d_icons/goal_3d_icon.png',
                                                     width: 80,
                                                     height: 80,
                                                   ),
                                                 ],
                                               ),
                                             ),
+                                            Center(
+                                              child: Text.rich(
+                                                  TextSpan(children: <TextSpan>[
+                                                    const TextSpan(
+                                                      text: '현재 입력하신 카드 실적은 ',
+                                                      style: TextStyle(
+                                                          fontFamily: 'Pretendard',
+                                                          fontSize: 14,
+                                                          fontWeight: FontWeight
+                                                              .w400,
+                                                          color: Colors.black),
+                                                    ),
+                                                    TextSpan(
+                                                      text: '${_cardList[_selectedIndex]['performanceCondition']}원 ',
+                                                      style: const TextStyle(
+                                                          fontFamily: 'Pretendard',
+                                                          fontSize: 14,
+                                                          fontWeight: FontWeight
+                                                              .w600,
+                                                          color: Colors.black),
+                                                    ),
+                                                    const TextSpan(
+                                                      text: '이에요!',
+                                                      style: TextStyle(
+                                                          fontFamily: 'Pretendard',
+                                                          fontSize: 14,
+                                                          fontWeight: FontWeight
+                                                              .w400,
+                                                          color: Colors.black),
+                                                    ),
+                                                  ])),
+                                            ),
                                             const SizedBox(
-                                              height: 15,
+                                              height: 25,
                                             ),
                                             Row(
                                               mainAxisAlignment:
