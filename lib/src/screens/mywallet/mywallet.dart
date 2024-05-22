@@ -49,11 +49,12 @@ class _MyWalletState extends State<MyWallet>
       List<dynamic> ownedCardList = responseData['result']['ownedCardList'];
       _cardList = ownedCardList.map((card) {
         return {
+          'ownedCardId': card['ownedCardId'],
           'cardName': card['cardName'],
           'cardType': card['cardType'],
           'cardImg': card['cardImg'],
           'cardCompany': card['cardCompany'],
-          'isMaincard': card['isMaincard'],
+          'maincard': card['maincard'],
           'performanceCondition': card['performanceCondition'],
           'currentPerformance': card['currentPerformance'],
           'remainPerformance': card['remainPerformance'],
@@ -118,7 +119,7 @@ class _MyWalletState extends State<MyWallet>
 
   // [Post] 주카드 아닌 카드 실적 입력
   Future<void> _updateCardPerformance(context, cardId, newPerformanceGoal) async {
-    final String apiUrl = '${BASE_URL}/mypage/card/performance';
+    final String apiUrl = '${BASE_URL}/card/performance';
 
     const storage = FlutterSecureStorage();
     String? storedAccessToken = await storage.read(key: 'accessToken');
@@ -386,6 +387,7 @@ class _MyWalletState extends State<MyWallet>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(left: 20.0),
@@ -399,15 +401,18 @@ class _MyWalletState extends State<MyWallet>
                             ),
                           ),
                         ),
-                        if (!_cardList[_selectedIndex]['isMaincard'])
+                        if (!_cardList[_selectedIndex]['maincard'])
                           GestureDetector(
-                            child: Text(
-                              "실적 입력하기 >",
-                              style: const TextStyle(
-                                color: Color(0xff767676),
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w500,
-                                fontSize: 12,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 20.0),
+                              child: Text(
+                                "실적 입력하기 >",
+                                style: const TextStyle(
+                                  color: Color(0xff767676),
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
                             onTap: () {
@@ -472,21 +477,11 @@ class _MyWalletState extends State<MyWallet>
                                                               color: Color(
                                                                   0xff366FFF)),
                                                         ),
-                                                        const TextSpan(
-                                                          text: '카드의',
-                                                          style: TextStyle(
-                                                              fontFamily:
-                                                              'Pretendard',
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                              FontWeight.w600,
-                                                              color: Colors.black),
-                                                        ),
                                                       ])),
                                                       const SizedBox(
                                                         height: 5,
                                                       ),
-                                                      const Text('실적을 입력해주세요.',
+                                                      const Text('카드의 실적을 입력해주세요.',
                                                           style: TextStyle(
                                                               fontFamily:
                                                               'Pretendard',
@@ -496,16 +491,16 @@ class _MyWalletState extends State<MyWallet>
                                                               color: Colors.black)),
                                                     ],
                                                   ),
-                                                  Image.asset(
-                                                    'assets/images/3d_icons/card_3d_icon.png',
-                                                    width: 70,
-                                                    height: 70,
+                                                  SvgPicture.asset(
+                                                    'assets/images/3d_icons/card_3d_icon.svg',
+                                                    width: 80,
+                                                    height: 80,
                                                   ),
                                                 ],
                                               ),
                                             ),
                                             const SizedBox(
-                                              height: 35,
+                                              height: 15,
                                             ),
                                             Row(
                                               mainAxisAlignment:
@@ -559,7 +554,7 @@ class _MyWalletState extends State<MyWallet>
                                               ],
                                             ),
                                             const SizedBox(
-                                              height: 60,
+                                              height: 70,
                                             ),
                                             GestureDetector(
                                               child: Container(
@@ -571,7 +566,7 @@ class _MyWalletState extends State<MyWallet>
                                                   BorderRadius.circular(20),
                                                 ),
                                                 child: const Center(
-                                                  child: Text('입력하기',
+                                                  child: Text('설정하기',
                                                       style: TextStyle(
                                                         fontFamily: 'Pretendard',
                                                         fontSize: 17,
@@ -581,8 +576,9 @@ class _MyWalletState extends State<MyWallet>
                                                 ),
                                               ),
                                               onTap: () {
+                                                print(_cardList[_selectedIndex]['ownedCardId']);
                                                 _updateCardPerformance(
-                                                    context, _cardList[_selectedIndex]['ownedCard_id'] ,newPerformanceGoal);
+                                                    context, _cardList[_selectedIndex]['ownedCardId'] ,newPerformanceGoal);
                                                 Navigator.pop(context);
                                                 setState(() {});
                                                 showSnackBar(context);
@@ -620,12 +616,13 @@ class _MyWalletState extends State<MyWallet>
                         animation: true,
                         lineHeight: 8.0,
                         animationDuration: 900,
-                        percent: _cardList[_selectedIndex]
+                        percent: (_cardList[_selectedIndex]
                         ['currentPerformance'] !=
                             null &&
                             _cardList[_selectedIndex]
                             ['performanceCondition'] !=
                                 null
+                        && _cardList[_selectedIndex]['performanceCondition'] != 0)
                             ? _cardList[_selectedIndex]['currentPerformance'] /
                             _cardList[_selectedIndex]
                             ['performanceCondition']
