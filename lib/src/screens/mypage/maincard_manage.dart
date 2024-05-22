@@ -152,7 +152,7 @@ class _MaincardManageState extends State<MaincardManage> {
               color: Colors.white,
             ),
             onTap: () {
-              Get.back();
+              Navigator.of(context).pushNamed("/mypage");
             },
           ),
         ),

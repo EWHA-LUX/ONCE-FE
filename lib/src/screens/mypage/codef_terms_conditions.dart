@@ -430,7 +430,7 @@ class _RegisterMainCardState extends State<RegisterMainCard> {
               ),
             ),
             onTap: () {
-              Navigator.pop(context);
+              Navigator.of(context).pushNamed("/mypage/maincard-manage");
             },
           ),
         ],

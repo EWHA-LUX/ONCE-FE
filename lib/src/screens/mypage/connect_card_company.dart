@@ -27,9 +27,7 @@ class MyWebView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("카드사 홈페이지"),
-      ),
+      appBar: EmptyAppBar(),
       body: InAppWebView(
         initialUrlRequest: URLRequest(url: Uri.parse(url)),
       ),

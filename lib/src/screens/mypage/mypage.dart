@@ -161,7 +161,7 @@ class _MyPageState extends State<MyPage> {
               color: Colors.white,
             ),
             onTap: () {
-              Get.back();
+              Navigator.of(context).pushNamed("/home");
             },
           ),
         ),

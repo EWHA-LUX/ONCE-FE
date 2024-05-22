@@ -145,7 +145,7 @@ class _SearchCard1State extends State<SearchCard1> {
             color: Colors.black,
           ),
           onTap: () {
-            Navigator.of(context).pushNamed("/mypage/maincard-manage/add");
+            Navigator.of(context).pushNamed("/mypage/maincard-manage");
           },
         ),
         StepWidget()
