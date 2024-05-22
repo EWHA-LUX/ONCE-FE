@@ -114,6 +114,54 @@ class _MyWalletState extends State<MyWallet>
     }
   }
 
+  // [Post] 주카드 아닌 카드 실적 입력
+  Future<void> _updateCardPerformance(context, cardId, newPerformanceGoal) async {
+    final String apiUrl = '${BASE_URL}/mypage/card/performance';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      var response =
+      await dio.post(apiUrl, data: {
+        "ownedCardId" : cardId,
+        "performanceCondition": newPerformanceGoal
+      });
+      Map<dynamic, dynamic> responseData = response.data;
+      print(responseData);
+
+      if (responseData['code'] == 1000) {
+        _getMyWallet(context);
+      }
+    } catch (e) {
+      // ** 차후 수정 필요 **
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("오류 발생"),
+            content: Text("서버와 통신 중 오류가 발생했습니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
