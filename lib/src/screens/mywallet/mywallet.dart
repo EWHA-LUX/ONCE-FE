@@ -25,6 +25,8 @@ class _MyWalletState extends State<MyWallet>
   final String BASE_URL = Constants.baseUrl;
   late Future<void> _mywalletListFuture;
 
+  int newPerformanceGoal = 0;
+
   var _selectedIndex = 0; // 현재 선택된 카드
   String nickname = '';
   List<Map<String, dynamic>> _cardList = [];
@@ -185,6 +187,47 @@ class _MyWalletState extends State<MyWallet>
     );
   }
 
+  void showSnackBar(BuildContext context) {
+    final snackBar = SnackBar(
+      backgroundColor: const Color(0xff3B3B3B),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      duration: const Duration(seconds: 3),
+      content: _snackBarContent(),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    setState(() {});
+  }
+
+  // 실적 입력 후 보여주는 snackbar
+  Widget _snackBarContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+      child: Row(
+        children: [
+          Image.asset(
+            'assets/images/icons/snackbar_icon.png',
+            width: 20,
+            height: 20,
+          ),
+          const SizedBox(
+            width: 20.0,
+          ),
+          const Text(
+            '실적 입력을 완료했어요.',
+            style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: Colors.white),
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget _buildContent(BuildContext context) {
     return Scaffold(
@@ -342,17 +385,217 @@ class _MyWalletState extends State<MyWallet>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(
-                        _cardList[_selectedIndex]['cardName'],
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w900,
-                          fontSize: 17,
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0),
+                          child: Text(
+                            _cardList[_selectedIndex]['cardName'],
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w900,
+                              fontSize: 17,
+                            ),
+                          ),
                         ),
-                      ),
+                        if (!_cardList[_selectedIndex]['isMaincard'])
+                          GestureDetector(
+                            child: Text(
+                              "실적 입력하기 >",
+                              style: const TextStyle(
+                                color: Color(0xff767676),
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                              ),
+                            ),
+                            onTap: () {
+                              showModalBottomSheet(
+                                  context: context,
+                                  backgroundColor: const Color(0xffF7F8FC),
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(30),
+                                          topRight: Radius.circular(30))),
+                                  builder: (BuildContext context) {
+                                    return StatefulBuilder(builder:
+                                        (BuildContext context,
+                                        StateSetter setState) {
+                                      return Container(
+                                        height: 430,
+                                        margin: const EdgeInsets.only(
+                                          top: 20,
+                                          left: 25,
+                                          right: 25,
+                                          bottom: 30,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                          children: [
+                                            Center(
+                                              child: Container(
+                                                margin:
+                                                const EdgeInsets.only(top: 7),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                    BorderRadius.circular(10),
+                                                    color: const Color(0xffD5D7DF)),
+                                                width: 48,
+                                                height: 4,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 28.0, vertical: 60.0),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text.rich(TextSpan(children: <
+                                                          TextSpan>[
+                                                        TextSpan(
+                                                          text: _cardList[_selectedIndex]['cardName'],
+                                                          style: const TextStyle(
+                                                              fontFamily:
+                                                              'Pretendard',
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                              FontWeight.w700,
+                                                              color: Color(
+                                                                  0xff366FFF)),
+                                                        ),
+                                                        const TextSpan(
+                                                          text: '카드의',
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                              'Pretendard',
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                              FontWeight.w600,
+                                                              color: Colors.black),
+                                                        ),
+                                                      ])),
+                                                      const SizedBox(
+                                                        height: 5,
+                                                      ),
+                                                      const Text('실적을 입력해주세요.',
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                              'Pretendard',
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                              FontWeight.w600,
+                                                              color: Colors.black)),
+                                                    ],
+                                                  ),
+                                                  Image.asset(
+                                                    'assets/images/3d_icons/card_3d_icon.png',
+                                                    width: 70,
+                                                    height: 70,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 35,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                              children: [
+                                                GestureDetector(
+                                                  child: Image.asset(
+                                                    'assets/images/icons/minus_icon.png',
+                                                    width: 25,
+                                                    height: 25,
+                                                  ),
+                                                  onTap: () {
+                                                    setState(() {
+                                                      newPerformanceGoal -= 5000;
+                                                    });
+                                                  },
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8.0),
+                                                  child: Container(
+                                                    padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 15,
+                                                      vertical: 8,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      border: Border.all(
+                                                          color: Colors.white),
+                                                      borderRadius:
+                                                      BorderRadius.circular(10),
+                                                    ),
+                                                    child:
+                                                    Text('$newPerformanceGoal 원'),
+                                                  ),
+                                                ),
+                                                GestureDetector(
+                                                  child: Image.asset(
+                                                    'assets/images/icons/plus_icon.png',
+                                                    width: 25,
+                                                    height: 25,
+                                                  ),
+                                                  onTap: () {
+                                                    setState(() {
+                                                      newPerformanceGoal += 5000;
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(
+                                              height: 60,
+                                            ),
+                                            GestureDetector(
+                                              child: Container(
+                                                width: 125,
+                                                height: 37,
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xff0083EE),
+                                                  borderRadius:
+                                                  BorderRadius.circular(20),
+                                                ),
+                                                child: const Center(
+                                                  child: Text('입력하기',
+                                                      style: TextStyle(
+                                                        fontFamily: 'Pretendard',
+                                                        fontSize: 17,
+                                                        fontWeight: FontWeight.w500,
+                                                        color: Colors.white,
+                                                      )),
+                                                ),
+                                              ),
+                                              onTap: () {
+                                                _updateCardPerformance(
+                                                    context, _cardList[_selectedIndex]['ownedCard_id'] ,newPerformanceGoal);
+                                                Navigator.pop(context);
+                                                setState(() {});
+                                                showSnackBar(context);
+                                              },
+                                            )
+                                          ],
+                                        ),
+                                      );
+                                    });
+                                  });
+                            },
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 20),
                     // 남은 실적 정보
