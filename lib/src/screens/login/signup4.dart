@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -214,6 +216,34 @@ class _Signup4State extends State<Signup4> {
           );
         },
       );
+    }
+  }
+
+  // [Post] 기기 토큰 등록
+  Future<void> sendTokenToServer(String token) async {
+    final String BASE_URL = Constants.baseUrl;
+    final String apiUrl = '$BASE_URL/user/token';
+
+    const storage = FlutterSecureStorage();
+    String? storedAccessToken = await storage.read(key: 'accessToken');
+
+    if (storedAccessToken != null) {
+      final baseOptions = BaseOptions(
+        headers: {'Authorization': 'Bearer $storedAccessToken'},
+      );
+
+      final dio = Dio(baseOptions);
+
+      try {
+        var response =
+        await dio.post(apiUrl, data: {"token": token});
+        Map<dynamic, dynamic> responseData = response.data;
+        print(responseData);
+      } catch (e) {
+        print('토큰 전송 오류: $e');
+      }
+    } else {
+      print('AccessToken 없음');
     }
   }
 
@@ -689,8 +719,19 @@ class _Signup4State extends State<Signup4> {
                     ),
                   ),
                 ),
-                onTap: () {
+                onTap: () async {
                   _postSelectedCards(context, selectedCardList);
+
+                  WidgetsFlutterBinding.ensureInitialized();
+                  await Firebase.initializeApp(); // Firebase 초기화
+                  final token = await FirebaseMessaging.instance.getToken();
+                  if (token != null) {
+                    print("FCM Token: $token");
+                    await sendTokenToServer(token); // 서버에 토큰 전송
+                  } else {
+                    print("FCM Token이 null입니다.");
+                  }
+
                   Navigator.of(context).pushNamed("/");
                 },
               ),

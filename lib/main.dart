@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:once_front/src/screens/home/home.dart';
 import 'package:once_front/src/screens/home/notification.dart';
@@ -23,8 +25,37 @@ import 'package:once_front/src/screens/mypage/search_card2.dart';
 import 'package:once_front/src/screens/mypage/user_edit.dart';
 import 'package:once_front/src/screens/mywallet/mywallet.dart';
 
-void main() {
+import 'constants.dart';
+
+void main() async {
   runApp(const MyApp());
+  getPerformanceData();
+}
+
+void getPerformanceData() async {
+  final String BASE_URL = Constants.baseUrl;
+  final String apiUrl = '$BASE_URL/card/main/performance';
+
+  const storage = FlutterSecureStorage();
+  String? storedAccessToken = await storage.read(key: 'accessToken');
+
+  if (storedAccessToken != null) {
+    final baseOptions = BaseOptions(
+      headers: {'Authorization': 'Bearer $storedAccessToken'},
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      final response = await dio.get(apiUrl);
+      final responseData = response.data;
+      print(responseData);
+    } catch (e) {
+      print(e.toString());
+    }
+  } else {
+    print('AccessToken 없음');
+  }
 }
 
 class MyApp extends StatelessWidget {
