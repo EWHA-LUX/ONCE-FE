@@ -293,7 +293,7 @@ class _MaincardManageState extends State<MaincardManage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 40.0),
+                      padding: const EdgeInsets.only(top: 40.0, left: 30, right: 30),
                       child: Text(
                         cardName,
                         style: const TextStyle(

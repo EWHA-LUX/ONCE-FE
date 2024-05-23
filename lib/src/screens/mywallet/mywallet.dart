@@ -60,15 +60,15 @@ class _MyWalletState extends State<MyWallet>
           'remainPerformance': card['remainPerformance'],
           'cardBenefitList': List<Map<String, dynamic>>.from(
               card['cardBenefitList'].map((benefit) => {
-                'category': benefit['category'],
-                'name': benefit['name'],
-                'benefit': benefit['benefit'],
-              })),
+                    'category': benefit['category'],
+                    'name': benefit['name'],
+                    'benefit': benefit['benefit'],
+                  })),
         };
       }).toList();
       _isFlippedList = List.generate(
         _cardList.length,
-            (index) => false,
+        (index) => false,
       );
     });
   }
@@ -118,7 +118,8 @@ class _MyWalletState extends State<MyWallet>
   }
 
   // [Post] 주카드 아닌 카드 실적 입력
-  Future<void> _updateCardPerformance(context, cardId, newPerformanceGoal) async {
+  Future<void> _updateCardPerformance(
+      context, cardId, newPerformanceGoal) async {
     final String apiUrl = '${BASE_URL}/card/performance';
 
     const storage = FlutterSecureStorage();
@@ -131,9 +132,8 @@ class _MyWalletState extends State<MyWallet>
     final dio = Dio(baseOptions);
 
     try {
-      var response =
-      await dio.post(apiUrl, data: {
-        "ownedCardId" : cardId,
+      var response = await dio.post(apiUrl, data: {
+        "ownedCardId": cardId,
         "performanceCondition": newPerformanceGoal
       });
       Map<dynamic, dynamic> responseData = response.data;
@@ -335,7 +335,7 @@ class _MyWalletState extends State<MyWallet>
                             cardName: _cardList[index]['cardName'],
                             cardCompany: _cardList[index]['cardCompany'],
                             cardBenefitList: _cardList[index]
-                            ['cardBenefitList'],
+                                ['cardBenefitList'],
                           ),
                         ),
                       );
@@ -354,7 +354,7 @@ class _MyWalletState extends State<MyWallet>
             children: [
               ...List.generate(
                 _cardList.length,
-                    (index) =>
+                (index) =>
                     Indicator(isActive: _selectedIndex == index ? true : false),
               )
             ],
@@ -391,23 +391,27 @@ class _MyWalletState extends State<MyWallet>
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(left: 20.0),
-                          child: Text(
-                            _cardList[_selectedIndex]['cardName'],
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w900,
-                              fontSize: 17,
+                          child: SizedBox(
+                            width: 220,
+                            child: Text(
+                              _cardList[_selectedIndex]['cardName'],
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w900,
+                                fontSize: 17,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
                         if (!_cardList[_selectedIndex]['maincard'])
                           GestureDetector(
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 20.0),
+                            child: const Padding(
+                              padding: EdgeInsets.only(right: 20.0),
                               child: Text(
                                 "실적 입력하기 >",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Color(0xff767676),
                                   fontFamily: 'Pretendard',
                                   fontWeight: FontWeight.w500,
@@ -426,7 +430,7 @@ class _MyWalletState extends State<MyWallet>
                                   builder: (BuildContext context) {
                                     return StatefulBuilder(builder:
                                         (BuildContext context,
-                                        StateSetter setState) {
+                                            StateSetter setState) {
                                       return Container(
                                         height: 430,
                                         margin: const EdgeInsets.only(
@@ -437,58 +441,70 @@ class _MyWalletState extends State<MyWallet>
                                         ),
                                         child: Column(
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                              CrossAxisAlignment.center,
                                           children: [
                                             Center(
                                               child: Container(
-                                                margin:
-                                                const EdgeInsets.only(top: 7),
+                                                margin: const EdgeInsets.only(
+                                                    top: 7),
                                                 decoration: BoxDecoration(
                                                     borderRadius:
-                                                    BorderRadius.circular(10),
-                                                    color: const Color(0xffD5D7DF)),
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    color: const Color(
+                                                        0xffD5D7DF)),
                                                 width: 48,
                                                 height: 4,
                                               ),
                                             ),
                                             Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 28.0, vertical: 60.0),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 28.0,
+                                                      vertical: 60.0),
                                               child: Row(
                                                 mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                 children: [
                                                   Column(
                                                     mainAxisAlignment:
-                                                    MainAxisAlignment.start,
+                                                        MainAxisAlignment.start,
                                                     crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
-                                                      Text.rich(TextSpan(children: <
-                                                          TextSpan>[
-                                                        TextSpan(
-                                                          text: _cardList[_selectedIndex]['cardName'],
+                                                      SizedBox(
+                                                        width: 200,
+                                                        child: Text(
+                                                          _cardList[
+                                                                  _selectedIndex]
+                                                              ['cardName'],
                                                           style: const TextStyle(
                                                               fontFamily:
-                                                              'Pretendard',
+                                                                  'Pretendard',
                                                               fontSize: 18,
                                                               fontWeight:
-                                                              FontWeight.w700,
+                                                                  FontWeight.w700,
                                                               color: Color(
                                                                   0xff366FFF)),
+                                                          overflow: TextOverflow.fade,
                                                         ),
-                                                      ])),
+                                                      ),
                                                       const SizedBox(
                                                         height: 5,
                                                       ),
-                                                      const Text('카드의 실적을 입력해주세요.',
+                                                      const Text(
+                                                          '카드의 실적을 입력해주세요.',
                                                           style: TextStyle(
                                                               fontFamily:
-                                                              'Pretendard',
+                                                                  'Pretendard',
                                                               fontSize: 18,
                                                               fontWeight:
-                                                              FontWeight.w600,
-                                                              color: Colors.black)),
+                                                                  FontWeight
+                                                                      .w600,
+                                                              color: Colors
+                                                                  .black)),
                                                     ],
                                                   ),
                                                   Image.asset(
@@ -502,41 +518,42 @@ class _MyWalletState extends State<MyWallet>
                                             Center(
                                               child: Text.rich(
                                                   TextSpan(children: <TextSpan>[
-                                                    const TextSpan(
-                                                      text: '현재 입력하신 카드 실적은 ',
-                                                      style: TextStyle(
-                                                          fontFamily: 'Pretendard',
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight
-                                                              .w400,
-                                                          color: Colors.black),
-                                                    ),
-                                                    TextSpan(
-                                                      text: '${_cardList[_selectedIndex]['performanceCondition']}원 ',
-                                                      style: const TextStyle(
-                                                          fontFamily: 'Pretendard',
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight
-                                                              .w600,
-                                                          color: Colors.black),
-                                                    ),
-                                                    const TextSpan(
-                                                      text: '이에요!',
-                                                      style: TextStyle(
-                                                          fontFamily: 'Pretendard',
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight
-                                                              .w400,
-                                                          color: Colors.black),
-                                                    ),
-                                                  ])),
+                                                const TextSpan(
+                                                  text: '현재 입력하신 카드 실적은 ',
+                                                  style: TextStyle(
+                                                      fontFamily: 'Pretendard',
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color: Colors.black),
+                                                ),
+                                                TextSpan(
+                                                  text:
+                                                      '${_cardList[_selectedIndex]['performanceCondition']}원 ',
+                                                  style: const TextStyle(
+                                                      fontFamily: 'Pretendard',
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.black),
+                                                ),
+                                                const TextSpan(
+                                                  text: '이에요!',
+                                                  style: TextStyle(
+                                                      fontFamily: 'Pretendard',
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color: Colors.black),
+                                                ),
+                                              ])),
                                             ),
                                             const SizedBox(
                                               height: 25,
                                             ),
                                             Row(
                                               mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 GestureDetector(
                                                   child: Image.asset(
@@ -546,17 +563,18 @@ class _MyWalletState extends State<MyWallet>
                                                   ),
                                                   onTap: () {
                                                     setState(() {
-                                                      newPerformanceGoal -= 5000;
+                                                      newPerformanceGoal -=
+                                                          100000;
                                                     });
                                                   },
                                                 ),
                                                 Padding(
-                                                  padding:
-                                                  const EdgeInsets.symmetric(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
                                                       horizontal: 8.0),
                                                   child: Container(
-                                                    padding:
-                                                    const EdgeInsets.symmetric(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
                                                       horizontal: 15,
                                                       vertical: 8,
                                                     ),
@@ -565,10 +583,11 @@ class _MyWalletState extends State<MyWallet>
                                                       border: Border.all(
                                                           color: Colors.white),
                                                       borderRadius:
-                                                      BorderRadius.circular(10),
+                                                          BorderRadius.circular(
+                                                              10),
                                                     ),
-                                                    child:
-                                                    Text('$newPerformanceGoal 원'),
+                                                    child: Text(
+                                                        '$newPerformanceGoal 원'),
                                                   ),
                                                 ),
                                                 GestureDetector(
@@ -579,7 +598,8 @@ class _MyWalletState extends State<MyWallet>
                                                   ),
                                                   onTap: () {
                                                     setState(() {
-                                                      newPerformanceGoal += 5000;
+                                                      newPerformanceGoal +=
+                                                          100000;
                                                     });
                                                   },
                                                 ),
@@ -593,24 +613,31 @@ class _MyWalletState extends State<MyWallet>
                                                 width: 125,
                                                 height: 37,
                                                 decoration: BoxDecoration(
-                                                  color: const Color(0xff0083EE),
+                                                  color:
+                                                      const Color(0xff0083EE),
                                                   borderRadius:
-                                                  BorderRadius.circular(20),
+                                                      BorderRadius.circular(20),
                                                 ),
                                                 child: const Center(
                                                   child: Text('설정하기',
                                                       style: TextStyle(
-                                                        fontFamily: 'Pretendard',
+                                                        fontFamily:
+                                                            'Pretendard',
                                                         fontSize: 17,
-                                                        fontWeight: FontWeight.w500,
+                                                        fontWeight:
+                                                            FontWeight.w500,
                                                         color: Colors.white,
                                                       )),
                                                 ),
                                               ),
                                               onTap: () {
-                                                print(_cardList[_selectedIndex]['ownedCardId']);
+                                                print(_cardList[_selectedIndex]
+                                                    ['ownedCardId']);
                                                 _updateCardPerformance(
-                                                    context, _cardList[_selectedIndex]['ownedCardId'] ,newPerformanceGoal);
+                                                    context,
+                                                    _cardList[_selectedIndex]
+                                                        ['ownedCardId'],
+                                                    newPerformanceGoal);
                                                 Navigator.pop(context);
                                                 setState(() {});
                                                 showSnackBar(context);
@@ -649,15 +676,17 @@ class _MyWalletState extends State<MyWallet>
                         lineHeight: 8.0,
                         animationDuration: 900,
                         percent: (_cardList[_selectedIndex]
-                        ['currentPerformance'] !=
-                            null &&
-                            _cardList[_selectedIndex]
-                            ['performanceCondition'] !=
-                                null
-                        && _cardList[_selectedIndex]['performanceCondition'] != 0)
+                                        ['currentPerformance'] !=
+                                    null &&
+                                _cardList[_selectedIndex]
+                                        ['performanceCondition'] !=
+                                    null &&
+                                _cardList[_selectedIndex]
+                                        ['performanceCondition'] !=
+                                    0)
                             ? _cardList[_selectedIndex]['currentPerformance'] /
-                            _cardList[_selectedIndex]
-                            ['performanceCondition']
+                                _cardList[_selectedIndex]
+                                    ['performanceCondition']
                             : 0.0,
                         barRadius: const Radius.circular(20),
                         linearGradient: const LinearGradient(
