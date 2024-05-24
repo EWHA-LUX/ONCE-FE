@@ -29,8 +29,8 @@ import 'constants.dart';
 
 void main() async {
   runApp(const MyApp());
-  getPerformanceData();
   autoLogin();
+  getPerformanceData();
 }
 
 void autoLogin() async {
@@ -55,6 +55,17 @@ void autoLogin() async {
       final response = await dio.get(apiUrl);
       final responseData = response.data;
       print(responseData);
+
+      if (responseData['body']['code'] == 1000) {
+        final result = responseData['body']['result'];
+        final newAccessToken = result['accessToken'];
+        final newRefreshToken = result['refreshToken'];
+        await storage.write(key: 'accessToken', value: newAccessToken);
+        await storage.write(key: 'refreshToken', value: newRefreshToken);
+        Get.toNamed("/");
+      } else {
+        print("자동 로그인 실패");
+      }
     } catch (e) {
       print(e.toString());
     }
