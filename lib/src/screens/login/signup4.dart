@@ -317,6 +317,8 @@ class _Signup4State extends State<Signup4> {
         // 카드사는 한번에 하나만 선택할 수 있도록 설정
         // 다른 카드사를 탭 -> 현재 카드사 선택 해제 -> 선택한 카드사 선택됨
         onTap: () {
+          _searchController.clear();
+
           setState(() {
             if (_selectedCardCompanyIndex != -1) {
               isCardCompanyList[_selectedCardCompanyIndex] = false;
