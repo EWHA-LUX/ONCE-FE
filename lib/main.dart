@@ -29,7 +29,49 @@ import 'constants.dart';
 
 void main() async {
   runApp(const MyApp());
+  autoLogin();
   getPerformanceData();
+}
+
+void autoLogin() async {
+  final String BASE_URL = Constants.baseUrl;
+  final String apiUrl = '$BASE_URL/user/auto';
+
+  const storage = FlutterSecureStorage();
+  String? storedAccessToken = await storage.read(key: 'accessToken');
+  String? storedRefreshToken = await storage.read(key: 'refreshToken');
+
+  if (storedAccessToken != null) {
+    final baseOptions = BaseOptions(
+      headers: {
+        'Authorization': 'Bearer $storedAccessToken',
+        'Authorization-refresh': 'Bearer $storedRefreshToken',
+      },
+    );
+
+    final dio = Dio(baseOptions);
+
+    try {
+      final response = await dio.get(apiUrl);
+      final responseData = response.data;
+      print(responseData);
+
+      if (responseData['body']['code'] == 1000) {
+        final result = responseData['body']['result'];
+        final newAccessToken = result['accessToken'];
+        final newRefreshToken = result['refreshToken'];
+        await storage.write(key: 'accessToken', value: newAccessToken);
+        await storage.write(key: 'refreshToken', value: newRefreshToken);
+        Get.toNamed("/");
+      } else {
+        print("자동 로그인 실패");
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  } else {
+    print('AccessToken 없음');
+  }
 }
 
 void getPerformanceData() async {
