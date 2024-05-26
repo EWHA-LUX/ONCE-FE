@@ -332,14 +332,21 @@ class _ChatHistoryState extends State<ChatHistory> {
                                                     fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
-                                                Text(
-                                                  chatItem['cardName'],
-                                                  style: const TextStyle(
-                                                      fontFamily: 'Pretendard',
-                                                      fontSize: 15,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: Color(0xff0083EE)),
+                                                SizedBox(
+                                                  width: 150,
+                                                  child: Text(
+                                                    chatItem['cardName'],
+                                                    style: const TextStyle(
+                                                        fontFamily:
+                                                            'Pretendard',
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color:
+                                                            Color(0xff0083EE)),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
                                                 ),
                                               ],
                                             ),
