@@ -36,6 +36,7 @@ class _HomeState extends State<Home> {
   String cardImg = '';
   String benefit = '';
   int discount = 0;
+  bool isMain = false;
 
   late Future<void> _homeInfoFuture; // 홈 기본 정보
 
@@ -63,6 +64,7 @@ class _HomeState extends State<Home> {
       cardImg = responseData['result']['cardImg'];
       benefit = responseData['result']['benefit'];
       discount = responseData['result']['discount'];
+      isMain = responseData['result']['isMain'];
     });
   }
 
@@ -733,7 +735,7 @@ class _HomeState extends State<Home> {
           const SizedBox(
             height: 10,
           ),
-          showPayPopup
+          showPayPopup && !isMain
               ? Container(
                   height: 93,
                   width: 350,
